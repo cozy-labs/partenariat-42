@@ -31,7 +31,7 @@ var config = {
 			app.use(americano.errorHandler({dumpExceptions: true, showStack: true}));
 		},
 		set: {
-			views: path.resolve(__dirname, 'views')
+			views: path.resolve(__dirname, '../client')
 		},
 		engine: {
 			js: function (path, locales, callback) {
