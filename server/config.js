@@ -4,6 +4,7 @@ var americano = require('americano');
 var viewPath = "#{__dirname}/../client/public";
 var staticMiddleware = americano.static(viewPath, {maxAge: 86400000});
 var viewStatic = function (req, res, next) {
+
 	//Allows assets to be loaded from any route
 	detectAssets = /\/(stylesheets|javascripts|images|fonts)+\/(.+)$/;
 	assetsMatched = detectAssets.exec(req.url);

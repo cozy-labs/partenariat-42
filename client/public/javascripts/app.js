@@ -302,6 +302,7 @@ var Router = Backbone.Router.extend({
 
 
 	mainBoard: function () {
+		console.log('start: ', window.test);
 		view = new HomeView();
 
 		var self = this;
@@ -403,6 +404,7 @@ var HomeView = BaseView.extend({
 	  //this.countView = new CountView();
 	  //this.countView.render();
 	  console.log('test: ', window.test);
+	  console.log('test2: ', window.name)
   },
 
   onAddUser: function () {

@@ -11,6 +11,7 @@ var Router = Backbone.Router.extend({
 
 
 	mainBoard: function () {
+		console.log('start: ', window.test);
 		view = new HomeView();
 
 		var self = this;
