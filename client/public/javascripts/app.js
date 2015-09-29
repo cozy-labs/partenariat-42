@@ -114,21 +114,23 @@ var UserList = require('collections/user_list');
 
 // Application bootstrapper.
 var Application = {
-  initialize: function () {
-	var Router = require('./router');
+	initialize: function () {
+		console.log('start3: ', window.test);
+		throw new Error('toto');
+		var Router = require('./router');
 
-    // Ideally, initialized classes should be kept in controllers & mediator.
-    // If you're making big webapp, here's more sophisticated skeleton
-    // https://github.com/paulmillr/brunch-with-chaplin
+		// Ideally, initialized classes should be kept in controllers & mediator.
+		// If you're making big webapp, here's more sophisticated skeleton
+		// https://github.com/paulmillr/brunch-with-chaplin
 
 
-	this.router = new Router();
+		this.router = new Router();
 
 
-    if (typeof Object.freeze === 'function') {
-      Object.freeze(this);
-    }
-  }
+		if (typeof Object.freeze === 'function') {
+			Object.freeze(this);
+		}
+	}
 };
 
 module.exports = Application;
@@ -152,8 +154,9 @@ require.register("initialize", function(exports, require, module) {
 var application = require('application');
 
 $(function () {
-  application.initialize();
-  Backbone.history.start();
+	console.log('start2: ', window.test);
+	application.initialize();
+	Backbone.history.start();
 });
 
 });
@@ -305,16 +308,15 @@ var Router = Backbone.Router.extend({
 		console.log('start: ', window.test);
 		view = new HomeView();
 
-		var self = this;
-		this.displayView(view, self);
+		this.displayView(view);
 	},
 
 
-	displayView: function (view, self) {
-		if (self.mainView !== null) {
-			self.mainView.remove();
+	displayView: function (view) {
+		if (this.mainView !== null) {
+			this.mainView.remove();
 		}
-		self.mainView = view;
+		this.mainView = view;
 		$('.application').append(view.$el);
 		view.render();
 	}

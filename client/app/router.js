@@ -14,16 +14,15 @@ var Router = Backbone.Router.extend({
 		console.log('start: ', window.test);
 		view = new HomeView();
 
-		var self = this;
-		this.displayView(view, self);
+		this.displayView(view);
 	},
 
 
-	displayView: function (view, self) {
-		if (self.mainView !== null) {
-			self.mainView.remove();
+	displayView: function (view) {
+		if (this.mainView !== null) {
+			this.mainView.remove();
 		}
-		self.mainView = view;
+		this.mainView = view;
 		$('.application').append(view.$el);
 		view.render();
 	}

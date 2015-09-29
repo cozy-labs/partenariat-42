@@ -9,8 +9,8 @@ module.exports = {
 		get: index.index
 	},
 
-  'userlist': {
-    get: user.fetchAll
-  }
+  //'userlist': {
+    //get: user.fetchAll
+  //}
 };
 
