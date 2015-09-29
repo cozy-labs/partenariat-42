@@ -3,8 +3,6 @@ var UserList = require('collections/user_list');
 // Application bootstrapper.
 var Application = {
 	initialize: function () {
-		console.log('start3: ', window.test);
-		throw new Error('toto');
 		var Router = require('./router');
 
 		// Ideally, initialized classes should be kept in controllers & mediator.

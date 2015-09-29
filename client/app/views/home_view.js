@@ -16,7 +16,6 @@ var HomeView = BaseView.extend({
 	  //this.countView = new CountView();
 	  //this.countView.render();
 	  console.log('test: ', window.test);
-	  console.log('test2: ', window.name)
   },
 
   onAddUser: function () {

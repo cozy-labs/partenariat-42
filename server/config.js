@@ -2,7 +2,7 @@ var americano = require('americano');
 var path = require('path');
 
 
-var staticMiddleware = americano.static(path.resolve(__dirname, '/../client/public'), {maxAge: 86400000});
+var staticMiddleware = americano.static(path.resolve(__dirname, '../client/public'), {maxAge: 86400000});
 var viewStatic = function (req, res, next) {
 
 	//Allows assets to be loaded from any route
@@ -31,7 +31,7 @@ var config = {
 			app.use(americano.errorHandler({dumpExceptions: true, showStack: true}));
 		},
 		set: {
-			views: path.resolve(__dirname, '../client/')
+			views: path.resolve(__dirname, 'views/')
 		},
 		engine: {
 			js: function (path, locales, callback) {

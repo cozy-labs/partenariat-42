@@ -115,8 +115,6 @@ var UserList = require('collections/user_list');
 // Application bootstrapper.
 var Application = {
 	initialize: function () {
-		console.log('start3: ', window.test);
-		throw new Error('toto');
 		var Router = require('./router');
 
 		// Ideally, initialized classes should be kept in controllers & mediator.
@@ -154,7 +152,6 @@ require.register("initialize", function(exports, require, module) {
 var application = require('application');
 
 $(function () {
-	console.log('start2: ', window.test);
 	application.initialize();
 	Backbone.history.start();
 });
@@ -305,7 +302,6 @@ var Router = Backbone.Router.extend({
 
 
 	mainBoard: function () {
-		console.log('start: ', window.test);
 		view = new HomeView();
 
 		this.displayView(view);
@@ -406,7 +402,6 @@ var HomeView = BaseView.extend({
 	  //this.countView = new CountView();
 	  //this.countView.render();
 	  console.log('test: ', window.test);
-	  console.log('test2: ', window.name)
   },
 
   onAddUser: function () {
