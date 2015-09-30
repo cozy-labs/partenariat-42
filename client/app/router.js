@@ -2,6 +2,7 @@
 var HomeView = require('views/home/home_view');
 var MenuView = require('views/menu/menu_view');
 var CountEditorView = require('views/count-editor/count_editor_view');
+var CountView = require('views/count/count_view');
 
 
 var CountList = require('collections/count_list');
@@ -27,6 +28,7 @@ var Router = Backbone.Router.extend({
 		''										: 'mainBoard',
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
+		'count/:id'						: 'printCount',
 	},
 
 
@@ -38,10 +40,14 @@ var Router = Backbone.Router.extend({
 
 
 	countEditor: function (countId) {
-		if (window.countCollection == null || window.countCollection == undefined) {
-			this.createCountCollection();
-		}
 		view = new CountEditorView({countId: countId});
+
+		this.displayView(view);
+	},
+
+
+	printCount: function (countId) {
+		view = new CountView({countId: countId});
 
 		this.displayView(view);
 	},

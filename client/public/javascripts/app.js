@@ -292,6 +292,7 @@ require.register("router", function(exports, require, module) {
 var HomeView = require('views/home/home_view');
 var MenuView = require('views/menu/menu_view');
 var CountEditorView = require('views/count-editor/count_editor_view');
+var CountView = require('views/count/count_view');
 
 
 var CountList = require('collections/count_list');
@@ -317,6 +318,7 @@ var Router = Backbone.Router.extend({
 		''										: 'mainBoard',
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
+		'count/:id'						: 'printCount',
 	},
 
 
@@ -328,10 +330,14 @@ var Router = Backbone.Router.extend({
 
 
 	countEditor: function (countId) {
-		if (window.countCollection == null || window.countCollection == undefined) {
-			this.createCountCollection();
-		}
 		view = new CountEditorView({countId: countId});
+
+		this.displayView(view);
+	},
+
+
+	printCount: function (countId) {
+		view = new CountView({countId: countId});
 
 		this.displayView(view);
 	},
@@ -477,6 +483,50 @@ return buf.join("");
 };
 });
 
+require.register("views/count/count_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var template = require('./templates/count');
+var app = require('../../application');
+
+
+var CountView = BaseView.extend({
+	id: 'count-screen',
+	template: template,
+
+	count: null,
+
+
+	initialize: function (attributes) {
+		this.count = window.countCollection.get(attributes.countId);
+		BaseView.prototype.initialize.call(this);
+	},
+
+	getRenderData: function () {
+		if (this.count !== null && this.count !== undefined) {
+			return ({count: this.count.toJSON()});
+		}
+		return ({count: null});
+	}
+
+});
+
+module.exports = CountView;
+
+});
+
+require.register("views/count/templates/count", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div>');
+}
+return buf.join("");
+};
+});
+
 require.register("views/home/count_list_view", function(exports, require, module) {
 
 var ViewCollection = require('../../lib/view_collection');
@@ -610,15 +660,30 @@ module.exports = MenuCountListView;
 require.register("views/menu/count_row_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var template = require('./templates/count_row');
-
+var app = require('../../application');
 
 var MenuCountRowView = BaseView.extend({
 	template: template,
+
+	className: 'menu-count-row',
+	tagName: 'li',
+
+	initialize: function () {
+		var self = this;
+		this.$el.click(function () {
+			self.printCount();
+		})
+	},
+
 
 	getRenderData: function () {
 		return ({model: this.model.toJSON()});
 	},
 
+
+	printCount: function () {
+		app.router.navigate('count/' + this.model.id, {trigger: true});
+	},
 });
 
 module.exports = MenuCountRowView;
@@ -670,7 +735,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<li><a class="menu-count-row">' + escape((interp = model.name) == null ? '' : interp) + '</a></li>');
+buf.push('<a>' + escape((interp = model.name) == null ? '' : interp) + '</a>');
 }
 return buf.join("");
 };
@@ -683,7 +748,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<label for="menu-section">Count</label><ul id="menu-section" class="nav nav-sidebar"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul><li><a id="menu-add-count">Create a Count</a></li>');
+buf.push('<label for="menu-section">Count</label><ul class="nav nav-sidebar"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul><ul class="nav nav-sidebar"><li><a id="menu-add-count">Create a Count</a></li></ul>');
 }
 return buf.join("");
 };
