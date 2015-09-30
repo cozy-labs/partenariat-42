@@ -1,7 +1,7 @@
 // See documentation on https://github.com/frankrousseau/americano#routes
 
-var user = require('./user');
 var index = require('./index');
+var count = require('./count');
 
 module.exports = {
 
@@ -9,8 +9,8 @@ module.exports = {
 		get: index.index
 	},
 
-  //'userlist': {
-    //get: user.fetchAll
-  //}
+	'countlist': {
+		post: count.create
+	}
 };
 

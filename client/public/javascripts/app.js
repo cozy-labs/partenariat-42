@@ -110,7 +110,6 @@
   globals.require = require;
 })();
 require.register("application", function(exports, require, module) {
-var UserList = require('collections/user_list');
 
 // Application bootstrapper.
 var Application = {
@@ -135,16 +134,16 @@ module.exports = Application;
 
 });
 
-require.register("collections/user_list", function(exports, require, module) {
-var User = require('../models/user');
+require.register("collections/count_list", function(exports, require, module) {
+var Count = require('../models/count');
 
-var UserList = Backbone.Collection.extend({
-	model: User,
-	url: 'userlist',
+var CountList = Backbone.Collection.extend({
+	model: Count,
+	url: 'countlist',
 
 });
 
-module.exports = UserList;
+module.exports = CountList;
 
 });
 
@@ -273,142 +272,161 @@ require.register("lib/view_helper", function(exports, require, module) {
 
 });
 
-;require.register("models/user", function(exports, require, module) {
+;require.register("models/count", function(exports, require, module) {
 
 
-var User = Backbone.Model.extend({
+var Count = Backbone.Model.extend({
 	name: null,
 	description: null,
-	history: null,
-
-
 });
 
-module.exports = User;
+module.exports = Count;
 
 });
 
 require.register("router", function(exports, require, module) {
 
-var HomeView = require('views/home_view');
+var HomeView = require('views/home/home_view');
+var MenuView = require('views/menu/menu_view');
+var CountEditorView = require('views/count-editor/count_editor_view');
+
+
+var CountList = require('collections/count_list');
 
 var Router = Backbone.Router.extend({
 
-	mainView: null,
+	mainScreen: null,
+	mainMenu: null,
+
+	initialize: function () {
+		this.mainMenu = new MenuView();
+		this.mainMenu.render();
+
+		Backbone.Router.prototype.initialize.call(this);
+	},
 
 	routes: {
-		''		: 'mainBoard'
+		''								: 'mainBoard',
+		'count/create'		: 'countEditor',
 	},
 
 
 	mainBoard: function () {
+		console.log('counts: ', window.listCount);
 		view = new HomeView();
+
+		this.createCountCollection();
+		this.displayView(view);
+	},
+
+
+	countEditor: function () {
+		if (window.countCollection == null || window.countCollection == undefined) {
+			this.createCountCollection();
+		}
+		console.log('lauch count editor view');
+		view = new CountEditorView();
 
 		this.displayView(view);
 	},
 
 
 	displayView: function (view) {
-		if (this.mainView !== null) {
+		if (this.mainView !== null && this.mainView !== undefined) {
 			this.mainView.remove();
 		}
 		this.mainView = view;
-		$('.application').append(view.$el);
+		$('#content-screen').append(view.$el);
 		view.render();
-	}
+	},
 
 
+	createCountCollection: function () {
+		window.countCollection = new CountList();
 
+		if (window.listCount == null || window.listCount == undefined || window.listCount == "") {
+			console.log('listCount empty');
+			return;
+		}
+
+		var index = 0;
+		while (index < window.listCount.length) {
+			var newCount = new Count(window.listCount[index]);
+			window.countCollection.add(newCount);
+		}
+	},
 });
 
 module.exports = Router;
 
 });
 
-require.register("views/count_user_list_view", function(exports, require, module) {
-var ViewCollection = require('../lib/view_collection');
-var template = require('../views/templates/count_user_list');
-var CountUserRow = require('../models/user');
-
-var CountUserListView = ViewCollection.extend({
-	el: '#count-user-list',
-	template: template,
-
-	collectionEl: '#count-user-list-content',
-	itemView: CountUserRow,
-
-});
-
-module.exports = CountUserListView;
-
-});
-
-require.register("views/count_user_row_view", function(exports, require, module) {
-var BaseView = require('../lib/base_view');
-var template = require('templates/count_user_row');
+require.register("views/count-editor/count_editor_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var template = require('./templates/count_editor');
+var app = require('../../application');
 
 
-var CountUserRow = BaseView.extend({
-	template: template,
-
-});
-
-});
-
-require.register("views/count_view", function(exports, require, module) {
-var BaseView = require('../lib/base_view');
-var template = require('./templates/count');
-var CountUserListView = require('./count_user_list_view');
-var CountUserList = require('../collections/user_list');
-
-var CountView = BaseView.extend({
-	el: '#content-screen',
-	template: template,
-
-	initialize: function () {
-		this.listUser = new CountUserList();
-		BaseView.prototype.initialize.call(this);
-	},
-
-	afterRender: function () {
-		this.listUsersView = new CountUserListView();
-		this.listUsersView.render();
-	},
-
-});
-
-module.exports = CountView;
-
-
-
-});
-
-require.register("views/home_view", function(exports, require, module) {
-var BaseView = require('../lib/base_view');
-var template = require('./templates/home');
-var CountView = require('./count_view');
-var app = require('../application');
-
-var HomeView = BaseView.extend({
-  el: 'body',
+var CountEditor = BaseView.extend({
+	id: 'count-editor-screen',
   template: template,
 
-  //events: function () {
-	  //'click #menu-add-user': 'onAddUser',
-  //},
+	events: {
+		'click #submit-create-count':	'laucheCountCreation',
+	},
 
 
-  afterRender: function () {
-	  //this.countView = new CountView();
-	  //this.countView.render();
-	  console.log('test: ', window.test);
-  },
-
-  onAddUser: function () {
-	  app.allUsers.create();
-  }
+	laucheCountCreation: function () {
+		window.countCollection.create({
+			name: this.$('#input-name').val(),
+			description: this.$('#input-description').val(),
+		});
+		console.log('collection: ', window.countCollection);
+	}
 
 
+});
+
+module.exports = CountEditor;
+
+});
+
+require.register("views/count-editor/templates/count_editor", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<h1>New Count</h1><form><div class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><button id="submit-create-count" class="btn btn-default">Submit</button></form>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/home/home_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var template = require('./templates/home');
+var app = require('../../application');
+
+var HomeView = BaseView.extend({
+	id: 'home-screen',
+  template: template,
+
+	events: {
+		'click #create-new-count' : 'createNewCount'
+	},
+
+	getRenderData: function () {
+		if (window.listCount) {
+			return (window.listCount.toJSON());
+		}
+	},
+
+
+	createNewCount: function () {
+		app.router.navigate('count/create', {trigger: true});
+	}
 
 });
 
@@ -416,20 +434,20 @@ module.exports = HomeView;
 
 });
 
-require.register("views/templates/count", function(exports, require, module) {
+require.register("views/home/templates/home", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="count-user-list"></div>');
+buf.push('<div id="list-all-count"><label for="home-list">All Count</label><ul id="home-list" class="nav nav-sidebar"></ul></div><button id="create-new-count" class="btn btn-default">Create New Count</button>');
 }
 return buf.join("");
 };
 });
 
-require.register("views/templates/count_user_list", function(exports, require, module) {
+require.register("views/home/templates/user_list", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -442,7 +460,7 @@ return buf.join("");
 };
 });
 
-require.register("views/templates/count_user_row", function(exports, require, module) {
+require.register("views/home/templates/user_row", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -454,14 +472,75 @@ return buf.join("");
 };
 });
 
-require.register("views/templates/home", function(exports, require, module) {
+require.register("views/home/user_list_view", function(exports, require, module) {
+var ViewCollection = require('../../lib/view_collection');
+var template = require('./templates/user_list');
+var User = require('../../models/user');
+
+var HomeUserListView = ViewCollection.extend({
+	el: '#home-user-list',
+	template: template,
+
+	collectionEl: '#home-user-list-content',
+	itemView: User,
+
+});
+
+module.exports = HomeUserListView;
+
+});
+
+require.register("views/home/user_row_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var template = require('templates/user_row');
+
+
+var CountUserRow = BaseView.extend({
+	template: template,
+
+});
+
+});
+
+require.register("views/menu/menu_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var template = require('./templates/menu');
+var app = require('../../application');
+
+var MenuView = BaseView.extend({
+	el: '#menu-screen',
+	className: 'sidebar',
+
+	template: template,
+
+	events: {
+		'click #menu-all-count'		: 'goHomeView',
+		'click #menu-add-count'		: 'createNewCount',
+	},
+
+
+	goHomeView: function () {
+		app.router.navigate('', {trigger: true});
+	},
+
+
+	createNewCount: function () {
+		app.router.navigate('count/create', {trigger: true});
+	},
+});
+
+module.exports = MenuView;
+
+});
+
+require.register("views/menu/templates/menu", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="container-fluid"><div id="left-menu" class="sidebar"><label for="menu-section">Count</label><ul id="menu-section" class="nav nav-sidebar"><li><a id="menu-all-count">All Count</a></li><ul id="menu-list-count"></ul><li><a id="menu-add-count">Create a Count</a></li></ul><label for="menu-section">Users</label><ul id="menu-section" class="nav nav-sidebar"><li><a id="menu-all-user">All User</a></li><ul id="menu-list-user"></ul><li><a id="menu-add-user">Create a User</a></li></ul></div><div id="content-screen" class="content container-fluid"></div></div>');
+buf.push('<label for="menu-section">Count</label><ul id="menu-section" class="nav nav-sidebar"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count"><li><a id="menu-add-count">Create a Count</a></li></ul><label for="menu-section">Users</label><ul id="menu-section" class="nav nav-sidebar"><li><a id="menu-all-user">All User</a></li><ul id="menu-list-user"><li><a id="menu-add-user">Create a User</a></li></ul></ul>');
 }
 return buf.join("");
 };

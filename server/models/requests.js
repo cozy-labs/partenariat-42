@@ -4,7 +4,7 @@
 var cozydb = require('cozydb');
 
 module.exports = {
-  user: {
+  count: {
     all: cozydb.defaultRequests.all
   }
 };

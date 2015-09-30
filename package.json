@@ -1,10 +1,10 @@
 {
-  "name": "cozy-template-js",
+  "name": "cozycount",
   "version": "1.0.0",
   "engines": [
     "node = 0.10.x"
   ],
-  "description": "A template project for Cozy applications written in JavaScript",
+  "description": "Manage debt betwen friends",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -27,6 +27,10 @@
     "test": "cake tests",
     "start": "node server.js"
   },
-  "cozy-permissions": {},
-  "cozy-displayName": "Template"
+  "cozy-permissions": {
+	  "Count": {
+		  "description": "Create and manage your count"
+	  }
+  },
+  "cozy-displayName": "Count"
 }

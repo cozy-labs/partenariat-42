@@ -1,4 +1,3 @@
-var UserList = require('collections/user_list');
 
 // Application bootstrapper.
 var Application = {
