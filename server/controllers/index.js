@@ -6,8 +6,8 @@ module.exports.index = function (req, res, next) {
 		//if (err == null || err == undefined) {
 			//res.status(500).send({error: 'Failed retrieve data'});
 		//}
-		console.log('listCount: "' + listCount + '"');
-		res.render('index.jade', {imports: 'window.listCount = "' + listCount + '";'});
+		res.render('index.jade',
+				{imports: 'window.listCount = ' + JSON.stringify(listCount) + ''});
 	});
 
 };

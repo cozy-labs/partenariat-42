@@ -1,4 +1,7 @@
 var BaseView = require('../../lib/base_view');
+var CountListView = require('./count_list_view');
+
+
 var template = require('./templates/home');
 var app = require('../../application');
 
@@ -10,16 +13,14 @@ var HomeView = BaseView.extend({
 		'click #create-new-count' : 'createNewCount'
 	},
 
-	getRenderData: function () {
-		if (window.listCount) {
-			return (window.listCount.toJSON());
-		}
+	afterRender: function () {
+		this.countCollectionView = new CountListView(window.countCollection);
+		this.countCollectionView.render();
 	},
-
 
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});
-	}
+	},
 
 });
 

@@ -32,7 +32,7 @@ var ViewCollection = BaseView.extend({
     this.listenTo(this.collection, 'add', this.addItem);
     this.listenTo(this.collection, 'remove', this.removeItem);
 
-    if (this.collectionEl === null || undefined) {
+    if (this.collectionEl === null || this.collectionEl == undefined) {
       this.collectionEl = this.el;
     }
   },
@@ -62,10 +62,13 @@ var ViewCollection = BaseView.extend({
     for (id in this.views) {
       view.remove();
     }
-    newCollection.forEach(this.addItem);
+		var self = this;
+		newCollection.forEach(function (elem) {
+				self.addItem(elem, self);
+		});
   },
 
-  addItem: function (model) {
+  addItem: function (model, self) {
     view = new this.itemView({model: model});
     this.views[model.cid] = view.render();
     this.appendView(view);
