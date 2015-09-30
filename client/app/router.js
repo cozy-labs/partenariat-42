@@ -30,7 +30,6 @@ var Router = Backbone.Router.extend({
 
 
 	mainBoard: function () {
-		console.log('print mainBoard');
 		view = new HomeView();
 
 		this.displayView(view);
@@ -41,7 +40,6 @@ var Router = Backbone.Router.extend({
 		if (window.countCollection == null || window.countCollection == undefined) {
 			this.createCountCollection();
 		}
-		console.log('lauch count editor view');
 		view = new CountEditorView();
 
 		this.displayView(view);

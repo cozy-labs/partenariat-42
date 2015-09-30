@@ -320,7 +320,6 @@ var Router = Backbone.Router.extend({
 
 
 	mainBoard: function () {
-		console.log('print mainBoard');
 		view = new HomeView();
 
 		this.displayView(view);
@@ -331,7 +330,6 @@ var Router = Backbone.Router.extend({
 		if (window.countCollection == null || window.countCollection == undefined) {
 			this.createCountCollection();
 		}
-		console.log('lauch count editor view');
 		view = new CountEditorView();
 
 		this.displayView(view);
@@ -389,7 +387,7 @@ var CountEditor = BaseView.extend({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
 		});
-		console.log('collection: ', window.countCollection);
+		app.router.navigate('', {trigger: true});
 	}
 
 
@@ -440,8 +438,17 @@ var template = require('./templates/count_row');
 var HomeCountRowView = BaseView.extend({
 	template: template,
 
+	events: {
+		'click .home-delete-count' : 'deleteCount',
+	},
+
 	getRenderData: function () {
 		return ({model: this.model.toJSON()});
+	},
+
+	deleteCount: function () {
+		window.countCollection.remove(this);
+		this.model.destroy();
 	},
 
 });
@@ -488,7 +495,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p><button class="home-delete-count btn btn-default">Supprimer</button><button class="home-modify-count btn btn-default">Modifier</button></div></div>');
 }
 return buf.join("");
 };

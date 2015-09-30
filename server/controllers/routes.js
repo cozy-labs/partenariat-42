@@ -11,6 +11,10 @@ module.exports = {
 
 	'countlist': {
 		post: count.create
+	},
+
+	'countlist/:id': {
+		delete: count.destroy
 	}
 };
 

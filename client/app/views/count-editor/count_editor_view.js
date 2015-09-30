@@ -17,7 +17,7 @@ var CountEditor = BaseView.extend({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
 		});
-		console.log('collection: ', window.countCollection);
+		app.router.navigate('', {trigger: true});
 	}
 
 
