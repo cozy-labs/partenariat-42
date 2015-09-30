@@ -14,7 +14,8 @@ module.exports = {
 	},
 
 	'countlist/:id': {
-		delete: count.destroy
+		delete: count.destroy,
+		put: count.update
 	}
 };
 

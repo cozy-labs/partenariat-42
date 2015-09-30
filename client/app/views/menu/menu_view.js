@@ -28,6 +28,7 @@ var MenuView = BaseView.extend({
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});
 	},
+
 });
 
 module.exports = MenuView;

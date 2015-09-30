@@ -314,8 +314,9 @@ var Router = Backbone.Router.extend({
 	},
 
 	routes: {
-		''								: 'mainBoard',
-		'count/create'		: 'countEditor',
+		''										: 'mainBoard',
+		'count/create'				: 'countEditor',
+		'count/update/:id'		: 'countEditor',
 	},
 
 
@@ -326,11 +327,11 @@ var Router = Backbone.Router.extend({
 	},
 
 
-	countEditor: function () {
+	countEditor: function (countId) {
 		if (window.countCollection == null || window.countCollection == undefined) {
 			this.createCountCollection();
 		}
-		view = new CountEditorView();
+		view = new CountEditorView({countId: countId});
 
 		this.displayView(view);
 	},
@@ -375,22 +376,77 @@ var app = require('../../application');
 
 var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
-  template: template,
+	template: template,
+
+	count: null,
 
 	events: {
-		'click #submit-create-count':	'laucheCountCreation',
+		'click #submit-editor':	'submitEditor',
 	},
 
 
-	laucheCountCreation: function () {
+	initialize: function (params) {
+		this.count = params.countId;
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	getRenderData: function () {
+		if (this.count != null && this.count != undefined) {
+			var model = window.countCollection.get(this.count);
+			return ({model: model.toJSON()});
+		}
+		return ({model: null});
+	},
+
+
+	submitEditor: function () {
+		if (this.count == null || this.count == undefined) {
+			this.lauchCountCreation();
+			return;
+		}
+
+		this.lauchCountUpdate();
+	},
+
+
+	lauchCountCreation: function () {
 		window.countCollection.create({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
 		});
 		app.router.navigate('', {trigger: true});
-	}
+	},
 
+	lauchCountUpdate: function () {
+		var model = window.countCollection.get(this.count);
+		if (model == null || model == undefined) {
+			console.error('Can\'t retrieve model');
+			app.router.navigate('', {trigger: true});
+			return;
+		}
 
+		var change = {
+			name: this.$('#input-name').val(),
+			description: this.$('#input-description').val(),
+		};
+		model.set(change);
+
+		model.sync('update', model, {
+			error: function (xhr) {
+				console.error (xhr);
+			},
+			success: function () {
+				view = _.find(app.router.mainMenu.countCollectionView.views, function (view) {
+					if (view.model.cid == model.cid) {
+						return (view.model);
+					}
+					return (null);
+				});
+				view.render();
+				app.router.navigate('', {trigger: true});
+			}});
+	},
 });
 
 module.exports = CountEditor;
@@ -404,7 +460,18 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<h1>New Count</h1><form><div class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><button id="submit-create-count" class="btn btn-default">Submit</button></form>');
+if ( model)
+{
+buf.push('<h1>' + escape((interp = model.name) == null ? '' : interp) + '</h1><form><div class="form-group"><label for="input-name">Count Name</label><input');
+buf.push(attrs({ 'id':('input-name'), 'type':('text'), 'placeholder':('Name'), 'value':("" + (model.name) + ""), "class": ('form-control') }, {"type":true,"placeholder":true,"value":true}));
+buf.push('/></div><div class="form-group"><label for="input-description">Count Description</label><input');
+buf.push(attrs({ 'id':('input-description'), 'type':('text'), 'placeholder':('Description'), 'value':("" + (model.description) + ""), "class": ('form-control') }, {"type":true,"placeholder":true,"value":true}));
+buf.push('/></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+}
+else
+{
+buf.push('<h1>New Count</h1><form><div class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+}
 }
 return buf.join("");
 };
@@ -434,12 +501,14 @@ require.register("views/home/count_row_view", function(exports, require, module)
 var BaseView = require('../../lib/base_view');
 var template = require('./templates/count_row');
 
+var app = require('../../application');
 
 var HomeCountRowView = BaseView.extend({
 	template: template,
 
 	events: {
 		'click .home-delete-count' : 'deleteCount',
+		'click .home-modify-count' : 'modifyCount',
 	},
 
 	getRenderData: function () {
@@ -449,6 +518,10 @@ var HomeCountRowView = BaseView.extend({
 	deleteCount: function () {
 		window.countCollection.remove(this);
 		this.model.destroy();
+	},
+
+	modifyCount: function () {
+		app.router.navigate('count/update/' + this.model.id, {trigger: true});
 	},
 
 });
@@ -583,6 +656,7 @@ var MenuView = BaseView.extend({
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});
 	},
+
 });
 
 module.exports = MenuView;

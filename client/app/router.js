@@ -24,8 +24,9 @@ var Router = Backbone.Router.extend({
 	},
 
 	routes: {
-		''								: 'mainBoard',
-		'count/create'		: 'countEditor',
+		''										: 'mainBoard',
+		'count/create'				: 'countEditor',
+		'count/update/:id'		: 'countEditor',
 	},
 
 
@@ -36,11 +37,11 @@ var Router = Backbone.Router.extend({
 	},
 
 
-	countEditor: function () {
+	countEditor: function (countId) {
 		if (window.countCollection == null || window.countCollection == undefined) {
 			this.createCountCollection();
 		}
-		view = new CountEditorView();
+		view = new CountEditorView({countId: countId});
 
 		this.displayView(view);
 	},
