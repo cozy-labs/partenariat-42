@@ -72,7 +72,6 @@ var CountView = BaseView.extend({
 		this.$('#transfer-type-payment').removeClass('btn-default btn-info');
 		this.$(event.target).addClass('btn-info');
 
-		console.log('transfer before: ', this.transfer);
 		if (this.transfer.type == null) {
 			this.$('#new-transfer').append('<div id="new-transfer-value"></div>');
 			this.$('#new-transfer-value').html(this.templateTransferValue());
@@ -81,16 +80,15 @@ var CountView = BaseView.extend({
 			this.$('#new-transfer-user').html(this.templateTransferUser({users: this.count.get('users')}));
 
 			this.$('#transfer-input-value')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.updateContrib(event);};
+				return function (event) {_this.updateContribTable(event);};
 			})(this));
 		}
 
 		this.transfer.type = event.target.value;
-		console.log('transfer: ', this.transfer);
 	},
 
 
-	updateContrib: function () {
+	updateContribTable: function () {
 		this.transfer.value = this.$('#transfer-input-value').val();
 
 		if (this.transfer.users.length > 0) {
@@ -102,11 +100,10 @@ var CountView = BaseView.extend({
 			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
 			var self = this;
 			this.transfer.users.forEach(function (user) {
-				console.log('user: ', user)
+				user.amount = (self.transfer.value / 100 * user.share).toFixed(2);
 					self.$('#new-transfer-contrib-content').append(self.templateTransferContribRow({user: user}));
 			});
 		}
-		console.log('transfer: ', this.transfer);
 	},
 
 
@@ -129,7 +126,22 @@ var CountView = BaseView.extend({
 				this.$('#new-transfer-contrib').html(this.templateTransferContrib());
 			}
 
-			listUsers.push({name: user});
+			var nbUsers = listUsers.length + 1;
+			var shareCollected = 0;
+
+			if (listUsers.length > 0) {
+				listUsers.forEach(function (elem) {
+					shareCollected += elem.share / nbUsers;
+					elem.share = (elem.share - elem.share / nbUsers).toFixed(2)
+					console.log('shareCollected: ', shareCollected);
+				});
+			}
+			else {
+				shareCollected = 100;
+			}
+
+
+			listUsers.push({name: user, share: shareCollected.toFixed(2)});
 
 			elem.removeClass('btn-default');
 			elem.addClass('btn-info');
@@ -144,15 +156,30 @@ var CountView = BaseView.extend({
 				index++;
 			}
 
-			listUsers.splice(index, 1);
+			var userDeleted = listUsers.splice(index, 1);
 			if (listUsers.length == 0) {
 				this.$('#new-transfer-contrib').remove()
 			}
 
 			elem.removeClass('btn-info');
 			elem.addClass('btn-default');
+
+
+			console.log('user del: ', userDeleted[0])
+			var shareToDistribute = (userDeleted[0].share / listUsers.length).toFixed(2);
+			console.log('share 33: ', shareToDistribute);
+			if (listUsers.length > 0) {
+				listUsers.forEach(function (elem) {
+					console.log('elem share: ', elem.share);
+					console.log('shareToDestri: ', shareToDistribute)
+					elem.share = (Number(elem.share) + Number(shareToDistribute)).toFixed(2);
+				});
+			}
 		}
-		this.updateContrib();
+
+
+		console.log('users: ', listUsers);
+		this.updateContribTable();
 	},
 });
 
