@@ -1,0 +1,14 @@
+label(for='new-transfer-value') Value
+#new-transfer-value.row
+	.col-lg-6
+		.input-group
+			input#transfer-input-value.form-control(type='number', placeholder='42.21',
+			aria-label='...')
+			span.input-group-btn
+				button#transfer-choose-device.btn.btn-default.dropdown-toggle(type='button',
+				data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') €
+					.caret
+				ul.dropdown-menu.dropdown-menu-right
+					li
+						a €
+

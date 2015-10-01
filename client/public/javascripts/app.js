@@ -486,18 +486,35 @@ return buf.join("");
 
 require.register("views/count/count_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
-var template = require('./templates/count');
 var app = require('../../application');
 
+var template = require('./templates/count');
+var templateTransferUser = require('./templates/transfer_user');
+var templateTransferValue = require('./templates/transfer_value');
+var templateTransferContrib = require('./templates/transfer_contrib');
+var templateTransferContribRow = require('./templates/transfer_contrib_row');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
 
+	templateTransferUser: templateTransferUser,
+	templateTransferValue: templateTransferValue,
+	templateTransferContrib: templateTransferContrib,
+	templateTransferContribRow: templateTransferContribRow,
+
 	count: null,
+
+	transfer: {
+		type: null,
+		users: [],
+		value: 0,
+	},
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
+		'click .transfer-type': 'setTransferType',
+		'click .transfer-user': 'setTransferUser',
 	},
 
 
@@ -514,6 +531,14 @@ var CountView = BaseView.extend({
 		return ({count: null});
 	},
 
+	afterRender: function () {
+		this.transfer = {
+			type: null,
+			users: [],
+			value: 0,
+		}
+	},
+
 
 	addUser: function () {
 		var userList = this.count.get('users');
@@ -521,9 +546,101 @@ var CountView = BaseView.extend({
 
 		userList.push(newUser);
 		this.$('#user-list').append('<p>' + newUser + '</p>');
+		if (this.transfer.type !== null) {
+			this.$('#new-transfer-user-content').append('<button type="button" value="'+ newUser +'" class="btn btn-default transfer-user">' + newUser + '</button>');
+		}
 		this.count.save({users: userList});
-	}
+		this.$('#count-input-add-user').val('');
+	},
 
+
+	setTransferType: function (event) {
+		this.$('#transfer-type-expense').removeClass('btn-default btn-info');
+		this.$('#transfer-type-payment').removeClass('btn-default btn-info');
+		this.$(event.target).addClass('btn-info');
+
+		console.log('transfer before: ', this.transfer);
+		if (this.transfer.type == null) {
+			this.$('#new-transfer').append('<div id="new-transfer-value"></div>');
+			this.$('#new-transfer-value').html(this.templateTransferValue());
+
+			this.$('#new-transfer').append('<div id="new-transfer-user"></div>');
+			this.$('#new-transfer-user').html(this.templateTransferUser({users: this.count.get('users')}));
+
+			this.$('#transfer-input-value')[0].addEventListener('change', (function(_this) {
+				return function (event) {_this.updateContrib(event);};
+			})(this));
+		}
+
+		this.transfer.type = event.target.value;
+		console.log('transfer: ', this.transfer);
+	},
+
+
+	updateContrib: function () {
+		this.transfer.value = this.$('#transfer-input-value').val();
+
+		if (this.transfer.users.length > 0) {
+			var oldContrib = this.$('#new-transfer-contrib-content');
+			if (oldContrib !== null && oldContrib !== undefined) {
+				oldContrib.remove();
+			}
+
+			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
+			var self = this;
+			this.transfer.users.forEach(function (user) {
+				console.log('user: ', user)
+					self.$('#new-transfer-contrib-content').append(self.templateTransferContribRow({user: user}));
+			});
+		}
+		console.log('transfer: ', this.transfer);
+	},
+
+
+	setTransferUser: function (event) {
+		var user = event.target.value;
+		var listUsers = this.transfer.users;
+
+		var find = listUsers.find(function (element) {
+			if (element.name == user) {
+				return element;
+			}
+			return null;
+		});
+
+		var elem = this.$(event.target);
+
+		if (find == undefined) {
+			if (listUsers.length == 0) {
+				this.$('#new-transfer').append('<div id="new-transfer-contrib"></div>');
+				this.$('#new-transfer-contrib').html(this.templateTransferContrib());
+			}
+
+			listUsers.push({name: user});
+
+			elem.removeClass('btn-default');
+			elem.addClass('btn-info');
+		}
+		else {
+
+			var index = 0;
+			while (index < listUsers.length) {
+				if (listUsers[index].name == user) {
+					break;
+				}
+				index++;
+			}
+
+			listUsers.splice(index, 1);
+			if (listUsers.length == 0) {
+				this.$('#new-transfer-contrib').remove()
+			}
+
+			elem.removeClass('btn-info');
+			elem.addClass('btn-default');
+		}
+		this.updateContrib();
+	},
 });
 
 module.exports = CountView;
@@ -555,7 +672,81 @@ buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
   }
 }).call(this);
 
-buf.push('</div><div class="col-lg-3"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div>');
+buf.push('</div><div class="row"><div class="col-lg-6"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading">History</div><div class="panel-body"><label for="new-transfer">Add a Transfer type</label><div id="new-transfer"><div id="new-transfer-type" class="row"><div class="form-group"><button id="transfer-type-expense" type="button" value="expense" class="btn btn-default transfer-type">Expense</button><button id="transfer-type-payment" type="button" value="payment" class="btn btn-default transfer-type">Payment</button></div></div></div></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/transfer_contrib", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<table id="new-transfer-contrib-table" class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th></tr></thead><tbody id="new-transfer-contrib-content"></tbody></table>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/transfer_contrib_row", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td></tr>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/transfer_user", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
+// iterate users
+;(function(){
+  if ('number' == typeof users.length) {
+    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
+      var user = users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in users) {
+      var user = users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('</div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/transfer_value", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<label for="new-transfer-value">Value</label><div id="new-transfer-value" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-value" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div>');
 }
 return buf.join("");
 };
@@ -627,13 +818,15 @@ var HomeView = BaseView.extend({
   template: template,
 
 	events: {
-		'click #create-new-count' : 'createNewCount'
+		'click #create-new-count' : 'createNewCount',
 	},
+
 
 	afterRender: function () {
 		this.countCollectionView = new CountListView(window.countCollection);
 		this.countCollectionView.render();
 	},
+
 
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});

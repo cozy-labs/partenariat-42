@@ -7,9 +7,18 @@
 		#user-list
 			each user in count.users
 				p #{user}
-		.col-lg-3
-			.input-group
-				input#count-input-add-user.form-control(type='text', placeholder='My name')
-				span.input-group-btn
-					button#count-lauch-add-user.btn.btn-default(type='button') Add user
-
+		.row
+			.col-lg-6
+				.input-group
+					input#count-input-add-user.form-control(type='text', placeholder='My name')
+					span.input-group-btn
+						button#count-lauch-add-user.btn.btn-default(type='button') Add user
+.panel.panel-default
+	.panel-heading History
+	.panel-body
+		label(for='new-transfer') Add a Transfer type
+		#new-transfer
+			#new-transfer-type.row
+				.form-group
+					button#transfer-type-expense.btn.btn-default.transfer-type(type='button', value='expense') Expense
+					button#transfer-type-payment.btn.btn-default.transfer-type(type='button', value='payment') Payment

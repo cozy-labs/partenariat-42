@@ -10,13 +10,15 @@ var HomeView = BaseView.extend({
   template: template,
 
 	events: {
-		'click #create-new-count' : 'createNewCount'
+		'click #create-new-count' : 'createNewCount',
 	},
+
 
 	afterRender: function () {
 		this.countCollectionView = new CountListView(window.countCollection);
 		this.countCollectionView.render();
 	},
+
 
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});

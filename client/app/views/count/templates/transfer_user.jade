@@ -1,0 +1,5 @@
+label(for='new-transfer-user') Users
+#new-transfer-user.row
+	#new-transfer-user-content.form-group
+		each user in users
+			button.btn.btn-default.transfer-user(type='button', value='#{user}') #{user}
