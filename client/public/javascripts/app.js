@@ -139,7 +139,7 @@ var Count = require('../models/count');
 
 var CountList = Backbone.Collection.extend({
 	model: Count,
-	url: 'countlist',
+	url: 'count',
 
 });
 
@@ -420,6 +420,7 @@ var CountEditor = BaseView.extend({
 		window.countCollection.create({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
+			users: [],
 		});
 		app.router.navigate('', {trigger: true});
 	},
@@ -495,17 +496,32 @@ var CountView = BaseView.extend({
 
 	count: null,
 
+	events: {
+		'click #count-lauch-add-user':	'addUser',
+	},
+
 
 	initialize: function (attributes) {
 		this.count = window.countCollection.get(attributes.countId);
 		BaseView.prototype.initialize.call(this);
 	},
 
+
 	getRenderData: function () {
 		if (this.count !== null && this.count !== undefined) {
 			return ({count: this.count.toJSON()});
 		}
 		return ({count: null});
+	},
+
+
+	addUser: function () {
+		var userList = this.count.get('users');
+		var newUser = this.$('#count-input-add-user').val();
+
+		userList.push(newUser);
+		this.$('#user-list').append('<p>' + newUser + '</p>');
+		this.count.save({users: userList});
 	}
 
 });
@@ -521,7 +537,25 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div class="panel panel-default"><div class="panel-heading">Users</div><div class="panel-body"><div id="user-list">');
+// iterate count.users
+;(function(){
+  if ('number' == typeof count.users.length) {
+    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
+      var user = count.users[$index];
+
+buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+    }
+  } else {
+    for (var $index in count.users) {
+      var user = count.users[$index];
+
+buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+   }
+  }
+}).call(this);
+
+buf.push('</div><div class="col-lg-3"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -618,7 +652,29 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p><button class="home-delete-count btn btn-default">Supprimer</button><button class="home-modify-count btn btn-default">Modifier</button></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p>');
+if ( model.users.length > 0)
+{
+buf.push('<h4>Users</h4>');
+// iterate model.users
+;(function(){
+  if ('number' == typeof model.users.length) {
+    for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
+      var user = model.users[$index];
+
+buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+    }
+  } else {
+    for (var $index in model.users) {
+      var user = model.users[$index];
+
+buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+   }
+  }
+}).call(this);
+
+}
+buf.push('<button class="home-delete-count btn btn-default">Supprimer</button><button class="home-modify-count btn btn-default">Modifier</button></div></div>');
 }
 return buf.join("");
 };

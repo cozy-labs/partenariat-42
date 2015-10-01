@@ -9,11 +9,11 @@ module.exports = {
 		get: index.index
 	},
 
-	'countlist': {
+	'count': {
 		post: count.create
 	},
 
-	'countlist/:id': {
+	'count/:id': {
 		delete: count.destroy,
 		put: count.update
 	}

@@ -1,3 +1,15 @@
 .jumbotron
 	h1 #{count.name}
 	p #{count.description}
+.panel.panel-default
+	.panel-heading Users
+	.panel-body
+		#user-list
+			each user in count.users
+				p #{user}
+		.col-lg-3
+			.input-group
+				input#count-input-add-user.form-control(type='text', placeholder='My name')
+				span.input-group-btn
+					button#count-lauch-add-user.btn.btn-default(type='button') Add user
+

@@ -43,6 +43,7 @@ var CountEditor = BaseView.extend({
 		window.countCollection.create({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
+			users: [],
 		});
 		app.router.navigate('', {trigger: true});
 	},
