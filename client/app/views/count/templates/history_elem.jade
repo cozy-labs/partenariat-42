@@ -1,0 +1,26 @@
+mixin history_row(user)
+	tr
+		td #{user.name}
+		td #{user.share}
+		td #{user.amount}
+
+
+.panel.panel-default
+	.panel-heading #{transfer.type}
+	.panel-body
+		if transfer.title
+			h3 #{transfer.title}
+		if transfer.description
+			p #{transfer.description}
+		if transfer.date
+			p Date: #{transfer.date}
+		table.table
+			thead
+				tr
+					th Name
+					th %
+					th Amount
+			tbody
+				for user in transfer.users
+					+history_row(user)
+		h3 Total amount: #{transfer.amount}

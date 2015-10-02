@@ -2,11 +2,14 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var template = require('./templates/count');
+var templateHistory = require('./templates/history_elem');
 var TransferView = require('./transfer/transfer_view');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
+
+	templateHistory: templateHistory,
 
 	count: null,
 
@@ -31,6 +34,17 @@ var CountView = BaseView.extend({
 		return ({count: null});
 	},
 
+
+	afterRender: function () {
+		var history = this.count.get('history');
+
+		var self = this;
+		history.forEach(function (transfer) {
+			self.$('#history-list-view').append(self.templateHistory({transfer: transfer}));
+		});
+	},
+
+
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
@@ -44,25 +58,34 @@ var CountView = BaseView.extend({
 		this.$('#count-input-add-user').val('');
 	},
 
+
 	lauchNewTransfer: function (event) {
 		if (this.transferView == null) {
 			this.transferView = new TransferView({count: this.count, type: event.target.value,
 				users: this.count.get('users')});
 			this.transferView.render();
 
-			this.listenToOnce(this.transferView, 'remove', function (type) {
-				this.transferView.remove();
-				delete this.transferView;
-				this.tranferView = null;
+			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
-				var targetButton = this.$('#transfer-type-'+ type);
-				targetButton.removeClass('btn-info');
-				targetButton.addClass('btn-default');
+			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
+				$('#history-list-view').prepend(this.templateHistory({transfer: data}));
+				this.removeTransferView(data.type);
+
 			});
 		}
 		else {
 			this.transferView.setTransferType(event.target.value);
 		}
+	},
+
+	removeTransferView: function (type) {
+		this.transferView.remove();
+		delete this.transferView;
+		this.tranferView = null;
+
+		var targetButton = this.$('#transfer-type-'+ type);
+		targetButton.removeClass('btn-info');
+		targetButton.addClass('btn-default');
 	},
 
 });

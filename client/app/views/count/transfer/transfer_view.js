@@ -47,6 +47,14 @@ var TransferView = BaseView.extend({
 			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
 				return function (event) {_this.updateContribTable(event);};
 			})(this));
+
+			this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
+				return function (event) {_this.data.name = event.target.value;};
+			})(this));
+
+			this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
+				return function (event) {_this.data.description = event.target.value;};
+			})(this));
 	},
 
 
@@ -92,10 +100,10 @@ var TransferView = BaseView.extend({
 			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
 			var self = this;
 			this.data.users.forEach(function (user) {
-				var userAmount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
+				user.amount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
 				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
 					self.$('#new-transfer-contrib-content').append(
-							self.templateTransferContribRow({user: user, userAmount: userAmount}));
+							self.templateTransferContribRow({user: user}));
 			});
 		}
 	},
@@ -197,12 +205,12 @@ var TransferView = BaseView.extend({
 			var countHistory = this.count.get('history');
 			countHistory.unshift(this.data);
 			this.count.save({history: countHistory});
-			this.resetNewTransfer();
+			this.trigger('new-transfer', this.data);
 		}
 	},
 
 	resetNewTransfer: function () {
-		this.trigger('remove', this.data.type);
+		this.trigger('remove-transfer', this.data.type);
 	}
 });
 

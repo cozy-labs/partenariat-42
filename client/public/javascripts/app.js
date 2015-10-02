@@ -491,11 +491,14 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var template = require('./templates/count');
+var templateHistory = require('./templates/history_elem');
 var TransferView = require('./transfer/transfer_view');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
+
+	templateHistory: templateHistory,
 
 	count: null,
 
@@ -520,6 +523,17 @@ var CountView = BaseView.extend({
 		return ({count: null});
 	},
 
+
+	afterRender: function () {
+		var history = this.count.get('history');
+
+		var self = this;
+		history.forEach(function (transfer) {
+			self.$('#history-list-view').append(self.templateHistory({transfer: transfer}));
+		});
+	},
+
+
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
@@ -533,25 +547,34 @@ var CountView = BaseView.extend({
 		this.$('#count-input-add-user').val('');
 	},
 
+
 	lauchNewTransfer: function (event) {
 		if (this.transferView == null) {
 			this.transferView = new TransferView({count: this.count, type: event.target.value,
 				users: this.count.get('users')});
 			this.transferView.render();
 
-			this.listenToOnce(this.transferView, 'remove', function (type) {
-				this.transferView.remove();
-				delete this.transferView;
-				this.tranferView = null;
+			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
-				var targetButton = this.$('#transfer-type-'+ type);
-				targetButton.removeClass('btn-info');
-				targetButton.addClass('btn-default');
+			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
+				$('#history-list-view').prepend(this.templateHistory({transfer: data}));
+				this.removeTransferView(data.type);
+
 			});
 		}
 		else {
 			this.transferView.setTransferType(event.target.value);
 		}
+	},
+
+	removeTransferView: function (type) {
+		this.transferView.remove();
+		delete this.transferView;
+		this.tranferView = null;
+
+		var targetButton = this.$('#transfer-type-'+ type);
+		targetButton.removeClass('btn-info');
+		targetButton.addClass('btn-default');
 	},
 
 });
@@ -585,7 +608,55 @@ buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="col-lg-6"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading">History</div><div class="panel-body"><label for="new-transfer">Add a Transfer type</label><div id="new-transfer"><div id="new-transfer-type" class="row"><div class="form-group"><button id="transfer-type-expense" type="button" value="expense" class="btn btn-default transfer-type">Expense</button><button id="transfer-type-payment" type="button" value="payment" class="btn btn-default transfer-type">Payment</button></div></div></div></div></div>');
+buf.push('</div><div class="row"><div class="col-lg-6"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading">Add a new expense</div><div class="panel-body"><label for="new-transfer">Type</label><div id="new-transfer"><div id="new-transfer-type" class="row"><div class="form-group"><button id="transfer-type-expense" type="button" value="expense" class="btn btn-default transfer-type">Expense</button><button id="transfer-type-payment" type="button" value="payment" class="btn btn-default transfer-type">Payment</button></div></div></div></div></div><div class="panel panel-default panel-heading">History<div id="history-list-view" class="panel-body"></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/history_elem", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+var history_row_mixin = function(user){
+var block = this.block, attributes = this.attributes || {}, escaped = this.escaped || {};
+buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
+};
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = transfer.type) == null ? '' : interp) + '</div><div class="panel-body">');
+if ( transfer.title)
+{
+buf.push('<h3>' + escape((interp = transfer.title) == null ? '' : interp) + '</h3>');
+}
+if ( transfer.description)
+{
+buf.push('<p>' + escape((interp = transfer.description) == null ? '' : interp) + '</p>');
+}
+if ( transfer.date)
+{
+buf.push('<p>Date: ' + escape((interp = transfer.date) == null ? '' : interp) + '</p>');
+}
+buf.push('<table class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th></tr></thead><tbody>');
+// iterate transfer.users
+;(function(){
+  if ('number' == typeof transfer.users.length) {
+    for (var $index = 0, $$l = transfer.users.length; $index < $$l; $index++) {
+      var user = transfer.users[$index];
+
+history_row_mixin(user);
+    }
+  } else {
+    for (var $index in transfer.users) {
+      var user = transfer.users[$index];
+
+history_row_mixin(user);
+   }
+  }
+}).call(this);
+
+buf.push('</tbody></table><h3>Total amount: ' + escape((interp = transfer.amount) == null ? '' : interp) + '</h3></div></div>');
 }
 return buf.join("");
 };
@@ -598,7 +669,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="new-transfer-module"><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
+buf.push('<div id="new-transfer-module"><label for="new-transfer-amount">Name</label><div id="new-transfer-name"><input id="transfer-input-name" type="text" placeholder="Shopping..." class="form-contrl"/></div><label for="new-transfer-amount">Description</label><div id="new-transfer-description"><input id="transfer-input-description" type="text" class="form-contrl"/></div><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -646,7 +717,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = userAmount) == null ? '' : interp) + '</td></tr>');
+buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
 }
 return buf.join("");
 };
@@ -702,6 +773,14 @@ var TransferView = BaseView.extend({
 			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
 				return function (event) {_this.updateContribTable(event);};
 			})(this));
+
+			this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
+				return function (event) {_this.data.name = event.target.value;};
+			})(this));
+
+			this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
+				return function (event) {_this.data.description = event.target.value;};
+			})(this));
 	},
 
 
@@ -747,10 +826,10 @@ var TransferView = BaseView.extend({
 			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
 			var self = this;
 			this.data.users.forEach(function (user) {
-				var userAmount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
+				user.amount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
 				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
 					self.$('#new-transfer-contrib-content').append(
-							self.templateTransferContribRow({user: user, userAmount: userAmount}));
+							self.templateTransferContribRow({user: user}));
 			});
 		}
 	},
@@ -852,12 +931,12 @@ var TransferView = BaseView.extend({
 			var countHistory = this.count.get('history');
 			countHistory.unshift(this.data);
 			this.count.save({history: countHistory});
-			this.resetNewTransfer();
+			this.trigger('new-transfer', this.data);
 		}
 	},
 
 	resetNewTransfer: function () {
-		this.trigger('remove', this.data.type);
+		this.trigger('remove-transfer', this.data.type);
 	}
 });
 
