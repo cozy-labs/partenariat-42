@@ -34,6 +34,7 @@ module.exports.destroy = function (req, res, next) {
 }
 
 module.exports.update = function (req, res, next) {
+	console.log('data: ', req.body);
 	Count.find(req.params.id, function (err, count) {
 			if (err !== null && err !== undefined) {
 				res.status(500).send({error: 'Count find fail'});

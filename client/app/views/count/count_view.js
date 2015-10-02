@@ -3,7 +3,7 @@ var app = require('../../application');
 
 var template = require('./templates/count');
 var templateTransferUser = require('./templates/transfer_user');
-var templateTransferValue = require('./templates/transfer_value');
+var templateTransferamount = require('./templates/transfer_amount');
 var templateTransferContrib = require('./templates/transfer_contrib');
 var templateTransferContribRow = require('./templates/transfer_contrib_row');
 
@@ -12,7 +12,7 @@ var CountView = BaseView.extend({
 	template: template,
 
 	templateTransferUser: templateTransferUser,
-	templateTransferValue: templateTransferValue,
+	templateTransferamount: templateTransferamount,
 	templateTransferContrib: templateTransferContrib,
 	templateTransferContribRow: templateTransferContribRow,
 
@@ -21,13 +21,14 @@ var CountView = BaseView.extend({
 	transfer: {
 		type: null,
 		users: [],
-		value: 0,
+		amount: 0,
 	},
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
 		'click .transfer-type': 'setTransferType',
 		'click .transfer-user': 'setTransferUser',
+		'click #transfer-send': 'sendTransfer',
 	},
 
 
@@ -48,7 +49,7 @@ var CountView = BaseView.extend({
 		this.transfer = {
 			type: null,
 			users: [],
-			value: 0,
+			amount: 0,
 		}
 	},
 
@@ -73,13 +74,13 @@ var CountView = BaseView.extend({
 		this.$(event.target).addClass('btn-info');
 
 		if (this.transfer.type == null) {
-			this.$('#new-transfer').append('<div id="new-transfer-value"></div>');
-			this.$('#new-transfer-value').html(this.templateTransferValue());
+			this.$('#new-transfer').append('<div id="new-transfer-amount"></div>');
+			this.$('#new-transfer-amount').html(this.templateTransferamount());
 
 			this.$('#new-transfer').append('<div id="new-transfer-user"></div>');
 			this.$('#new-transfer-user').html(this.templateTransferUser({users: this.count.get('users')}));
 
-			this.$('#transfer-input-value')[0].addEventListener('change', (function(_this) {
+			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
 				return function (event) {_this.updateContribTable(event);};
 			})(this));
 		}
@@ -89,7 +90,7 @@ var CountView = BaseView.extend({
 
 
 	updateContribTable: function () {
-		this.transfer.value = this.$('#transfer-input-value').val();
+		this.transfer.amount = this.$('#transfer-input-amount').val();
 
 		if (this.transfer.users.length > 0) {
 			var oldContrib = this.$('#new-transfer-contrib-content');
@@ -100,7 +101,8 @@ var CountView = BaseView.extend({
 			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
 			var self = this;
 			this.transfer.users.forEach(function (user) {
-				user.amount = (self.transfer.value / 100 * user.share).toFixed(2);
+				user.amount = +(Math.round(self.transfer.amount / 100 * user.share * 100) / 100).toFixed(2);
+				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
 					self.$('#new-transfer-contrib-content').append(self.templateTransferContribRow({user: user}));
 			});
 		}
@@ -132,16 +134,14 @@ var CountView = BaseView.extend({
 			if (listUsers.length > 0) {
 				listUsers.forEach(function (elem) {
 					shareCollected += elem.share / nbUsers;
-					elem.share = (elem.share - elem.share / nbUsers).toFixed(2)
-					console.log('shareCollected: ', shareCollected);
+					elem.share = elem.share - elem.share / nbUsers;
 				});
 			}
 			else {
 				shareCollected = 100;
 			}
 
-
-			listUsers.push({name: user, share: shareCollected.toFixed(2)});
+			listUsers.push({name: user, share: shareCollected});
 
 			elem.removeClass('btn-default');
 			elem.addClass('btn-info');
@@ -165,22 +165,48 @@ var CountView = BaseView.extend({
 			elem.addClass('btn-default');
 
 
-			console.log('user del: ', userDeleted[0])
-			var shareToDistribute = (userDeleted[0].share / listUsers.length).toFixed(2);
-			console.log('share 33: ', shareToDistribute);
+			var shareToDistribute = userDeleted[0].share / listUsers.length;
 			if (listUsers.length > 0) {
 				listUsers.forEach(function (elem) {
-					console.log('elem share: ', elem.share);
-					console.log('shareToDestri: ', shareToDistribute)
-					elem.share = (Number(elem.share) + Number(shareToDistribute)).toFixed(2);
+					elem.share = Number(elem.share) + Number(shareToDistribute);
 				});
 			}
 		}
 
 
-		console.log('users: ', listUsers);
 		this.updateContribTable();
 	},
+
+
+	sendTransfer: function () {
+		if (this.transfer.amount != 0) {
+			console.log('plop');
+			var countHistory = this.count.get('history');
+			countHistory.unshift(this.transfer);
+			this.count.save({history: countHistory});
+			this.resetNewTransfer();
+		}
+	},
+
+	resetNewTransfer: function () {
+		this.$('#new-transfer-amount').remove();
+		this.$('#new-transfer-user').remove();
+		this.$('#new-transfer-contrib-table').remove();
+
+		this.$('#transfer-input-amount').val('');
+
+		this.$('#transfer-type-expense').removeClass('btn-info');
+		this.$('#transfer-type-expense').addClass('btn-default');
+
+		this.$('#transfer-type-payment').removeClass('btn-info');
+		this.$('#transfer-type-payment').addClass('btn-default');
+
+		this.transfer = {
+			type: null,
+			users: [],
+			amount: 0,
+		}
+	}
 });
 
 module.exports = CountView;
