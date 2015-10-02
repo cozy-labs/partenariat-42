@@ -491,33 +491,19 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var template = require('./templates/count');
-var templateTransferUser = require('./templates/transfer_user');
-var templateTransferamount = require('./templates/transfer_amount');
-var templateTransferContrib = require('./templates/transfer_contrib');
-var templateTransferContribRow = require('./templates/transfer_contrib_row');
+var TransferView = require('./transfer/transfer_view');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
 
-	templateTransferUser: templateTransferUser,
-	templateTransferamount: templateTransferamount,
-	templateTransferContrib: templateTransferContrib,
-	templateTransferContribRow: templateTransferContribRow,
-
 	count: null,
 
-	transfer: {
-		type: null,
-		users: [],
-		amount: 0,
-	},
+	transferView: null,
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
-		'click .transfer-type': 'setTransferType',
-		'click .transfer-user': 'setTransferUser',
-		'click #transfer-send': 'sendTransfer',
+		'click .transfer-type': 'lauchNewTransfer',
 	},
 
 
@@ -534,168 +520,40 @@ var CountView = BaseView.extend({
 		return ({count: null});
 	},
 
-	afterRender: function () {
-		this.transfer = {
-			type: null,
-			users: [],
-			amount: 0,
-		}
-	},
-
-
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
 
 		userList.push(newUser);
 		this.$('#user-list').append('<p>' + newUser + '</p>');
-		if (this.transfer.type !== null) {
-			this.$('#new-transfer-user-content').append('<button type="button" value="'+ newUser +'" class="btn btn-default transfer-user">' + newUser + '</button>');
+		if (this.transferView !== null) {
+			this.transferView.addUserToCount(newUser);
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
 	},
 
+	lauchNewTransfer: function (event) {
+		if (this.transferView == null) {
+			this.transferView = new TransferView({count: this.count, type: event.target.value,
+				users: this.count.get('users')});
+			this.transferView.render();
 
-	setTransferType: function (event) {
-		this.$('#transfer-type-expense').removeClass('btn-default btn-info');
-		this.$('#transfer-type-payment').removeClass('btn-default btn-info');
-		this.$(event.target).addClass('btn-info');
+			this.listenToOnce(this.transferView, 'remove', function (type) {
+				this.transferView.remove();
+				delete this.transferView;
+				this.tranferView = null;
 
-		if (this.transfer.type == null) {
-			this.$('#new-transfer').append('<div id="new-transfer-amount"></div>');
-			this.$('#new-transfer-amount').html(this.templateTransferamount());
-
-			this.$('#new-transfer').append('<div id="new-transfer-user"></div>');
-			this.$('#new-transfer-user').html(this.templateTransferUser({users: this.count.get('users')}));
-
-			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.updateContribTable(event);};
-			})(this));
-		}
-
-		this.transfer.type = event.target.value;
-	},
-
-
-	updateContribTable: function () {
-		this.transfer.amount = this.$('#transfer-input-amount').val();
-
-		if (this.transfer.users.length > 0) {
-			var oldContrib = this.$('#new-transfer-contrib-content');
-			if (oldContrib !== null && oldContrib !== undefined) {
-				oldContrib.remove();
-			}
-
-			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
-			var self = this;
-			this.transfer.users.forEach(function (user) {
-				user.amount = +(Math.round(self.transfer.amount / 100 * user.share * 100) / 100).toFixed(2);
-				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
-					self.$('#new-transfer-contrib-content').append(self.templateTransferContribRow({user: user}));
+				var targetButton = this.$('#transfer-type-'+ type);
+				targetButton.removeClass('btn-info');
+				targetButton.addClass('btn-default');
 			});
 		}
-	},
-
-
-	setTransferUser: function (event) {
-		var user = event.target.value;
-		var listUsers = this.transfer.users;
-
-		var find = listUsers.find(function (element) {
-			if (element.name == user) {
-				return element;
-			}
-			return null;
-		});
-
-		var elem = this.$(event.target);
-
-		if (find == undefined) {
-			if (listUsers.length == 0) {
-				this.$('#new-transfer').append('<div id="new-transfer-contrib"></div>');
-				this.$('#new-transfer-contrib').html(this.templateTransferContrib());
-			}
-
-			var nbUsers = listUsers.length + 1;
-			var shareCollected = 0;
-
-			if (listUsers.length > 0) {
-				listUsers.forEach(function (elem) {
-					shareCollected += elem.share / nbUsers;
-					elem.share = elem.share - elem.share / nbUsers;
-				});
-			}
-			else {
-				shareCollected = 100;
-			}
-
-			listUsers.push({name: user, share: shareCollected});
-
-			elem.removeClass('btn-default');
-			elem.addClass('btn-info');
-		}
 		else {
-
-			var index = 0;
-			while (index < listUsers.length) {
-				if (listUsers[index].name == user) {
-					break;
-				}
-				index++;
-			}
-
-			var userDeleted = listUsers.splice(index, 1);
-			if (listUsers.length == 0) {
-				this.$('#new-transfer-contrib').remove()
-			}
-
-			elem.removeClass('btn-info');
-			elem.addClass('btn-default');
-
-
-			var shareToDistribute = userDeleted[0].share / listUsers.length;
-			if (listUsers.length > 0) {
-				listUsers.forEach(function (elem) {
-					elem.share = Number(elem.share) + Number(shareToDistribute);
-				});
-			}
-		}
-
-
-		this.updateContribTable();
-	},
-
-
-	sendTransfer: function () {
-		if (this.transfer.amount != 0) {
-			console.log('plop');
-			var countHistory = this.count.get('history');
-			countHistory.unshift(this.transfer);
-			this.count.save({history: countHistory});
-			this.resetNewTransfer();
+			this.transferView.setTransferType(event.target.value);
 		}
 	},
 
-	resetNewTransfer: function () {
-		this.$('#new-transfer-amount').remove();
-		this.$('#new-transfer-user').remove();
-		this.$('#new-transfer-contrib-table').remove();
-
-		this.$('#transfer-input-amount').val('');
-
-		this.$('#transfer-type-expense').removeClass('btn-info');
-		this.$('#transfer-type-expense').addClass('btn-default');
-
-		this.$('#transfer-type-payment').removeClass('btn-info');
-		this.$('#transfer-type-payment').addClass('btn-default');
-
-		this.transfer = {
-			type: null,
-			users: [],
-			amount: 0,
-		}
-	}
 });
 
 module.exports = CountView;
@@ -733,53 +591,14 @@ return buf.join("");
 };
 });
 
-require.register("views/count/templates/transfer_amount", function(exports, require, module) {
+require.register("views/count/transfer/templates/transfer", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/templates/transfer_contrib", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<table id="new-transfer-contrib-table" class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th></tr></thead><tbody id="new-transfer-contrib-content"></tbody></table><button id="transfer-send" class="btn btn-default">Save</button>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/templates/transfer_contrib_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/templates/transfer_user", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
+buf.push('<div id="new-transfer-module"><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -801,23 +620,249 @@ buf.push('>' + escape((interp = user) == null ? '' : interp) + '</button>');
   }
 }).call(this);
 
-buf.push('</div></div>');
+buf.push('</div></div></div><div id="new-transfer-btn" class="row"><button id="transfer-cancel" class="btn btn-default">Cancel</button></div>');
 }
 return buf.join("");
 };
 });
 
-require.register("views/count/templates/transfer_value", function(exports, require, module) {
+require.register("views/count/transfer/templates/transfer_contrib", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div>');
+buf.push('<div id="new-transfer-contrib-section"><table id="new-transfer-contrib-table" class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th></tr></thead></table></div>');
 }
 return buf.join("");
 };
+});
+
+require.register("views/count/transfer/templates/transfer_contrib_row", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = userAmount) == null ? '' : interp) + '</td></tr>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/transfer/transfer_view", function(exports, require, module) {
+var BaseView = require('../../../lib/base_view');
+var app = require('../../../application');
+
+var template = require('./templates/transfer');
+
+var templateTransferContrib = require('./templates/transfer_contrib');
+var templateTransferContribRow = require('./templates/transfer_contrib_row');
+
+
+var TransferView = BaseView.extend({
+	template: template,
+
+
+	templateTransferContrib: templateTransferContrib,
+	templateTransferContribRow: templateTransferContribRow,
+
+
+	count: null,
+	users: null,
+
+
+
+	events: {
+		'click .transfer-user': 'setTransferUser',
+		'click #transfer-send': 'sendTransfer',
+		'click #transfer-cancel': 'resetNewTransfer',
+	},
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+		this.users = attributes.users;
+		this.data = {
+			type: null,
+			users: [],
+			amount: 0,
+		};
+		this.setTransferType(attributes.type);
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	render: function () {
+			$('#new-transfer').append(this.$el);
+			this.$el.html(this.template({users: this.users}));
+
+			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
+				return function (event) {_this.updateContribTable(event);};
+			})(this));
+	},
+
+
+	setTransferType: function (type) {
+		if (type == this.data.type) {
+			return;
+		}
+
+		var expenseButton = $('#transfer-type-expense');
+		var paymentButton = $('#transfer-type-payment');
+
+		if (type == 'payment') {
+			paymentButton.removeClass('btn-default');
+			paymentButton.addClass('btn-info');
+
+			expenseButton.removeClass('btn-info');
+			expenseButton.addClass('btn-default');
+		}
+		else if (type == 'expense') {
+			paymentButton.removeClass('btn-info');
+			paymentButton.addClass('btn-default');
+
+			expenseButton.removeClass('btn-default');
+			expenseButton.addClass('btn-info');
+		}
+		else {
+			console.error('Bad transfer type');
+			return;
+		}
+		this.data.type = type;
+	},
+
+
+	updateContribTable: function () {
+		this.data.amount = this.$('#transfer-input-amount').val();
+
+		if (this.data.users.length > 0) {
+			var oldContrib = this.$('#new-transfer-contrib-content');
+			if (oldContrib !== null && oldContrib !== undefined) {
+				oldContrib.remove();
+			}
+
+			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
+			var self = this;
+			this.data.users.forEach(function (user) {
+				var userAmount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
+				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
+					self.$('#new-transfer-contrib-content').append(
+							self.templateTransferContribRow({user: user, userAmount: userAmount}));
+			});
+		}
+	},
+
+
+	addUserToTransfer: function (event) {
+		var userName = event.target.value;
+		var listUsers = this.data.users;
+		var targetButton = this.$(event.target);
+
+		if (listUsers.length == 0) {
+			this.$('#new-transfer-module').append(this.templateTransferContrib());
+			this.$('#new-transfer-btn').append('<button id="transfer-send" class="btn btn-default"> Save</button>');
+		}
+
+		var nbUsers = listUsers.length + 1;
+		var shareCollected = 0;
+
+		if (listUsers.length > 0) {
+			listUsers.forEach(function (elem) {
+				shareCollected += elem.share / nbUsers;
+				elem.share = elem.share - elem.share / nbUsers;
+			});
+		}
+		else {
+			shareCollected = 100;
+		}
+
+		listUsers.push({name: userName, share: shareCollected});
+
+		targetButton.removeClass('btn-default');
+		targetButton.addClass('btn-info');
+	},
+
+
+	removeUserFromTransfer: function (event) {
+		var userName = event.target.value;
+		var listUsers = this.data.users;
+		var targetButton = this.$(event.target);
+		var userDeleted;
+
+		{
+			var index = 0;
+			while (index < listUsers.length) {
+				if (listUsers[index].name == userName) {
+					break;
+				}
+				index++;
+			}
+			userDeleted = listUsers.splice(index, 1);
+		}
+
+		if (listUsers.length == 0) {
+			this.$('#new-transfer-contrib-section').remove();
+			this.$('#transfer-send').remove();
+		}
+
+		targetButton.removeClass('btn-info');
+		targetButton.addClass('btn-default');
+
+
+		if (listUsers.length > 0) {
+			var shareToDistribute = userDeleted[0].share / listUsers.length;
+
+			listUsers.forEach(function (elem) {
+				elem.share = Number(elem.share) + Number(shareToDistribute);
+			});
+		}
+	},
+
+
+	setTransferUser: function (event) {
+		var find = this.data.users.find(function (element) {
+			if (element.name == event.target.value) {
+				return element;
+			}
+			return null;
+		});
+
+		if (find == undefined) {
+			this.addUserToTransfer(event);
+		}
+		else {
+			this.removeUserFromTransfer(event);
+			}
+
+		this.updateContribTable();
+	},
+
+
+	addUserToCount: function (newUser) {
+			this.$('#new-transfer-user-content').append('<button type="button" value="'+ newUser +
+					'" class="btn btn-default transfer-user">' + newUser + '</button>');
+	},
+
+
+	sendTransfer: function () {
+		if (this.data.amount != 0) {
+			var countHistory = this.count.get('history');
+			countHistory.unshift(this.data);
+			this.count.save({history: countHistory});
+			this.resetNewTransfer();
+		}
+	},
+
+	resetNewTransfer: function () {
+		this.trigger('remove', this.data.type);
+	}
+});
+
+module.exports = TransferView;
+
 });
 
 require.register("views/home/count_list_view", function(exports, require, module) {
