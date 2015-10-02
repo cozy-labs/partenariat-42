@@ -28,7 +28,7 @@ var Router = Backbone.Router.extend({
 		''										: 'mainBoard',
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
-		'count/:id'						: 'printCount',
+		'count/:name'					: 'printCount',
 	},
 
 
@@ -46,8 +46,8 @@ var Router = Backbone.Router.extend({
 	},
 
 
-	printCount: function (countId) {
-		view = new CountView({countId: countId});
+	printCount: function (countName) {
+		view = new CountView({countName: countName});
 
 		this.displayView(view);
 	},

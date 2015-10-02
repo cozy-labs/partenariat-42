@@ -22,7 +22,7 @@ var MenuCountRowView = BaseView.extend({
 
 
 	printCount: function () {
-		app.router.navigate('count/' + this.model.id, {trigger: true});
+		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
 });
 

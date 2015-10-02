@@ -22,7 +22,15 @@ var CountView = BaseView.extend({
 
 
 	initialize: function (attributes) {
-		this.count = window.countCollection.get(attributes.countId);
+		this.count = window.countCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return null;
+		});
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+		}
 		BaseView.prototype.initialize.call(this);
 	},
 

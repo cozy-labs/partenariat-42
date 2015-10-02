@@ -320,7 +320,7 @@ var Router = Backbone.Router.extend({
 		''										: 'mainBoard',
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
-		'count/:id'						: 'printCount',
+		'count/:name'					: 'printCount',
 	},
 
 
@@ -338,8 +338,8 @@ var Router = Backbone.Router.extend({
 	},
 
 
-	printCount: function (countId) {
-		view = new CountView({countId: countId});
+	printCount: function (countName) {
+		view = new CountView({countName: countName});
 
 		this.displayView(view);
 	},
@@ -511,7 +511,15 @@ var CountView = BaseView.extend({
 
 
 	initialize: function (attributes) {
-		this.count = window.countCollection.get(attributes.countId);
+		this.count = window.countCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return null;
+		});
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+		}
 		BaseView.prototype.initialize.call(this);
 	},
 
@@ -1123,7 +1131,7 @@ var MenuCountRowView = BaseView.extend({
 
 
 	printCount: function () {
-		app.router.navigate('count/' + this.model.id, {trigger: true});
+		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
 });
 
