@@ -30,61 +30,31 @@ var TransferView = BaseView.extend({
 		this.count = attributes.count;
 		this.users = attributes.users;
 		this.data = {
-			type: null,
 			users: [],
 			amount: 0,
 		};
-		this.setTransferType(attributes.type);
 
 		BaseView.prototype.initialize.call(this);
 	},
 
 
 	render: function () {
-			$('#new-transfer').append(this.$el);
-			this.$el.html(this.template({users: this.users}));
+		$('#add-new-transfer').remove()
+		$('#new-transfer-module').prepend(this.$el);
+		this.$el.html(this.template({users: this.users}));
+		this.$('#new-transfer-displayer').slideDown('slow');
 
-			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.updateContribTable(event);};
-			})(this));
+		this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.updateContribTable(event);};
+		})(this));
 
-			this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.data.name = event.target.value;};
-			})(this));
+		this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.name = event.target.value;};
+		})(this));
 
-			this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.data.description = event.target.value;};
-			})(this));
-	},
-
-
-	setTransferType: function (type) {
-		if (type == this.data.type) {
-			return;
-		}
-
-		var expenseButton = $('#transfer-type-expense');
-		var paymentButton = $('#transfer-type-payment');
-
-		if (type == 'payment') {
-			paymentButton.removeClass('btn-default');
-			paymentButton.addClass('btn-info');
-
-			expenseButton.removeClass('btn-info');
-			expenseButton.addClass('btn-default');
-		}
-		else if (type == 'expense') {
-			paymentButton.removeClass('btn-info');
-			paymentButton.addClass('btn-default');
-
-			expenseButton.removeClass('btn-default');
-			expenseButton.addClass('btn-info');
-		}
-		else {
-			console.error('Bad transfer type');
-			return;
-		}
-		this.data.type = type;
+		this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.description = event.target.value;};
+		})(this));
 	},
 
 
@@ -115,8 +85,8 @@ var TransferView = BaseView.extend({
 		var targetButton = this.$(event.target);
 
 		if (listUsers.length == 0) {
-			this.$('#new-transfer-module').append(this.templateTransferContrib());
-			this.$('#new-transfer-btn').append('<button id="transfer-send" class="btn btn-default"> Save</button>');
+			this.$('#new-transfer-displayer').append(this.templateTransferContrib());
+			this.$('#new-transfer-btn').prepend('<button id="transfer-send" class="btn btn-default btn-block"> Save</button>');
 		}
 
 		var nbUsers = listUsers.length + 1;
@@ -210,7 +180,12 @@ var TransferView = BaseView.extend({
 	},
 
 	resetNewTransfer: function () {
-		this.trigger('remove-transfer', this.data.type);
+		this.trigger('remove-transfer');
+	},
+
+	remove: function () {
+		this.$el.slideUp('');
+		BaseView.prototype.remove.call(this);
 	}
 });
 

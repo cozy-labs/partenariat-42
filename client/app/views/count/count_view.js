@@ -18,7 +18,7 @@ var CountView = BaseView.extend({
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
-		'click .transfer-type': 'lauchNewTransfer',
+		'click #add-new-transfer': 'lauchNewTransfer',
 		'click .header-history-elem': 'printTransferBody',
 	},
 
@@ -70,16 +70,16 @@ var CountView = BaseView.extend({
 
 
 	lauchNewTransfer: function (event) {
+		console.log('plop')
 		if (this.transferView == null) {
-			this.transferView = new TransferView({count: this.count, type: event.target.value,
-				users: this.count.get('users')});
+			this.transferView = new TransferView({count: this.count, users: this.count.get('users')});
 			this.transferView.render();
 
 			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
-				$('#history-list-view').prepend(this.templateHistory({transfer: data}));
-				this.removeTransferView(data.type);
+				this.$('#history-list-view').prepend(this.templateHistory({transfer: data}));
+				this.removeTransferView();
 
 			});
 		}
@@ -88,14 +88,12 @@ var CountView = BaseView.extend({
 		}
 	},
 
-	removeTransferView: function (type) {
+	removeTransferView: function () {
 		this.transferView.remove();
 		delete this.transferView;
 		this.tranferView = null;
 
-		var targetButton = this.$('#transfer-type-'+ type);
-		targetButton.removeClass('btn-info');
-		targetButton.addClass('btn-default');
+		this.$('#new-transfer-module').prepend('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button>')
 	},
 
 

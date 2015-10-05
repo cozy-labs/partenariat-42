@@ -9,23 +9,16 @@
 			each user in count.users
 				p #{user}
 		.row
-			.col-lg-6
+			.col-lg-3
 				.input-group
 					input#count-input-add-user.form-control(type='text', placeholder='My name')
 					span.input-group-btn
 						button#count-lauch-add-user.btn.btn-default(type='button') Add user
 
 
-.panel.panel-default
-	.panel-heading Add a new expense
-	.panel-body
-		label(for='new-transfer') Type
-		#new-transfer
-			#new-transfer-type.row
-				.form-group
-					button#transfer-type-expense.btn.btn-default.transfer-type(type='button', value='expense') Expense
-					button#transfer-type-payment.btn.btn-default.transfer-type(type='button', value='payment') Payment
-
-
 .panel.panel-default.panel-heading History
-	#history-list-view.panel-body
+	.panel-body
+		.panel.panel-default
+			#new-transfer-module.panel-body
+				button#add-new-transfer.btn.btn-default.btn-block Add a new expense
+	#history-list-view

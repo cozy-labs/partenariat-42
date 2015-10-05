@@ -507,7 +507,7 @@ var CountView = BaseView.extend({
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
-		'click .transfer-type': 'lauchNewTransfer',
+		'click #add-new-transfer': 'lauchNewTransfer',
 		'click .header-history-elem': 'printTransferBody',
 	},
 
@@ -559,16 +559,16 @@ var CountView = BaseView.extend({
 
 
 	lauchNewTransfer: function (event) {
+		console.log('plop')
 		if (this.transferView == null) {
-			this.transferView = new TransferView({count: this.count, type: event.target.value,
-				users: this.count.get('users')});
+			this.transferView = new TransferView({count: this.count, users: this.count.get('users')});
 			this.transferView.render();
 
 			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
-				$('#history-list-view').prepend(this.templateHistory({transfer: data}));
-				this.removeTransferView(data.type);
+				this.$('#history-list-view').prepend(this.templateHistory({transfer: data}));
+				this.removeTransferView();
 
 			});
 		}
@@ -577,14 +577,12 @@ var CountView = BaseView.extend({
 		}
 	},
 
-	removeTransferView: function (type) {
+	removeTransferView: function () {
 		this.transferView.remove();
 		delete this.transferView;
 		this.tranferView = null;
 
-		var targetButton = this.$('#transfer-type-'+ type);
-		targetButton.removeClass('btn-info');
-		targetButton.addClass('btn-default');
+		this.$('#new-transfer-module').prepend('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button>')
 	},
 
 
@@ -637,7 +635,7 @@ buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="col-lg-6"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading">Add a new expense</div><div class="panel-body"><label for="new-transfer">Type</label><div id="new-transfer"><div id="new-transfer-type" class="row"><div class="form-group"><button id="transfer-type-expense" type="button" value="expense" class="btn btn-default transfer-type">Expense</button><button id="transfer-type-payment" type="button" value="payment" class="btn btn-default transfer-type">Payment</button></div></div></div></div></div><div class="panel panel-default panel-heading">History<div id="history-list-view" class="panel-body"></div></div>');
+buf.push('</div><div class="row"><div class="col-lg-3"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div></div><div class="panel panel-default panel-heading">History<div class="panel-body"><div class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="history-list-view"></div></div>');
 }
 return buf.join("");
 };
@@ -698,7 +696,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="new-transfer-module"><label for="new-transfer-amount">Name</label><div id="new-transfer-name"><input id="transfer-input-name" type="text" placeholder="Shopping..." class="form-contrl"/></div><label for="new-transfer-amount">Description</label><div id="new-transfer-description"><input id="transfer-input-description" type="text" class="form-contrl"/></div><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/><span class="input-group-btn"><button id="transfer-choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€<div class="caret"></div></button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></span></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
+buf.push('<div id="new-transfer-displayer" style="display: none"><label for="new-transfer-amount">Name<div id="new-transfer-name"><input id="transfer-input-name" type="text" placeholder="Shopping..." class="form-contrl"/></div><label for="new-transfer-amount">Description</label><div id="new-transfer-description"><input id="transfer-input-description" type="text" class="form-contrl"/></div><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -720,7 +718,7 @@ buf.push('>' + escape((interp = user) == null ? '' : interp) + '</button>');
   }
 }).call(this);
 
-buf.push('</div></div></div><div id="new-transfer-btn" class="row"><button id="transfer-cancel" class="btn btn-default">Cancel</button></div>');
+buf.push('</div></div></label></div><div id="new-transfer-btn" class="row"><button id="transfer-cancel" class="btn btn-default btn-block">Cancel</button></div>');
 }
 return buf.join("");
 };
@@ -785,61 +783,31 @@ var TransferView = BaseView.extend({
 		this.count = attributes.count;
 		this.users = attributes.users;
 		this.data = {
-			type: null,
 			users: [],
 			amount: 0,
 		};
-		this.setTransferType(attributes.type);
 
 		BaseView.prototype.initialize.call(this);
 	},
 
 
 	render: function () {
-			$('#new-transfer').append(this.$el);
-			this.$el.html(this.template({users: this.users}));
+		$('#add-new-transfer').remove()
+		$('#new-transfer-module').prepend(this.$el);
+		this.$el.html(this.template({users: this.users}));
+		this.$('#new-transfer-displayer').slideDown('slow');
 
-			this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.updateContribTable(event);};
-			})(this));
+		this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.updateContribTable(event);};
+		})(this));
 
-			this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.data.name = event.target.value;};
-			})(this));
+		this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.name = event.target.value;};
+		})(this));
 
-			this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
-				return function (event) {_this.data.description = event.target.value;};
-			})(this));
-	},
-
-
-	setTransferType: function (type) {
-		if (type == this.data.type) {
-			return;
-		}
-
-		var expenseButton = $('#transfer-type-expense');
-		var paymentButton = $('#transfer-type-payment');
-
-		if (type == 'payment') {
-			paymentButton.removeClass('btn-default');
-			paymentButton.addClass('btn-info');
-
-			expenseButton.removeClass('btn-info');
-			expenseButton.addClass('btn-default');
-		}
-		else if (type == 'expense') {
-			paymentButton.removeClass('btn-info');
-			paymentButton.addClass('btn-default');
-
-			expenseButton.removeClass('btn-default');
-			expenseButton.addClass('btn-info');
-		}
-		else {
-			console.error('Bad transfer type');
-			return;
-		}
-		this.data.type = type;
+		this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.description = event.target.value;};
+		})(this));
 	},
 
 
@@ -870,8 +838,8 @@ var TransferView = BaseView.extend({
 		var targetButton = this.$(event.target);
 
 		if (listUsers.length == 0) {
-			this.$('#new-transfer-module').append(this.templateTransferContrib());
-			this.$('#new-transfer-btn').append('<button id="transfer-send" class="btn btn-default"> Save</button>');
+			this.$('#new-transfer-displayer').append(this.templateTransferContrib());
+			this.$('#new-transfer-btn').prepend('<button id="transfer-send" class="btn btn-default btn-block"> Save</button>');
 		}
 
 		var nbUsers = listUsers.length + 1;
@@ -965,7 +933,12 @@ var TransferView = BaseView.extend({
 	},
 
 	resetNewTransfer: function () {
-		this.trigger('remove-transfer', this.data.type);
+		this.trigger('remove-transfer');
+	},
+
+	remove: function () {
+		this.$el.slideUp('');
+		BaseView.prototype.remove.call(this);
 	}
 });
 
@@ -1087,9 +1060,9 @@ buf.push('<button class="btn btn-info">' + escape((interp = user) == null ? '' :
   }
 }).call(this);
 
-buf.push('<p></p><div><button class="home-delete-count btn btn-default btn-block">Supprimer</button><button class="home-modify-count btn btn-default btn-block">Modifier</button></div>');
+buf.push('<p></p>');
 }
-buf.push('</div></div>');
+buf.push('<div><button class="home-delete-count btn btn-default btn-block">Supprimer</button><button class="home-modify-count btn btn-default btn-block">Modifier</button></div></div></div>');
 }
 return buf.join("");
 };
