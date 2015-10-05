@@ -5,7 +5,8 @@ var cozydb = require('cozydb');
 var CountModel = cozydb.getModel('Count', {
   name:					String,
   description:	String,
-	users:				[String],
+	allExpenses:	{type: Number, default: 0},
+	users:				[Object],
 	history:			[Object]
 });
 

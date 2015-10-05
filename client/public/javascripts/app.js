@@ -147,7 +147,31 @@ module.exports = CountList;
 
 });
 
-require.register("initialize", function(exports, require, module) {
+require.register("helper/color_set", function(exports, require, module) {
+module.exports = [
+    '304FFE',
+    '2979FF',
+    '00B0FF',
+    '00DCE9',
+    '00D5B8',
+    '00C853',
+    'E70505',
+    'FF5700',
+    'FF7900',
+    'FFA300',
+    'B3C51D',
+    '64DD17',
+    'FF2828',
+    'F819AA',
+    'AA00FF',
+    '6200EA',
+    '7190AB',
+    '51658D'
+]
+
+});
+
+;require.register("initialize", function(exports, require, module) {
 var application = require('application');
 
 $(function () {
@@ -494,6 +518,8 @@ var template = require('./templates/count');
 var templateHistory = require('./templates/history_elem');
 
 var TransferView = require('./transfer/transfer_view');
+var setColor = require('../../helper/color_set');
+
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
@@ -502,6 +528,9 @@ var CountView = BaseView.extend({
 	templateHistory : templateHistory,
 
 	count: null,
+	dataResume: {
+		allExpense: 0,
+	},
 
 	transferView: null,
 
@@ -541,15 +570,22 @@ var CountView = BaseView.extend({
 		history.forEach(function (transfer) {
 			self.$('#history-list-view').append(self.templateHistory({transfer: transfer}));
 		});
+
+		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
+		var data = this.count.get('users').map(function (elem) {
+			return {value: elem.expenses, color: '#'+elem.color, label: elem.name}
+		});
+		this.pieChart = new Chart(chartCtx).Pie(data);
 	},
 
 
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
+		var color = setColor[userList.length % setColor.length];
 
-		userList.push(newUser);
-		this.$('#user-list').append('<p>' + newUser + '</p>');
+		userList.push({name: newUser, expenses: 0, color: color});
+		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 		if (this.transferView !== null) {
 			this.transferView.addUserToCount(newUser);
 		}
@@ -559,15 +595,20 @@ var CountView = BaseView.extend({
 
 
 	lauchNewTransfer: function (event) {
-		console.log('plop')
 		if (this.transferView == null) {
-			this.transferView = new TransferView({count: this.count, users: this.count.get('users')});
+			this.transferView = new TransferView({
+				count: this.count,
+				users: this.count.get('users'),
+				pieChart: this.pieChart
+			});
 			this.transferView.render();
 
 			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
 				this.$('#history-list-view').prepend(this.templateHistory({transfer: data}));
+				this.$('#nb-expenses').text(this.count.get('history').length);
+				this.$('#all-expenses').text(this.count.get('allExpenses'));
 				this.removeTransferView();
 
 			});
@@ -617,25 +658,29 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div class="panel panel-default"><div class="panel-heading">Users</div><div class="panel-body"><div id="user-list">');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div class="panel panel-default"><div class="panel-heading">Users</div><div class="panel-body"><div class="row"><div class="col-md-4"><div id="user-list">');
 // iterate count.users
 ;(function(){
   if ('number' == typeof count.users.length) {
     for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
       var user = count.users[$index];
 
-buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+buf.push('<p></p><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
     }
   } else {
     for (var $index in count.users) {
       var user = count.users[$index];
 
-buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+buf.push('<p></p><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
    }
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="col-lg-3"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div></div></div><div class="panel panel-default panel-heading">History<div class="panel-body"><div class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="history-list-view"></div></div>');
+buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4"><canvas id="chart-users"></canvas></div><div class="col-md-4"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.history.length) == null ? '' : interp) + '</p></div></div></div></div><div class="panel panel-default panel-heading">History<div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="history-list-view"></div></div>');
 }
 return buf.join("");
 };
@@ -704,16 +749,16 @@ buf.push('<div id="new-transfer-displayer" style="display: none"><label for="new
       var user = users[$index];
 
 buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user) == null ? '' : interp) + '</button>');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
     }
   } else {
     for (var $index in users) {
       var user = users[$index];
 
 buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user) == null ? '' : interp) + '</button>');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
    }
   }
 }).call(this);
@@ -782,6 +827,7 @@ var TransferView = BaseView.extend({
 	initialize: function (attributes) {
 		this.count = attributes.count;
 		this.users = attributes.users;
+		this.pieChart = attributes.pieChart;
 		this.data = {
 			users: [],
 			amount: 0,
@@ -926,8 +972,26 @@ var TransferView = BaseView.extend({
 	sendTransfer: function () {
 		if (this.data.amount != 0) {
 			var countHistory = this.count.get('history');
-			countHistory.unshift(this.data);
-			this.count.save({history: countHistory});
+
+			countHistory.push(this.data);
+			this.count.set('history', countHistory);
+			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
+			this.count.set('allExpenses', newAllExpenses);
+
+			for (i in this.data.users) {
+				var user = this.data.users[i];
+				var index = this.count.get('users').findIndex(function (elem, index) {
+					if (elem.name === user.name) {
+						elem.expenses += user.amount;
+						return true
+					}
+					return false
+				});
+				this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
+			};
+
+			this.pieChart.update();
+			this.count.save();
 			this.trigger('new-transfer', this.data);
 		}
 	},

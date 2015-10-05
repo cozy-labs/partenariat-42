@@ -5,6 +5,8 @@ var template = require('./templates/count');
 var templateHistory = require('./templates/history_elem');
 
 var TransferView = require('./transfer/transfer_view');
+var setColor = require('../../helper/color_set');
+
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
@@ -13,6 +15,9 @@ var CountView = BaseView.extend({
 	templateHistory : templateHistory,
 
 	count: null,
+	dataResume: {
+		allExpense: 0,
+	},
 
 	transferView: null,
 
@@ -52,15 +57,22 @@ var CountView = BaseView.extend({
 		history.forEach(function (transfer) {
 			self.$('#history-list-view').append(self.templateHistory({transfer: transfer}));
 		});
+
+		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
+		var data = this.count.get('users').map(function (elem) {
+			return {value: elem.expenses, color: '#'+elem.color, label: elem.name}
+		});
+		this.pieChart = new Chart(chartCtx).Pie(data);
 	},
 
 
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
+		var color = setColor[userList.length % setColor.length];
 
-		userList.push(newUser);
-		this.$('#user-list').append('<p>' + newUser + '</p>');
+		userList.push({name: newUser, expenses: 0, color: color});
+		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 		if (this.transferView !== null) {
 			this.transferView.addUserToCount(newUser);
 		}
@@ -70,15 +82,20 @@ var CountView = BaseView.extend({
 
 
 	lauchNewTransfer: function (event) {
-		console.log('plop')
 		if (this.transferView == null) {
-			this.transferView = new TransferView({count: this.count, users: this.count.get('users')});
+			this.transferView = new TransferView({
+				count: this.count,
+				users: this.count.get('users'),
+				pieChart: this.pieChart
+			});
 			this.transferView.render();
 
 			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
 				this.$('#history-list-view').prepend(this.templateHistory({transfer: data}));
+				this.$('#nb-expenses').text(this.count.get('history').length);
+				this.$('#all-expenses').text(this.count.get('allExpenses'));
 				this.removeTransferView();
 
 			});

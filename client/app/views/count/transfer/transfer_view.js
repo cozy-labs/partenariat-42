@@ -29,6 +29,7 @@ var TransferView = BaseView.extend({
 	initialize: function (attributes) {
 		this.count = attributes.count;
 		this.users = attributes.users;
+		this.pieChart = attributes.pieChart;
 		this.data = {
 			users: [],
 			amount: 0,
@@ -173,8 +174,26 @@ var TransferView = BaseView.extend({
 	sendTransfer: function () {
 		if (this.data.amount != 0) {
 			var countHistory = this.count.get('history');
-			countHistory.unshift(this.data);
-			this.count.save({history: countHistory});
+
+			countHistory.push(this.data);
+			this.count.set('history', countHistory);
+			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
+			this.count.set('allExpenses', newAllExpenses);
+
+			for (i in this.data.users) {
+				var user = this.data.users[i];
+				var index = this.count.get('users').findIndex(function (elem, index) {
+					if (elem.name === user.name) {
+						elem.expenses += user.amount;
+						return true
+					}
+					return false
+				});
+				this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
+			};
+
+			this.pieChart.update();
+			this.count.save();
 			this.trigger('new-transfer', this.data);
 		}
 	},
