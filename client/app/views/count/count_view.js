@@ -4,6 +4,8 @@ var app = require('../../application');
 var template = require('./templates/count');
 var templateHistory = require('./templates/history_elem');
 
+var TransferView = require('./transfer/transfer_view');
+
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,

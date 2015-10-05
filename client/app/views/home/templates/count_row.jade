@@ -6,6 +6,8 @@ div.panel.panel-default
 		if model.users.length > 0
 			h4 Users
 			each user in model.users
-				p #{user}
-		button.home-delete-count.btn.btn-default Supprimer
-		button.home-modify-count.btn.btn-default Modifier
+				button.btn.btn-info #{user}
+			p
+			div
+				button.home-delete-count.btn.btn-default.btn-block Supprimer
+				button.home-modify-count.btn.btn-default.btn-block Modifier

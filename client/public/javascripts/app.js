@@ -493,6 +493,8 @@ var app = require('../../application');
 var template = require('./templates/count');
 var templateHistory = require('./templates/history_elem');
 
+var TransferView = require('./transfer/transfer_view');
+
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
@@ -1074,19 +1076,20 @@ buf.push('<h4>Users</h4>');
     for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
       var user = model.users[$index];
 
-buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+buf.push('<button class="btn btn-info">' + escape((interp = user) == null ? '' : interp) + '</button>');
     }
   } else {
     for (var $index in model.users) {
       var user = model.users[$index];
 
-buf.push('<p>' + escape((interp = user) == null ? '' : interp) + '</p>');
+buf.push('<button class="btn btn-info">' + escape((interp = user) == null ? '' : interp) + '</button>');
    }
   }
 }).call(this);
 
+buf.push('<p></p><div><button class="home-delete-count btn btn-default btn-block">Supprimer</button><button class="home-modify-count btn btn-default btn-block">Modifier</button></div>');
 }
-buf.push('<button class="home-delete-count btn btn-default">Supprimer</button><button class="home-modify-count btn btn-default">Modifier</button></div></div>');
+buf.push('</div></div>');
 }
 return buf.join("");
 };
