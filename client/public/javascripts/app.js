@@ -492,13 +492,12 @@ var app = require('../../application');
 
 var template = require('./templates/count');
 var templateHistory = require('./templates/history_elem');
-var TransferView = require('./transfer/transfer_view');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
 
-	templateHistory: templateHistory,
+	templateHistory : templateHistory,
 
 	count: null,
 
@@ -507,6 +506,7 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user':	'addUser',
 		'click .transfer-type': 'lauchNewTransfer',
+		'click .header-history-elem': 'printTransferBody',
 	},
 
 
@@ -585,6 +585,25 @@ var CountView = BaseView.extend({
 		targetButton.addClass('btn-default');
 	},
 
+
+	printTransferBody: function (event) {
+		var elem =  $(event.target);
+		if (elem.is('span')) {
+			var historyBody =  $(event.target).parent().next('div');
+		}
+		else {
+			var historyBody =  $(event.target).next('div');
+		}
+		if (historyBody.is('.printed')) {
+			historyBody.slideUp('');
+			historyBody.removeClass('printed');
+		}
+		else {
+			historyBody.slideDown('slow');
+			historyBody.addClass('printed');
+		}
+	},
+
 });
 
 module.exports = CountView;
@@ -633,7 +652,7 @@ var history_row_mixin = function(user){
 var block = this.block, attributes = this.attributes || {}, escaped = this.escaped || {};
 buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
 };
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = transfer.type) == null ? '' : interp) + '</div><div class="panel-body">');
+buf.push('<div class="panel panel-default"><div class="panel-heading header-history-elem"><span> ' + escape((interp = transfer.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = transfer.amount) == null ? '' : interp) + '</span></div><div style="display: none" class="panel-body">');
 if ( transfer.title)
 {
 buf.push('<h3>' + escape((interp = transfer.title) == null ? '' : interp) + '</h3>');
@@ -664,7 +683,7 @@ history_row_mixin(user);
   }
 }).call(this);
 
-buf.push('</tbody></table><h3>Total amount: ' + escape((interp = transfer.amount) == null ? '' : interp) + '</h3></div></div>');
+buf.push('</tbody></table></div></div>');
 }
 return buf.join("");
 };

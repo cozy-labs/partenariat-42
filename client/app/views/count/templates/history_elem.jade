@@ -5,9 +5,13 @@ mixin history_row(user)
 		td #{user.amount}
 
 
+
 .panel.panel-default
-	.panel-heading #{transfer.type}
-	.panel-body
+	.panel-heading.header-history-elem
+		span  #{transfer.name}
+		span(style='float: right') #{transfer.amount}
+
+	.panel-body(style='display: none')
 		if transfer.title
 			h3 #{transfer.title}
 		if transfer.description
@@ -23,4 +27,3 @@ mixin history_row(user)
 			tbody
 				for user in transfer.users
 					+history_row(user)
-		h3 Total amount: #{transfer.amount}

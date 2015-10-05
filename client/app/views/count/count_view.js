@@ -3,13 +3,12 @@ var app = require('../../application');
 
 var template = require('./templates/count');
 var templateHistory = require('./templates/history_elem');
-var TransferView = require('./transfer/transfer_view');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
 
-	templateHistory: templateHistory,
+	templateHistory : templateHistory,
 
 	count: null,
 
@@ -18,6 +17,7 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user':	'addUser',
 		'click .transfer-type': 'lauchNewTransfer',
+		'click .header-history-elem': 'printTransferBody',
 	},
 
 
@@ -94,6 +94,25 @@ var CountView = BaseView.extend({
 		var targetButton = this.$('#transfer-type-'+ type);
 		targetButton.removeClass('btn-info');
 		targetButton.addClass('btn-default');
+	},
+
+
+	printTransferBody: function (event) {
+		var elem =  $(event.target);
+		if (elem.is('span')) {
+			var historyBody =  $(event.target).parent().next('div');
+		}
+		else {
+			var historyBody =  $(event.target).next('div');
+		}
+		if (historyBody.is('.printed')) {
+			historyBody.slideUp('');
+			historyBody.removeClass('printed');
+		}
+		else {
+			historyBody.slideDown('slow');
+			historyBody.addClass('printed');
+		}
 	},
 
 });
