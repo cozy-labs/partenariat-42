@@ -22,12 +22,12 @@
 				label(for='all-expenses') All Expenses:
 				p#all-expenses #{count.allExpenses}
 				label(for='nb-expenses') Number Expenses:
-				p#nb-expenses #{count.history.length}
+				p#nb-expenses #{count.expenses.length}
 
 
-.panel.panel-default.panel-heading History
+.panel.panel-default.panel-heading Expense
 	.panel-body
 		.panel.panel-default(style='background-color: grey')
 			#new-transfer-module.panel-body
 				button#add-new-transfer.btn.btn-default.btn-block Add a new expense
-	#history-list-view
+	#expense-list-view

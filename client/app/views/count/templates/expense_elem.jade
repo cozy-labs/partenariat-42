@@ -1,4 +1,4 @@
-mixin history_row(user)
+mixin expense_row(user)
 	tr
 		td #{user.name}
 		td #{user.share}
@@ -7,11 +7,11 @@ mixin history_row(user)
 
 
 .panel.panel-default
-	.panel-heading.header-history-elem
+	.panel-heading.header-expense-elem
 		span  #{transfer.name}
 		span(style='float: right') #{transfer.amount}
 
-	.panel-body(style='display: none')
+	.panel-body(style='display: none', id="#{transfer.id}")
 		if transfer.title
 			h3 #{transfer.title}
 		if transfer.description
@@ -26,6 +26,6 @@ mixin history_row(user)
 					th Amount
 			tbody
 				for user in transfer.users
-					+history_row(user)
-		button#delete-history-elem.btn.btn-default.btn-block Delete
-		button#update-history-elem.btn.btn-default.btn-block Modify
+					+expense_row(user)
+		button.delete-expense-elem.btn.btn-default.btn-block Delete
+		button.update-expense-elem.btn.btn-default.btn-block Modify

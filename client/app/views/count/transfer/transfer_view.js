@@ -173,13 +173,13 @@ var TransferView = BaseView.extend({
 
 	sendTransfer: function () {
 		if (this.data.amount != 0) {
-			var countHistory = this.count.get('history');
+			var countExpenses = this.count.get('expenses');
 
 			this.data.id = Date.now() + Math.round(Math.random() % 100);
 
 
-			countHistory.push(this.data);
-			this.count.set('history', countHistory);
+			countExpenses.push(this.data);
+			this.count.set('expense', countExpenses);
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
 			this.count.set('allExpenses', newAllExpenses);
 

@@ -516,7 +516,7 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var template = require('./templates/count');
-var templateHistory = require('./templates/history_elem');
+var templateExpense = require('./templates/expense_elem');
 
 var TransferView = require('./transfer/transfer_view');
 var setColor = require('../../helper/color_set');
@@ -526,7 +526,7 @@ var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
 
-	templateHistory : templateHistory,
+	templateExpense : templateExpense,
 
 	count: null,
 	dataResume: {
@@ -538,7 +538,8 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user':	'addUser',
 		'click #add-new-transfer': 'lauchNewTransfer',
-		'click .header-history-elem': 'printTransferBody',
+		'click .header-expense-elem': 'printTransferBody',
+		'click .delete-expense-elem': 'deleteExpenseElem',
 	},
 
 
@@ -565,11 +566,11 @@ var CountView = BaseView.extend({
 
 
 	afterRender: function () {
-		var history = this.count.get('history');
+		var expense = this.count.get('expenses');
 
 		var self = this;
-		history.forEach(function (transfer) {
-			self.$('#history-list-view').append(self.templateHistory({transfer: transfer}));
+		expense.forEach(function (transfer) {
+			self.$('#expense-list-view').append(self.templateExpense({transfer: transfer}));
 		});
 
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
@@ -607,8 +608,8 @@ var CountView = BaseView.extend({
 			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
-				this.$('#history-list-view').prepend(this.templateHistory({transfer: data}));
-				this.$('#nb-expenses').text(this.count.get('history').length);
+				this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+				this.$('#nb-expenses').text(this.count.get('expense').length);
 				this.$('#all-expenses').text(this.count.get('allExpenses'));
 				this.removeTransferView();
 
@@ -631,19 +632,25 @@ var CountView = BaseView.extend({
 	printTransferBody: function (event) {
 		var elem =  $(event.target);
 		if (elem.is('span')) {
-			var historyBody =  $(event.target).parent().next('div');
+			var expenseBody =  $(event.target).parent().next('div');
 		}
 		else {
-			var historyBody =  $(event.target).next('div');
+			var expenseBody =  $(event.target).next('div');
 		}
-		if (historyBody.is('.printed')) {
-			historyBody.slideUp('');
-			historyBody.removeClass('printed');
+		if (expenseBody.is('.printed')) {
+			expenseBody.slideUp('');
+			expenseBody.removeClass('printed');
 		}
 		else {
-			historyBody.slideDown('slow');
-			historyBody.addClass('printed');
+			expenseBody.slideDown('slow');
+			expenseBody.addClass('printed');
 		}
+	},
+
+	deleteexpenseElem: function (event) {
+		var id = this.$(event.target).parent().attr('id');
+		//this.count.removeEx
+		console.log('id: ', id)
 	},
 
 });
@@ -681,24 +688,26 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4"><canvas id="chart-users"></canvas></div><div class="col-md-4"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.history.length) == null ? '' : interp) + '</p></div></div></div></div><div class="panel panel-default panel-heading">History<div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="history-list-view"></div></div>');
+buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4"><canvas id="chart-users"></canvas></div><div class="col-md-4"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p></div></div></div></div><div class="panel panel-default panel-heading">Expense<div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="expense-list-view"></div></div>');
 }
 return buf.join("");
 };
 });
 
-require.register("views/count/templates/history_elem", function(exports, require, module) {
+require.register("views/count/templates/expense_elem", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-var history_row_mixin = function(user){
+var expense_row_mixin = function(user){
 var block = this.block, attributes = this.attributes || {}, escaped = this.escaped || {};
 buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
 };
-buf.push('<div class="panel panel-default"><div class="panel-heading header-history-elem"><span> ' + escape((interp = transfer.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = transfer.amount) == null ? '' : interp) + '</span></div><div style="display: none" class="panel-body">');
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = transfer.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = transfer.amount) == null ? '' : interp) + '</span></div><div');
+buf.push(attrs({ 'style':('display: none'), 'id':("" + (transfer.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
+buf.push('>');
 if ( transfer.title)
 {
 buf.push('<h3>' + escape((interp = transfer.title) == null ? '' : interp) + '</h3>');
@@ -718,18 +727,18 @@ buf.push('<table class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th>
     for (var $index = 0, $$l = transfer.users.length; $index < $$l; $index++) {
       var user = transfer.users[$index];
 
-history_row_mixin(user);
+expense_row_mixin(user);
     }
   } else {
     for (var $index in transfer.users) {
       var user = transfer.users[$index];
 
-history_row_mixin(user);
+expense_row_mixin(user);
    }
   }
 }).call(this);
 
-buf.push('</tbody></table><button id="delete-history-elem" class="btn btn-default btn-block">Delete</button><button id="update-history-elem" class="btn btn-default btn-block">Modify</button></div></div>');
+buf.push('</tbody></table><button class="delete-expense-elem btn btn-default btn-block">Delete</button><button class="update-expense-elem btn btn-default btn-block">Modify</button></div></div>');
 }
 return buf.join("");
 };
@@ -972,13 +981,13 @@ var TransferView = BaseView.extend({
 
 	sendTransfer: function () {
 		if (this.data.amount != 0) {
-			var countHistory = this.count.get('history');
+			var countExpenses = this.count.get('expenses');
 
 			this.data.id = Date.now() + Math.round(Math.random() % 100);
 
 
-			countHistory.push(this.data);
-			this.count.set('history', countHistory);
+			countExpenses.push(this.data);
+			this.count.set('expense', countExpenses);
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
 			this.count.set('allExpenses', newAllExpenses);
 

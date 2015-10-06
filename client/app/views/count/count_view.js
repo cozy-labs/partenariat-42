@@ -2,7 +2,7 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var template = require('./templates/count');
-var templateHistory = require('./templates/history_elem');
+var templateExpense = require('./templates/expense_elem');
 
 var TransferView = require('./transfer/transfer_view');
 var setColor = require('../../helper/color_set');
@@ -12,7 +12,7 @@ var CountView = BaseView.extend({
 	id: 'count-screen',
 	template: template,
 
-	templateHistory : templateHistory,
+	templateExpense : templateExpense,
 
 	count: null,
 	dataResume: {
@@ -24,7 +24,8 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user':	'addUser',
 		'click #add-new-transfer': 'lauchNewTransfer',
-		'click .header-history-elem': 'printTransferBody',
+		'click .header-expense-elem': 'printTransferBody',
+		'click .delete-expense-elem': 'deleteExpenseElem',
 	},
 
 
@@ -51,11 +52,11 @@ var CountView = BaseView.extend({
 
 
 	afterRender: function () {
-		var history = this.count.get('history');
+		var expense = this.count.get('expenses');
 
 		var self = this;
-		history.forEach(function (transfer) {
-			self.$('#history-list-view').append(self.templateHistory({transfer: transfer}));
+		expense.forEach(function (transfer) {
+			self.$('#expense-list-view').append(self.templateExpense({transfer: transfer}));
 		});
 
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
@@ -93,8 +94,8 @@ var CountView = BaseView.extend({
 			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
-				this.$('#history-list-view').prepend(this.templateHistory({transfer: data}));
-				this.$('#nb-expenses').text(this.count.get('history').length);
+				this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+				this.$('#nb-expenses').text(this.count.get('expense').length);
 				this.$('#all-expenses').text(this.count.get('allExpenses'));
 				this.removeTransferView();
 
@@ -117,19 +118,25 @@ var CountView = BaseView.extend({
 	printTransferBody: function (event) {
 		var elem =  $(event.target);
 		if (elem.is('span')) {
-			var historyBody =  $(event.target).parent().next('div');
+			var expenseBody =  $(event.target).parent().next('div');
 		}
 		else {
-			var historyBody =  $(event.target).next('div');
+			var expenseBody =  $(event.target).next('div');
 		}
-		if (historyBody.is('.printed')) {
-			historyBody.slideUp('');
-			historyBody.removeClass('printed');
+		if (expenseBody.is('.printed')) {
+			expenseBody.slideUp('');
+			expenseBody.removeClass('printed');
 		}
 		else {
-			historyBody.slideDown('slow');
-			historyBody.addClass('printed');
+			expenseBody.slideDown('slow');
+			expenseBody.addClass('printed');
 		}
+	},
+
+	deleteexpenseElem: function (event) {
+		var id = this.$(event.target).parent().attr('id');
+		//this.count.removeEx
+		console.log('id: ', id)
 	},
 
 });
