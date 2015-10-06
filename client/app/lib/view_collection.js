@@ -64,11 +64,11 @@ var ViewCollection = BaseView.extend({
     }
 		var self = this;
 		newCollection.forEach(function (elem) {
-				self.addItem(elem, self);
+				self.addItem(elem);
 		});
   },
 
-  addItem: function (model, self) {
+  addItem: function (model) {
     view = new this.itemView({model: model});
     this.views[model.cid] = view.render();
     this.appendView(view);

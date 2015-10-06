@@ -175,6 +175,9 @@ var TransferView = BaseView.extend({
 		if (this.data.amount != 0) {
 			var countHistory = this.count.get('history');
 
+			this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+
 			countHistory.push(this.data);
 			this.count.set('history', countHistory);
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
@@ -189,10 +192,22 @@ var TransferView = BaseView.extend({
 					}
 					return false
 				});
-				this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
+
+				if (index >= this.pieChart.segments.length) {
+					var newUser = this.count.get('users')[index];
+
+					this.pieChart.addData({
+						value: newUser.expenses,
+						color: newUser.color,
+						label: newUser.name
+					});
+				}
+				else {
+					this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
+					this.pieChart.update();
+				}
 			};
 
-			this.pieChart.update();
 			this.count.save();
 			this.trigger('new-transfer', this.data);
 		}

@@ -116,6 +116,7 @@ var Application = {
 	initialize: function () {
 		var Router = require('./router');
 
+
 		// Ideally, initialized classes should be kept in controllers & mediator.
 		// If you're making big webapp, here's more sophisticated skeleton
 		// https://github.com/paulmillr/brunch-with-chaplin
@@ -273,11 +274,11 @@ var ViewCollection = BaseView.extend({
     }
 		var self = this;
 		newCollection.forEach(function (elem) {
-				self.addItem(elem, self);
+				self.addItem(elem);
 		});
   },
 
-  addItem: function (model, self) {
+  addItem: function (model) {
     view = new this.itemView({model: model});
     this.views[model.cid] = view.render();
     this.appendView(view);
@@ -728,7 +729,7 @@ history_row_mixin(user);
   }
 }).call(this);
 
-buf.push('</tbody></table></div></div>');
+buf.push('</tbody></table><button id="delete-history-elem" class="btn btn-default btn-block">Delete</button><button id="update-history-elem" class="btn btn-default btn-block">Modify</button></div></div>');
 }
 return buf.join("");
 };
@@ -973,6 +974,9 @@ var TransferView = BaseView.extend({
 		if (this.data.amount != 0) {
 			var countHistory = this.count.get('history');
 
+			this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+
 			countHistory.push(this.data);
 			this.count.set('history', countHistory);
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
@@ -987,10 +991,22 @@ var TransferView = BaseView.extend({
 					}
 					return false
 				});
-				this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
+
+				if (index >= this.pieChart.segments.length) {
+					var newUser = this.count.get('users')[index];
+
+					this.pieChart.addData({
+						value: newUser.expenses,
+						color: newUser.color,
+						label: newUser.name
+					});
+				}
+				else {
+					this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
+					this.pieChart.update();
+				}
 			};
 
-			this.pieChart.update();
 			this.count.save();
 			this.trigger('new-transfer', this.data);
 		}
@@ -1113,13 +1129,17 @@ buf.push('<h4>Users</h4>');
     for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
       var user = model.users[$index];
 
-buf.push('<button class="btn btn-info">' + escape((interp = user) == null ? '' : interp) + '</button>');
+buf.push('<button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
     }
   } else {
     for (var $index in model.users) {
       var user = model.users[$index];
 
-buf.push('<button class="btn btn-info">' + escape((interp = user) == null ? '' : interp) + '</button>');
+buf.push('<button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
    }
   }
 }).call(this);

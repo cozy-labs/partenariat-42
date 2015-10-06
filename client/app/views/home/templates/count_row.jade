@@ -6,7 +6,7 @@ div.panel.panel-default
 		if model.users.length > 0
 			h4 Users
 			each user in model.users
-				button.btn.btn-info #{user}
+				button.btn(style="background-color: ##{user.color}") #{user.name}
 			p
 		div
 			button.home-delete-count.btn.btn-default.btn-block Supprimer
