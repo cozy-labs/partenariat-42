@@ -1,18 +1,17 @@
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
-var template = require('./templates/count');
-var templateExpense = require('./templates/expense_elem');
-
 var TransferView = require('./transfer/transfer_view');
+var StatsView = require('./stats_view');
+
 var setColor = require('../../helper/color_set');
 
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
-	template: template,
+	template: require('./templates/count'),
 
-	templateExpense : templateExpense,
+	templateExpense : require('./templates/expense_elem'),
 
 	count: null,
 	dataResume: {
@@ -53,17 +52,15 @@ var CountView = BaseView.extend({
 
 	afterRender: function () {
 		var expense = this.count.get('expenses');
-
 		var self = this;
+
 		expense.forEach(function (transfer) {
 			self.$('#expense-list-view').append(self.templateExpense({transfer: transfer}));
 		});
 
-		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-		var data = this.count.get('users').map(function (elem) {
-			return {value: elem.expenses, color: '#'+elem.color, label: elem.name}
-		});
-		this.pieChart = new Chart(chartCtx).Pie(data);
+		this.stats = new StatsView({count: this.count});
+		this.stats.render();
+
 	},
 
 
@@ -95,8 +92,7 @@ var CountView = BaseView.extend({
 
 			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
 				this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
-				this.$('#nb-expenses').text(this.count.get('expense').length);
-				this.$('#all-expenses').text(this.count.get('allExpenses'));
+				this.stats.update();
 				this.removeTransferView();
 
 			});
@@ -133,11 +129,12 @@ var CountView = BaseView.extend({
 		}
 	},
 
-	deleteexpenseElem: function (event) {
-		var id = this.$(event.target).parent().attr('id');
-		//this.count.removeEx
-		console.log('id: ', id)
+	deleteExpenseElem: function (event) {
+		this.count.removeExpense(Number(this.$(event.target).parent().attr('id')));
+		this.$(event.target).parent().parent().remove();
+		this.stats.update();
 	},
+
 
 });
 

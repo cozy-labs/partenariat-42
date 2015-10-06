@@ -41,7 +41,7 @@ var TransferView = BaseView.extend({
 
 	render: function () {
 		$('#add-new-transfer').remove()
-		$('#new-transfer-module').prepend(this.$el);
+			$('#new-transfer-module').prepend(this.$el);
 		this.$el.html(this.template({users: this.users}));
 		this.$('#new-transfer-displayer').slideDown('slow');
 
@@ -73,8 +73,8 @@ var TransferView = BaseView.extend({
 			this.data.users.forEach(function (user) {
 				user.amount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
 				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
-					self.$('#new-transfer-contrib-content').append(
-							self.templateTransferContribRow({user: user}));
+				self.$('#new-transfer-contrib-content').append(
+						self.templateTransferContribRow({user: user}));
 			});
 		}
 	},
@@ -159,15 +159,15 @@ var TransferView = BaseView.extend({
 		}
 		else {
 			this.removeUserFromTransfer(event);
-			}
+		}
 
 		this.updateContribTable();
 	},
 
 
 	addUserToCount: function (newUser) {
-			this.$('#new-transfer-user-content').append('<button type="button" value="'+ newUser +
-					'" class="btn btn-default transfer-user">' + newUser + '</button>');
+		this.$('#new-transfer-user-content').append('<button type="button" value="'+ newUser +
+				'" class="btn btn-default transfer-user">' + newUser + '</button>');
 	},
 
 
@@ -179,7 +179,7 @@ var TransferView = BaseView.extend({
 
 
 			countExpenses.push(this.data);
-			this.count.set('expense', countExpenses);
+			this.count.set('expenses', countExpenses);
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
 			this.count.set('allExpenses', newAllExpenses);
 
@@ -193,23 +193,9 @@ var TransferView = BaseView.extend({
 					return false
 				});
 
-				if (index >= this.pieChart.segments.length) {
-					var newUser = this.count.get('users')[index];
-
-					this.pieChart.addData({
-						value: newUser.expenses,
-						color: newUser.color,
-						label: newUser.name
-					});
-				}
-				else {
-					this.pieChart.segments[index].value = this.count.get('users')[index].expenses;
-					this.pieChart.update();
-				}
-			};
-
-			this.count.save();
-			this.trigger('new-transfer', this.data);
+				this.count.save();
+				this.trigger('new-transfer', this.data);
+			}
 		}
 	},
 
