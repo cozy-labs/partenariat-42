@@ -319,6 +319,7 @@ var Count = Backbone.Model.extend({
 		var currentExpenses = this.get('allExpenses');
 		var currentUsers = this.get('users');
 
+		console.log('expenxe remove 1: ', expenseRemove);
 		var users = expenseRemove[0].users
 		for (index in users) {
 
@@ -331,9 +332,11 @@ var Count = Backbone.Model.extend({
 			});
 		}
 
+		console.log('current expense: ', currentExpenses);
+		console.log('final expenxe remove: ', expenseRemove[0].amount);
 		this.save({
 			expenses: newExpenses,
-			allExpenses: Number(currentExpenses - expenseRemove.amount)
+			allExpenses: Number(currentExpenses - expenseRemove[0].amount)
 		});
 	},
 });
@@ -546,8 +549,8 @@ var app = require('../../application');
 var TransferView = require('./transfer/transfer_view');
 var StatsView = require('./stats_view');
 
-var setColor = require('../../helper/color_set');
 
+var colorSet = require('../../helper/color_set');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
@@ -564,9 +567,10 @@ var CountView = BaseView.extend({
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
-		'click #add-new-transfer': 'lauchNewTransfer',
+		'click #add-new-transfer'		: 'lauchNewExpense',
 		'click .header-expense-elem': 'printTransferBody',
-		'click .delete-expense-elem': 'deleteExpenseElem',
+		'click .delete-expense-elem': 'deleteExpense',
+		'click .update-expense-elem': 'updateExpense',
 	},
 
 
@@ -609,10 +613,11 @@ var CountView = BaseView.extend({
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
-		var color = setColor[userList.length % setColor.length];
+		var color = colorSet[userList.length % colorSet.length];
 
 		userList.push({name: newUser, expenses: 0, color: color});
 		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+
 		if (this.transferView !== null) {
 			this.transferView.addUserToCount(newUser);
 		}
@@ -621,7 +626,7 @@ var CountView = BaseView.extend({
 	},
 
 
-	lauchNewTransfer: function (event) {
+	lauchNewExpense: function (event) {
 		if (this.transferView == null) {
 			this.transferView = new TransferView({
 				count: this.count,
@@ -638,11 +643,11 @@ var CountView = BaseView.extend({
 				this.removeTransferView();
 
 			});
-		}
-		else {
+		} else {
 			this.transferView.setTransferType(event.target.value);
 		}
 	},
+
 
 	removeTransferView: function () {
 		this.transferView.remove();
@@ -657,26 +662,30 @@ var CountView = BaseView.extend({
 		var elem =  $(event.target);
 		if (elem.is('span')) {
 			var expenseBody =  $(event.target).parent().next('div');
-		}
-		else {
+		} else {
 			var expenseBody =  $(event.target).next('div');
 		}
+
 		if (expenseBody.is('.printed')) {
 			expenseBody.slideUp('');
 			expenseBody.removeClass('printed');
-		}
-		else {
+		} else {
 			expenseBody.slideDown('slow');
 			expenseBody.addClass('printed');
 		}
 	},
 
-	deleteExpenseElem: function (event) {
+
+	deleteExpense: function (event) {
 		this.count.removeExpense(Number(this.$(event.target).parent().attr('id')));
 		this.$(event.target).parent().parent().remove();
 		this.stats.update();
 	},
 
+
+	updateExpense: function (event) {
+		this.$(event.target).parent().remove();
+	}
 
 });
 
@@ -689,6 +698,7 @@ require.register("views/count/stats_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var template = require('./templates/stats');
 
+var colorSet = require('../../helper/color_set');
 
 var StatsView = BaseView.extend({
 	template: template,
@@ -703,7 +713,10 @@ var StatsView = BaseView.extend({
 
 
 	getRenderData: function () {
-		return {count: this.count.toJSON()};
+		return {
+			count: this.count.toJSON(),
+			colorSet: colorSet
+		};
 	},
 
 
@@ -727,18 +740,28 @@ var StatsView = BaseView.extend({
 		this.$('#all-expenses').text(this.count.get('allExpenses'));
 
 		var self = this;
+			console.log('length: ', self.pieChart.segments.length)
+			console.log('user length: ', this.count.get('users').length)
 		this.count.get('users').forEach(function (elem, index) {
+		console.log('pieChart beg: ', this.pieChart)
+			console.log('user: ', elem)
 			if (index < self.pieChart.segments.length) {
+				console.log('update data')
 				self.pieChart.segments[index].value = elem.expenses;
 				self.pieChart.update();
 			}
 			else {
-				self.pieChart.addData({
+				console.log('add data')
+						var data = {
 					value: elem.expenses,
-					color: elem.color,
+					color: '#' + elem.color,
 					label: elem.name
-				});
+				}
+				console.log('data: ', data)
+				self.pieChart.addData(data
+				);
 			}
+		console.log('pieChart end: ', this.pieChart)
 		});
 	},
 
@@ -755,7 +778,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default panel-heading">Expense<div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="expense-list-view"></div></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="expense-list-view"></div></div>');
 }
 return buf.join("");
 };
@@ -805,7 +828,7 @@ expense_row_mixin(user);
   }
 }).call(this);
 
-buf.push('</tbody></table><button class="delete-expense-elem btn btn-default btn-block">Delete</button><button class="update-expense-elem btn btn-default btn-block">Modify</button></div></div>');
+buf.push('</tbody></table><button class="delete-expense-elem btn btn-default btn-block">Delete</button></div></div>');
 }
 return buf.join("");
 };
@@ -825,17 +848,17 @@ buf.push('<div class="panel panel-default"><div class="panel-heading">Users</div
     for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
       var user = count.users[$index];
 
-buf.push('<p></p><button');
+buf.push('<div class="row"><button');
 buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
     }
   } else {
     for (var $index in count.users) {
       var user = count.users[$index];
 
-buf.push('<p></p><button');
+buf.push('<div class="row"><button');
 buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
    }
   }
 }).call(this);
@@ -853,7 +876,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="new-transfer-displayer" style="display: none"><label for="new-transfer-amount">Name<div id="new-transfer-name"><input id="transfer-input-name" type="text" placeholder="Shopping..." class="form-contrl"/></div><label for="new-transfer-amount">Description</label><div id="new-transfer-description"><input id="transfer-input-description" type="text" class="form-contrl"/></div><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
+buf.push('<div id="new-transfer-displayer" style="display: none"><label for="new-transfer-amount">Name</label><div id="new-transfer-name"><input id="transfer-input-name" type="text" placeholder="Shopping..." class="form-contrl"/></div><label for="new-transfer-amount">Description</label><div id="new-transfer-description"><input id="transfer-input-description" type="text" class="form-contrl"/></div><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -875,7 +898,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div></div></label></div><div id="new-transfer-btn" class="row"><button id="transfer-cancel" class="btn btn-default btn-block">Cancel</button></div>');
+buf.push('</div></div></div><div id="new-transfer-btn" class="row"><button id="transfer-cancel" class="btn btn-default btn-block">Cancel</button></div>');
 }
 return buf.join("");
 };
@@ -1083,29 +1106,41 @@ var TransferView = BaseView.extend({
 
 	sendTransfer: function () {
 		if (this.data.amount != 0) {
-			var countExpenses = this.count.get('expenses');
+			var newExpensesList = this.count.get('expenses');
+			newExpensesList.push(this.data);
 
 			this.data.id = Date.now() + Math.round(Math.random() % 100);
 
-
-			countExpenses.push(this.data);
-			this.count.set('expenses', countExpenses);
+			var userInExpense = this.data.users;
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
-			this.count.set('allExpenses', newAllExpenses);
 
-			for (i in this.data.users) {
-				var user = this.data.users[i];
-				var index = this.count.get('users').findIndex(function (elem, index) {
+			var newUserList = this.count.get('users').map(function (user) {
+				userInExpense.every(function (elem) {
 					if (elem.name === user.name) {
-						elem.expenses += user.amount;
-						return true
+						user.expenses += elem.amount;
+						return false;
 					}
-					return false
+					return true;
 				});
+				return user;
+			});
 
-				this.count.save();
-				this.trigger('new-transfer', this.data);
-			}
+			var self = this;
+			this.count.save({
+				allExpenses: newAllExpenses,
+				expenses: newExpensesList,
+				users: newUserList,
+			}, {
+				wait: true,
+				success: function (data) {
+					self.trigger('new-transfer', self.data);
+				},
+				error: function (xhr) {
+					console.error(xht);
+					self.trigger('remove-transfer');
+				}
+			});
+
 		}
 	},
 

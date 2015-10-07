@@ -4,8 +4,8 @@ var app = require('../../application');
 var TransferView = require('./transfer/transfer_view');
 var StatsView = require('./stats_view');
 
-var setColor = require('../../helper/color_set');
 
+var colorSet = require('../../helper/color_set');
 
 var CountView = BaseView.extend({
 	id: 'count-screen',
@@ -22,9 +22,10 @@ var CountView = BaseView.extend({
 
 	events: {
 		'click #count-lauch-add-user':	'addUser',
-		'click #add-new-transfer': 'lauchNewTransfer',
+		'click #add-new-transfer'		: 'lauchNewExpense',
 		'click .header-expense-elem': 'printTransferBody',
-		'click .delete-expense-elem': 'deleteExpenseElem',
+		'click .delete-expense-elem': 'deleteExpense',
+		'click .update-expense-elem': 'updateExpense',
 	},
 
 
@@ -67,10 +68,11 @@ var CountView = BaseView.extend({
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
-		var color = setColor[userList.length % setColor.length];
+		var color = colorSet[userList.length % colorSet.length];
 
 		userList.push({name: newUser, expenses: 0, color: color});
 		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+
 		if (this.transferView !== null) {
 			this.transferView.addUserToCount(newUser);
 		}
@@ -79,7 +81,7 @@ var CountView = BaseView.extend({
 	},
 
 
-	lauchNewTransfer: function (event) {
+	lauchNewExpense: function (event) {
 		if (this.transferView == null) {
 			this.transferView = new TransferView({
 				count: this.count,
@@ -96,11 +98,11 @@ var CountView = BaseView.extend({
 				this.removeTransferView();
 
 			});
-		}
-		else {
+		} else {
 			this.transferView.setTransferType(event.target.value);
 		}
 	},
+
 
 	removeTransferView: function () {
 		this.transferView.remove();
@@ -115,26 +117,30 @@ var CountView = BaseView.extend({
 		var elem =  $(event.target);
 		if (elem.is('span')) {
 			var expenseBody =  $(event.target).parent().next('div');
-		}
-		else {
+		} else {
 			var expenseBody =  $(event.target).next('div');
 		}
+
 		if (expenseBody.is('.printed')) {
 			expenseBody.slideUp('');
 			expenseBody.removeClass('printed');
-		}
-		else {
+		} else {
 			expenseBody.slideDown('slow');
 			expenseBody.addClass('printed');
 		}
 	},
 
-	deleteExpenseElem: function (event) {
+
+	deleteExpense: function (event) {
 		this.count.removeExpense(Number(this.$(event.target).parent().attr('id')));
 		this.$(event.target).parent().parent().remove();
 		this.stats.update();
 	},
 
+
+	updateExpense: function (event) {
+		this.$(event.target).parent().remove();
+	}
 
 });
 

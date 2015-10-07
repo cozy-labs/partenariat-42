@@ -60,6 +60,16 @@ a:hover,
 a:visited:hover {
   text-decoration: underline;
 }
+.badge2 {
+  flex: none;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  padding: 0;
+  margin-right: 0.8em;
+  -webkit-border-radius: 100%;
+  border-radius: 100%;
+}
 .layout-container {
   width: 940px;
 }

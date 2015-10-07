@@ -5,8 +5,8 @@
 			.col-md-4
 				#user-list
 					each user in count.users
-						p
-						button.btn(style="background-color: ##{user.color}") #{user.name}
+						.row
+							button.btn(style="background-color: ##{user.color}") #{user.name}
 				.row
 					.input-group
 						input#count-input-add-user.form-control(type='text', placeholder='My name')

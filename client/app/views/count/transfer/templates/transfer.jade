@@ -1,28 +1,32 @@
 #new-transfer-displayer(style='display: none')
-	label(for='new-transfer-amount') Name
-		#new-transfer-name
-			input#transfer-input-name.form-contrl(type='text', placeholder='Shopping...')
-		label(for='new-transfer-amount') Description
-		#new-transfer-description
-			input#transfer-input-description.form-contrl(type='text')
-		label(for='new-transfer-amount') amount
-		#new-transfer-amount.row
-			.col-lg-6
-				.input-group
-					input#transfer-input-amount.form-control(type='number', placeholder='42.21',
-					aria-label='...')
-						span.input-group-btn
-							button#transfer-choose-device.btn.btn-default.dropdown-toggle(type='button',
-						data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') €
-							.caret
-								ul.dropdown-menu.dropdown-menu-right
-									li
-										a €
 
-		label(for='new-transfer-user') Users
-		#new-transfer-user.row
-			#new-transfer-user-content.form-group
-				each user in users
-					button.btn.btn-default.transfer-user(type='button', value='#{user.name}') #{user.name}
+	label(for='new-transfer-amount') Name
+	#new-transfer-name
+		input#transfer-input-name.form-contrl(type='text', placeholder='Shopping...')
+
+	label(for='new-transfer-amount') Description
+	#new-transfer-description
+		input#transfer-input-description.form-contrl(type='text')
+
+	label(for='new-transfer-amount') amount
+	#new-transfer-amount.row
+		.col-lg-6
+			.input-group
+				input#transfer-input-amount.form-control(type='number', placeholder='42.21',
+				aria-label='...')
+					span.input-group-btn
+						button#transfer-choose-device.btn.btn-default.dropdown-toggle(type='button',
+					data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') €
+						.caret
+							ul.dropdown-menu.dropdown-menu-right
+								li
+									a €
+
+	label(for='new-transfer-user') Users
+	#new-transfer-user.row
+		#new-transfer-user-content.form-group
+			each user in users
+				button.btn.btn-default.transfer-user(type='button', value='#{user.name}') #{user.name}
+
 #new-transfer-btn.row
 	button#transfer-cancel.btn.btn-default.btn-block Cancel

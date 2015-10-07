@@ -16,6 +16,7 @@ var Count = Backbone.Model.extend({
 		var currentExpenses = this.get('allExpenses');
 		var currentUsers = this.get('users');
 
+		console.log('expenxe remove 1: ', expenseRemove);
 		var users = expenseRemove[0].users
 		for (index in users) {
 
@@ -28,9 +29,11 @@ var Count = Backbone.Model.extend({
 			});
 		}
 
+		console.log('current expense: ', currentExpenses);
+		console.log('final expenxe remove: ', expenseRemove[0].amount);
 		this.save({
 			expenses: newExpenses,
-			allExpenses: Number(currentExpenses - expenseRemove.amount)
+			allExpenses: Number(currentExpenses - expenseRemove[0].amount)
 		});
 	},
 });

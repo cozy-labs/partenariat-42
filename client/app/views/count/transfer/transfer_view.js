@@ -173,29 +173,41 @@ var TransferView = BaseView.extend({
 
 	sendTransfer: function () {
 		if (this.data.amount != 0) {
-			var countExpenses = this.count.get('expenses');
+			var newExpensesList = this.count.get('expenses');
+			newExpensesList.push(this.data);
 
 			this.data.id = Date.now() + Math.round(Math.random() % 100);
 
-
-			countExpenses.push(this.data);
-			this.count.set('expenses', countExpenses);
+			var userInExpense = this.data.users;
 			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
-			this.count.set('allExpenses', newAllExpenses);
 
-			for (i in this.data.users) {
-				var user = this.data.users[i];
-				var index = this.count.get('users').findIndex(function (elem, index) {
+			var newUserList = this.count.get('users').map(function (user) {
+				userInExpense.every(function (elem) {
 					if (elem.name === user.name) {
-						elem.expenses += user.amount;
-						return true
+						user.expenses += elem.amount;
+						return false;
 					}
-					return false
+					return true;
 				});
+				return user;
+			});
 
-				this.count.save();
-				this.trigger('new-transfer', this.data);
-			}
+			var self = this;
+			this.count.save({
+				allExpenses: newAllExpenses,
+				expenses: newExpensesList,
+				users: newUserList,
+			}, {
+				wait: true,
+				success: function (data) {
+					self.trigger('new-transfer', self.data);
+				},
+				error: function (xhr) {
+					console.error(xht);
+					self.trigger('remove-transfer');
+				}
+			});
+
 		}
 	},
 
