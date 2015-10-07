@@ -2,7 +2,7 @@
 
 var Count = Backbone.Model.extend({
 
-	removeExpense: function (id) {
+	removeExpense: function (id, callback) {
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -15,25 +15,33 @@ var Count = Backbone.Model.extend({
 
 		var currentExpenses = this.get('allExpenses');
 		var currentUsers = this.get('users');
+		var usersInExpense = expenseRemove[0].users
 
-		console.log('expenxe remove 1: ', expenseRemove);
-		var users = expenseRemove[0].users
-		for (index in users) {
-
-			currentUsers.every(function (elem) {
-				if (elem.name === users[index].name) {
-					elem.expenses -= users[index].amount;
+		var newUsersList = this.get('users').map(function (elem) {
+			usersInExpense.every(function (user) {
+				if (elem.name === user.name) {
+					elem.expenses = (Math.round((Number(elem.expenses) - Number(user.amount)) * 100) / 100).toFixed(2);
 					return false;
 				}
 				return true;
 			});
-		}
+			return elem;
+		});
 
-		console.log('current expense: ', currentExpenses);
-		console.log('final expenxe remove: ', expenseRemove[0].amount);
+		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove[0].amount)) * 100) / 100).toFixed(2);
+
 		this.save({
 			expenses: newExpenses,
-			allExpenses: Number(currentExpenses - expenseRemove[0].amount)
+			allExpenses: newAllExpenses,
+			users: newUsersList
+		}, {
+			wait: true,
+			success: function () {
+				callback();
+			},
+			error: function (xht) {
+				console.error(xhr);
+			}
 		});
 	},
 });

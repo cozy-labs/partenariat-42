@@ -132,9 +132,12 @@ var CountView = BaseView.extend({
 
 
 	deleteExpense: function (event) {
-		this.count.removeExpense(Number(this.$(event.target).parent().attr('id')));
-		this.$(event.target).parent().parent().remove();
-		this.stats.update();
+		var id = Number(this.$(event.target).parent().attr('id'));
+		var self = this;
+		this.count.removeExpense(id, function () {
+			self.stats.update();
+			self.$(event.target).parent().parent().remove();
+		});
 	},
 
 

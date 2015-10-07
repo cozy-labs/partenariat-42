@@ -305,7 +305,7 @@ require.register("lib/view_helper", function(exports, require, module) {
 
 var Count = Backbone.Model.extend({
 
-	removeExpense: function (id) {
+	removeExpense: function (id, callback) {
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -318,25 +318,33 @@ var Count = Backbone.Model.extend({
 
 		var currentExpenses = this.get('allExpenses');
 		var currentUsers = this.get('users');
+		var usersInExpense = expenseRemove[0].users
 
-		console.log('expenxe remove 1: ', expenseRemove);
-		var users = expenseRemove[0].users
-		for (index in users) {
-
-			currentUsers.every(function (elem) {
-				if (elem.name === users[index].name) {
-					elem.expenses -= users[index].amount;
+		var newUsersList = this.get('users').map(function (elem) {
+			usersInExpense.every(function (user) {
+				if (elem.name === user.name) {
+					elem.expenses = (Math.round((Number(elem.expenses) - Number(user.amount)) * 100) / 100).toFixed(2);
 					return false;
 				}
 				return true;
 			});
-		}
+			return elem;
+		});
 
-		console.log('current expense: ', currentExpenses);
-		console.log('final expenxe remove: ', expenseRemove[0].amount);
+		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove[0].amount)) * 100) / 100).toFixed(2);
+
 		this.save({
 			expenses: newExpenses,
-			allExpenses: Number(currentExpenses - expenseRemove[0].amount)
+			allExpenses: newAllExpenses,
+			users: newUsersList
+		}, {
+			wait: true,
+			success: function () {
+				callback();
+			},
+			error: function (xht) {
+				console.error(xhr);
+			}
 		});
 	},
 });
@@ -677,9 +685,12 @@ var CountView = BaseView.extend({
 
 
 	deleteExpense: function (event) {
-		this.count.removeExpense(Number(this.$(event.target).parent().attr('id')));
-		this.$(event.target).parent().parent().remove();
-		this.stats.update();
+		var id = Number(this.$(event.target).parent().attr('id'));
+		var self = this;
+		this.count.removeExpense(id, function () {
+			self.stats.update();
+			self.$(event.target).parent().parent().remove();
+		});
 	},
 
 
@@ -740,28 +751,18 @@ var StatsView = BaseView.extend({
 		this.$('#all-expenses').text(this.count.get('allExpenses'));
 
 		var self = this;
-			console.log('length: ', self.pieChart.segments.length)
-			console.log('user length: ', this.count.get('users').length)
 		this.count.get('users').forEach(function (elem, index) {
-		console.log('pieChart beg: ', this.pieChart)
-			console.log('user: ', elem)
 			if (index < self.pieChart.segments.length) {
-				console.log('update data')
 				self.pieChart.segments[index].value = elem.expenses;
 				self.pieChart.update();
 			}
 			else {
-				console.log('add data')
-						var data = {
+				self.pieChart.addData({
 					value: elem.expenses,
 					color: '#' + elem.color,
 					label: elem.name
-				}
-				console.log('data: ', data)
-				self.pieChart.addData(data
-				);
+				});
 			}
-		console.log('pieChart end: ', this.pieChart)
 		});
 	},
 
@@ -1112,12 +1113,12 @@ var TransferView = BaseView.extend({
 			this.data.id = Date.now() + Math.round(Math.random() % 100);
 
 			var userInExpense = this.data.users;
-			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
+			var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
 
 			var newUserList = this.count.get('users').map(function (user) {
 				userInExpense.every(function (elem) {
 					if (elem.name === user.name) {
-						user.expenses += elem.amount;
+						user.expenses = (Math.round((Number(user.expenses) + Number(elem.amount)) * 100) / 100).toFixed(2);
 						return false;
 					}
 					return true;

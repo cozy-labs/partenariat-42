@@ -44,28 +44,18 @@ var StatsView = BaseView.extend({
 		this.$('#all-expenses').text(this.count.get('allExpenses'));
 
 		var self = this;
-			console.log('length: ', self.pieChart.segments.length)
-			console.log('user length: ', this.count.get('users').length)
 		this.count.get('users').forEach(function (elem, index) {
-		console.log('pieChart beg: ', this.pieChart)
-			console.log('user: ', elem)
 			if (index < self.pieChart.segments.length) {
-				console.log('update data')
 				self.pieChart.segments[index].value = elem.expenses;
 				self.pieChart.update();
 			}
 			else {
-				console.log('add data')
-						var data = {
+				self.pieChart.addData({
 					value: elem.expenses,
 					color: '#' + elem.color,
 					label: elem.name
-				}
-				console.log('data: ', data)
-				self.pieChart.addData(data
-				);
+				});
 			}
-		console.log('pieChart end: ', this.pieChart)
 		});
 	},
 

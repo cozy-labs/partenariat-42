@@ -179,12 +179,12 @@ var TransferView = BaseView.extend({
 			this.data.id = Date.now() + Math.round(Math.random() % 100);
 
 			var userInExpense = this.data.users;
-			var newAllExpenses = Number(this.count.get('allExpenses')) + Number(this.data.amount);
+			var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
 
 			var newUserList = this.count.get('users').map(function (user) {
 				userInExpense.every(function (elem) {
 					if (elem.name === user.name) {
-						user.expenses += elem.amount;
+						user.expenses = (Math.round((Number(user.expenses) + Number(elem.amount)) * 100) / 100).toFixed(2);
 						return false;
 					}
 					return true;
