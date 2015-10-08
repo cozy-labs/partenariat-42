@@ -762,12 +762,11 @@ var SquareView = BaseView.extend({
 		var users = this.count.get('users');
 
 		var expensePerUser = (Math.round(allExpenses / users.length * 100) / 100).toFixed(2);
-
 		this.usersBalancing = users.map(function (user) {
 			return {
 				name: user.name,
 				color: user.color,
-				balancing: user.expenses - expensePerUser,
+				balancing: (Math.round((user.expenses - expensePerUser) * 100) / 100).toFixed(2)
 			}
 		});
 
@@ -782,16 +781,16 @@ var SquareView = BaseView.extend({
 
 		var i = 0;
 
-		console.log('tmpUsers: ', tmpUsers);
-		while (tmpUsers.length > 1 && i++ < 100) {
+		while (tmpUsers.length > 1 && i++ < 50) {
 			var leecher = null;
 			var indexLeecher = 0;
 
 			for (index in tmpUsers) {
-				console.log('leecher: ', tmpUsers[index]);
 				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
-					leecher = tmpUsers[index];
-					console.log('best leecher: ', leecher.balancing);
+					leecher = {
+						name: tmpUsers[index].name,
+						balancing: Number(tmpUsers[index].balancing)
+					}
 					indexLeecher = index;
 				}
 			}
@@ -800,33 +799,29 @@ var SquareView = BaseView.extend({
 			var indexSeeder = 0;
 
 			for (index in tmpUsers) {
-				console.log('seeder: ', tmpUsers[index]);
 				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
-					seeder = tmpUsers[index];
-					console.log('best seeder: ', seeder.balancing);
+					seeder = {
+						name: tmpUsers[index].name,
+						balancing: Number(tmpUsers[index].balancing)
+					}
 					indexSeeder = index;
 				}
 			}
 
-			var exchange = 0;
-			console.log('before leecher: ', leecher);
-			console.log('before seeder: ', seeder);
 			if (leecher.balancing * -1 > seeder.balancing) {
 				exchange = seeder.balancing;
 			} else {
-				exchange = - leecher.balancing;
+				exchange = leecher.balancing;
 			}
 
-			seeder.balancing -= exchange;
-			leecher.balancing += exchange
+			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
+			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
 
 			this.squareMoves.push({
 				from: leecher.name,
 				to: seeder.name,
 				exchange: exchange
 			});
-			console.log('after leecher: ', leecher);
-			console.log('after seeder: ', seeder);
 
 			if (leecher.balancing == 0) {
 				tmpUsers.splice(indexLeecher, 1);
@@ -834,11 +829,6 @@ var SquareView = BaseView.extend({
 			if (seeder.balancing == 0) {
 				tmpUsers.splice(indexSeeder, 1);
 			}
-
-			console.log('exchange: ', exchange);
-			console.log('tmpUsers: ', tmpUsers)
-
-			console.log('$$$$$$$$$$$$$$$$$$$$$$')
 		}
 	},
 
