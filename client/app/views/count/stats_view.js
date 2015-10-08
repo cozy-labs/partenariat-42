@@ -17,9 +17,12 @@ var StatsView = BaseView.extend({
 
 
 	getRenderData: function () {
+		var expensePerUser = (Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
+
 		return {
 			count: this.count.toJSON(),
-			colorSet: colorSet
+			colorSet: colorSet,
+			expensePerUser: expensePerUser
 		};
 	},
 

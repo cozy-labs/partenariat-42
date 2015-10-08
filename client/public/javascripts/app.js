@@ -657,7 +657,7 @@ var CountView = BaseView.extend({
 
 	lauchSquareCount: function () {
 		console.log('square');
-		this.module = new SquareView();
+		this.module = new SquareView({count: this.count});
 
 		this.renderModule();
 	},
@@ -729,17 +729,48 @@ var SquareView = BaseView.extend({
 	id: 'square-view',
 	template: require('./templates/square'),
 
+
 	events: {
 		'click #square-cancel': 'resetSquare',
-
 	},
+
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+
+		this.setUsersBalancing();
+
+		BaseView.prototype.initialize.call(this);
+	},
+
 
 	render: function () {
 		$('#module').prepend(this.$el);
-		this.$el.html(this.template());
-		this.$('#new-transfer-displayer').slideDown('slow');
+		this.$el.html(this.template({users: this.usersBalancing}));
+		this.$('#square-displayer').slideDown('slow');
 
 	},
+
+
+	setUsersBalancing: function () {
+		var allExpenses = this.count.get('allExpenses');
+		var users = this.count.get('users');
+
+		var expensePerUser = (Math.round(allExpenses / users.length * 100) / 100).toFixed(2);
+
+		this.usersBalancing = users.map(function (user) {
+			return {
+				name: user.name,
+				color: user.color,
+				balancing: user.expenses - expensePerUser,
+			}
+		});
+
+		//this.squareMove = users.map()
+
+		console.log('userBalancing: ', this.usersBalancing);
+	},
+
 
 	resetSquare: function () {
 		this.trigger('remove-module');
@@ -770,9 +801,12 @@ var StatsView = BaseView.extend({
 
 
 	getRenderData: function () {
+		var expensePerUser = (Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
+
 		return {
 			count: this.count.toJSON(),
-			colorSet: colorSet
+			colorSet: colorSet,
+			expensePerUser: expensePerUser
 		};
 	},
 
@@ -901,7 +935,47 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="square-displayer" style="display: none"></div><div id="square-btn" class="row"><button id="square-cancel" class="btn btn-default btn-block">Cancel</button></div>');
+buf.push('<div id="square-displayer" style="display: none"><h2>plop</h2><label for="balancing">Balancing:</label><ul id="balancing">');
+// iterate users
+;(function(){
+  if ('number' == typeof users.length) {
+    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
+      var user = users[$index];
+
+buf.push('<li><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+if ( user.balancing > 0)
+{
+buf.push('<span style="color: green"> +' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+else
+{
+buf.push('<span style="color: red"> -' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+buf.push('</li>');
+    }
+  } else {
+    for (var $index in users) {
+      var user = users[$index];
+
+buf.push('<li><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+if ( user.balancing > 0)
+{
+buf.push('<span style="color: green"> +' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+else
+{
+buf.push('<span style="color: red"> -' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+buf.push('</li>');
+   }
+  }
+}).call(this);
+
+buf.push('</ul><label for="balancing">How to be square:</label></div><div id="square-btn" class="row"><button id="square-cancel" class="btn btn-default btn-block">Cancel</button></div>');
 }
 return buf.join("");
 };
@@ -936,7 +1010,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4"><canvas id="chart-users"></canvas></div><div class="col-md-4"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p></div></div></div></div>');
+buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4"><canvas id="chart-users"></canvas></div><div class="col-md-4"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div></div>');
 }
 return buf.join("");
 };

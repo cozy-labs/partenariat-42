@@ -1,4 +1,19 @@
 #square-displayer(style='display: none')
+	h2 plop
+	label(for='balancing') Balancing:
+	ul#balancing
+		for user in users
+			li
+				button.btn(style="background-color: ##{user.color}") #{user.name}:
+				if user.balancing > 0
+					span(style='color: green')  +#{user.balancing}
+				else
+					span(style='color: red')  -#{user.balancing}
+	label(for='balancing') How to be square:
+	//-ul#square
+		//-for move in squareMove
+			//-li #{move.from}
+
 
 #square-btn.row
 	button#square-cancel.btn.btn-default.btn-block Cancel

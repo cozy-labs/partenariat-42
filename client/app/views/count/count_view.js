@@ -104,7 +104,7 @@ var CountView = BaseView.extend({
 
 	lauchSquareCount: function () {
 		console.log('square');
-		this.module = new SquareView();
+		this.module = new SquareView({count: this.count});
 
 		this.renderModule();
 	},
