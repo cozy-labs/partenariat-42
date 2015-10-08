@@ -21,8 +21,8 @@ var TransferView = BaseView.extend({
 
 
 	events: {
-		'click .transfer-user': 'setTransferUser',
-		'click #transfer-send': 'sendTransfer',
+		'click .transfer-user'	: 'setTransferUser',
+		'click #transfer-send'	: 'sendTransfer',
 		'click #transfer-cancel': 'resetNewTransfer',
 	},
 
@@ -40,8 +40,7 @@ var TransferView = BaseView.extend({
 
 
 	render: function () {
-		$('#add-new-transfer').remove()
-			$('#new-transfer-module').prepend(this.$el);
+		$('#module').prepend(this.$el);
 		this.$el.html(this.template({users: this.users}));
 		this.$('#new-transfer-displayer').slideDown('slow');
 
@@ -212,7 +211,7 @@ var TransferView = BaseView.extend({
 	},
 
 	resetNewTransfer: function () {
-		this.trigger('remove-transfer');
+		this.trigger('remove-module');
 	},
 
 	remove: function () {

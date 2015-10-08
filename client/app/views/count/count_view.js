@@ -3,6 +3,7 @@ var app = require('../../application');
 
 var TransferView = require('./transfer/transfer_view');
 var StatsView = require('./stats_view');
+var SquareView = require('./square_view');
 
 
 var colorSet = require('../../helper/color_set');
@@ -12,6 +13,7 @@ var CountView = BaseView.extend({
 	template: require('./templates/count'),
 
 	templateExpense : require('./templates/expense_elem'),
+	templateActionBtn: require('./templates/action_btn'),
 
 	count: null,
 	dataResume: {
@@ -21,11 +23,11 @@ var CountView = BaseView.extend({
 	transferView: null,
 
 	events: {
-		'click #count-lauch-add-user':	'addUser',
-		'click #add-new-transfer'		: 'lauchNewExpense',
-		'click .header-expense-elem': 'printTransferBody',
-		'click .delete-expense-elem': 'deleteExpense',
-		'click .update-expense-elem': 'updateExpense',
+		'click #count-lauch-add-user'	:	'addUser',
+		'click #add-new-transfer'			: 'lauchNewExpense',
+		'click #square-count'					: 'lauchSquareCount',
+		'click .header-expense-elem'	: 'printTransferBody',
+		'click .delete-expense-elem'	: 'deleteExpense',
 	},
 
 
@@ -82,34 +84,52 @@ var CountView = BaseView.extend({
 
 
 	lauchNewExpense: function (event) {
-		if (this.transferView == null) {
-			this.transferView = new TransferView({
+		if (this.module == null) {
+			this.module = new TransferView({
 				count: this.count,
 				users: this.count.get('users'),
 				pieChart: this.pieChart
 			});
-			this.transferView.render();
-
-			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
-
-			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
-				this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
-				this.stats.update();
-				this.removeTransferView();
-
-			});
-		} else {
-			this.transferView.setTransferType(event.target.value);
 		}
+		this.renderModule();
+
+
+		this.listenToOnce(this.module, 'new-transfer', function (data) {
+			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+			this.stats.update();
+			this.removeModule();
+		});
 	},
 
 
-	removeTransferView: function () {
-		this.transferView.remove();
-		delete this.transferView;
-		this.tranferView = null;
+	lauchSquareCount: function () {
+		console.log('square');
+		this.module = new SquareView();
 
-		this.$('#new-transfer-module').prepend('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button>')
+		this.renderModule();
+	},
+
+
+	renderModule: function () {
+		console.log('module');
+
+		this.$('#add-new-transfer').remove();
+		this.$('#square-count').remove();
+
+		this.module.render();
+
+		this.listenToOnce(this.module, 'remove-module', this.removeModule);
+	},
+
+
+	removeModule: function () {
+		console.log('remove module')
+
+		this.module.remove();
+		delete this.module
+		this.module = null;
+
+		this.$('#module').prepend(this.templateActionBtn());
 	},
 
 
@@ -140,10 +160,6 @@ var CountView = BaseView.extend({
 		});
 	},
 
-
-	updateExpense: function (event) {
-		this.$(event.target).parent().remove();
-	}
 
 });
 

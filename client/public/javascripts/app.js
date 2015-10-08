@@ -556,6 +556,7 @@ var app = require('../../application');
 
 var TransferView = require('./transfer/transfer_view');
 var StatsView = require('./stats_view');
+var SquareView = require('./square_view');
 
 
 var colorSet = require('../../helper/color_set');
@@ -565,6 +566,7 @@ var CountView = BaseView.extend({
 	template: require('./templates/count'),
 
 	templateExpense : require('./templates/expense_elem'),
+	templateActionBtn: require('./templates/action_btn'),
 
 	count: null,
 	dataResume: {
@@ -574,11 +576,11 @@ var CountView = BaseView.extend({
 	transferView: null,
 
 	events: {
-		'click #count-lauch-add-user':	'addUser',
-		'click #add-new-transfer'		: 'lauchNewExpense',
-		'click .header-expense-elem': 'printTransferBody',
-		'click .delete-expense-elem': 'deleteExpense',
-		'click .update-expense-elem': 'updateExpense',
+		'click #count-lauch-add-user'	:	'addUser',
+		'click #add-new-transfer'			: 'lauchNewExpense',
+		'click #square-count'					: 'lauchSquareCount',
+		'click .header-expense-elem'	: 'printTransferBody',
+		'click .delete-expense-elem'	: 'deleteExpense',
 	},
 
 
@@ -635,34 +637,52 @@ var CountView = BaseView.extend({
 
 
 	lauchNewExpense: function (event) {
-		if (this.transferView == null) {
-			this.transferView = new TransferView({
+		if (this.module == null) {
+			this.module = new TransferView({
 				count: this.count,
 				users: this.count.get('users'),
 				pieChart: this.pieChart
 			});
-			this.transferView.render();
-
-			this.listenToOnce(this.transferView, 'remove-transfer', this.removeTransferView);
-
-			this.listenToOnce(this.transferView, 'new-transfer', function (data) {
-				this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
-				this.stats.update();
-				this.removeTransferView();
-
-			});
-		} else {
-			this.transferView.setTransferType(event.target.value);
 		}
+		this.renderModule();
+
+
+		this.listenToOnce(this.module, 'new-transfer', function (data) {
+			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+			this.stats.update();
+			this.removeModule();
+		});
 	},
 
 
-	removeTransferView: function () {
-		this.transferView.remove();
-		delete this.transferView;
-		this.tranferView = null;
+	lauchSquareCount: function () {
+		console.log('square');
+		this.module = new SquareView();
 
-		this.$('#new-transfer-module').prepend('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button>')
+		this.renderModule();
+	},
+
+
+	renderModule: function () {
+		console.log('module');
+
+		this.$('#add-new-transfer').remove();
+		this.$('#square-count').remove();
+
+		this.module.render();
+
+		this.listenToOnce(this.module, 'remove-module', this.removeModule);
+	},
+
+
+	removeModule: function () {
+		console.log('remove module')
+
+		this.module.remove();
+		delete this.module
+		this.module = null;
+
+		this.$('#module').prepend(this.templateActionBtn());
 	},
 
 
@@ -694,13 +714,39 @@ var CountView = BaseView.extend({
 	},
 
 
-	updateExpense: function (event) {
-		this.$(event.target).parent().remove();
-	}
-
 });
 
 module.exports = CountView;
+
+});
+
+require.register("views/count/square_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+
+var SquareView = BaseView.extend({
+	id: 'square-view',
+	template: require('./templates/square'),
+
+	events: {
+		'click #square-cancel': 'resetSquare',
+
+	},
+
+	render: function () {
+		$('#module').prepend(this.$el);
+		this.$el.html(this.template());
+		this.$('#new-transfer-displayer').slideDown('slow');
+
+	},
+
+	resetSquare: function () {
+		this.trigger('remove-module');
+	},
+});
+
+module.exports = SquareView;
 
 });
 
@@ -772,6 +818,19 @@ module.exports = StatsView;
 
 });
 
+require.register("views/count/templates/action_btn", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button><button id="square-count" class="btn btn-default btn-block">Make all square</button>');
+}
+return buf.join("");
+};
+});
+
 require.register("views/count/templates/count", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
@@ -779,7 +838,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="new-transfer-module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="expense-list-view"></div></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button><button id="square-count" class="btn btn-default btn-block">Make all square</button></div></div></div><div id="expense-list-view"></div></div>');
 }
 return buf.join("");
 };
@@ -830,6 +889,19 @@ expense_row_mixin(user);
 }).call(this);
 
 buf.push('</tbody></table><button class="delete-expense-elem btn btn-default btn-block">Delete</button></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/square", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div id="square-displayer" style="display: none"></div><div id="square-btn" class="row"><button id="square-cancel" class="btn btn-default btn-block">Cancel</button></div>');
 }
 return buf.join("");
 };
@@ -955,8 +1027,8 @@ var TransferView = BaseView.extend({
 
 
 	events: {
-		'click .transfer-user': 'setTransferUser',
-		'click #transfer-send': 'sendTransfer',
+		'click .transfer-user'	: 'setTransferUser',
+		'click #transfer-send'	: 'sendTransfer',
 		'click #transfer-cancel': 'resetNewTransfer',
 	},
 
@@ -974,8 +1046,7 @@ var TransferView = BaseView.extend({
 
 
 	render: function () {
-		$('#add-new-transfer').remove()
-			$('#new-transfer-module').prepend(this.$el);
+		$('#module').prepend(this.$el);
 		this.$el.html(this.template({users: this.users}));
 		this.$('#new-transfer-displayer').slideDown('slow');
 
@@ -1146,7 +1217,7 @@ var TransferView = BaseView.extend({
 	},
 
 	resetNewTransfer: function () {
-		this.trigger('remove-transfer');
+		this.trigger('remove-module');
 	},
 
 	remove: function () {
