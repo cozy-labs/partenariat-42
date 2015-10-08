@@ -25,7 +25,7 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user'	:	'addUser',
 		'click #add-new-transfer'			: 'lauchNewExpense',
-		'click #square-count'					: 'lauchSquareCount',
+		'click #header-balancing'			: 'printBalancing',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
 	},
@@ -102,17 +102,7 @@ var CountView = BaseView.extend({
 	},
 
 
-	lauchSquareCount: function () {
-		console.log('square');
-		this.module = new SquareView({count: this.count});
-
-		this.renderModule();
-	},
-
-
 	renderModule: function () {
-		console.log('module');
-
 		this.$('#add-new-transfer').remove();
 		this.$('#square-count').remove();
 
@@ -123,13 +113,20 @@ var CountView = BaseView.extend({
 
 
 	removeModule: function () {
-		console.log('remove module')
-
 		this.module.remove();
 		delete this.module
 		this.module = null;
 
 		this.$('#module').prepend(this.templateActionBtn());
+	},
+
+
+	printBalancing: function () {
+		if (this.balancing === null || this.balancing === undefined) {
+			this.balancing = new SquareView({count: this.count});
+			this.balancing.render();
+		}
+		this.balancing.clickDisplayer()
 	},
 
 

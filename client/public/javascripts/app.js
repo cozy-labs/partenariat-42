@@ -578,7 +578,7 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user'	:	'addUser',
 		'click #add-new-transfer'			: 'lauchNewExpense',
-		'click #square-count'					: 'lauchSquareCount',
+		'click #header-balancing'			: 'printBalancing',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
 	},
@@ -655,17 +655,7 @@ var CountView = BaseView.extend({
 	},
 
 
-	lauchSquareCount: function () {
-		console.log('square');
-		this.module = new SquareView({count: this.count});
-
-		this.renderModule();
-	},
-
-
 	renderModule: function () {
-		console.log('module');
-
 		this.$('#add-new-transfer').remove();
 		this.$('#square-count').remove();
 
@@ -676,13 +666,20 @@ var CountView = BaseView.extend({
 
 
 	removeModule: function () {
-		console.log('remove module')
-
 		this.module.remove();
 		delete this.module
 		this.module = null;
 
 		this.$('#module').prepend(this.templateActionBtn());
+	},
+
+
+	printBalancing: function () {
+		if (this.balancing === null || this.balancing === undefined) {
+			this.balancing = new SquareView({count: this.count});
+			this.balancing.render();
+		}
+		this.balancing.clickDisplayer()
 	},
 
 
@@ -730,11 +727,6 @@ var SquareView = BaseView.extend({
 	template: require('./templates/square'),
 
 
-	events: {
-		'click #square-cancel': 'resetSquare',
-	},
-
-
 	initialize: function (attributes) {
 		this.count = attributes.count;
 
@@ -745,10 +737,23 @@ var SquareView = BaseView.extend({
 
 
 	render: function () {
-		$('#module').prepend(this.$el);
-		this.$el.html(this.template({users: this.usersBalancing}));
+		$('#module-balancing').prepend(this.$el);
+		this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
 		this.$('#square-displayer').slideDown('slow');
 
+	},
+
+
+	clickDisplayer: function () {
+		var displayer = this.$('#square-displayer');
+
+		if (displayer.is('.printed')) {
+			displayer.slideUp('slow');
+			displayer.removeClass('printed');
+		} else {
+			displayer.slideDown('slow');
+			displayer.addClass('printed');
+		}
 	},
 
 
@@ -766,9 +771,75 @@ var SquareView = BaseView.extend({
 			}
 		});
 
-		//this.squareMove = users.map()
+		this.setSquareMoves();
 
-		console.log('userBalancing: ', this.usersBalancing);
+	},
+
+	setSquareMoves: function () {
+		this.squareMoves = [];
+
+		var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
+
+		var i = 0;
+
+		console.log('tmpUsers: ', tmpUsers);
+		while (tmpUsers.length > 1 && i++ < 100) {
+			var leecher = null;
+			var indexLeecher = 0;
+
+			for (index in tmpUsers) {
+				console.log('leecher: ', tmpUsers[index]);
+				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
+					leecher = tmpUsers[index];
+					console.log('best leecher: ', leecher.balancing);
+					indexLeecher = index;
+				}
+			}
+
+			var seeder = null;
+			var indexSeeder = 0;
+
+			for (index in tmpUsers) {
+				console.log('seeder: ', tmpUsers[index]);
+				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
+					seeder = tmpUsers[index];
+					console.log('best seeder: ', seeder.balancing);
+					indexSeeder = index;
+				}
+			}
+
+			var exchange = 0;
+			console.log('before leecher: ', leecher);
+			console.log('before seeder: ', seeder);
+			if (leecher.balancing * -1 > seeder.balancing) {
+				exchange = seeder.balancing;
+			} else {
+				exchange = - leecher.balancing;
+			}
+
+			seeder.balancing -= exchange;
+			leecher.balancing += exchange
+
+			this.squareMoves.push({
+				from: leecher.name,
+				to: seeder.name,
+				exchange: exchange
+			});
+			console.log('after leecher: ', leecher);
+			console.log('after seeder: ', seeder);
+
+			if (leecher.balancing == 0) {
+				tmpUsers.splice(indexLeecher, 1);
+			}
+			if (seeder.balancing == 0) {
+				tmpUsers.splice(indexSeeder, 1);
+			}
+
+			console.log('exchange: ', exchange);
+			console.log('tmpUsers: ', tmpUsers)
+
+			console.log('$$$$$$$$$$$$$$$$$$$$$$')
+		}
 	},
 
 
@@ -827,8 +898,14 @@ var StatsView = BaseView.extend({
 
 
 	update: function () {
+		var allExpenses = this.count.get('allExpenses');
+		var nbUsers = this.count.get('users').length;
+
+		var perUserExpenses = (Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+
 		this.$('#nb-expenses').text(this.count.get('expenses').length);
-		this.$('#all-expenses').text(this.count.get('allExpenses'));
+		this.$('#all-expenses').text(allExpenses);
+		this.$('#perUser-expenses').text(perUserExpenses);
 
 		var self = this;
 		this.count.get('users').forEach(function (elem, index) {
@@ -859,7 +936,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button><button id="square-count" class="btn btn-default btn-block">Make all square</button>');
+buf.push('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button>');
 }
 return buf.join("");
 };
@@ -872,7 +949,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button><button id="square-count" class="btn btn-default btn-block">Make all square</button></div></div></div><div id="expense-list-view"></div></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button><button id="square-count" class="btn btn-default btn-block">Make all square</button></div></div></div><div id="expense-list-view"></div></div>');
 }
 return buf.join("");
 };
@@ -935,7 +1012,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="square-displayer" style="display: none"><h2>plop</h2><label for="balancing">Balancing:</label><ul id="balancing">');
+buf.push('<div id="square-displayer" style="display: none" class="panel-body"><h2>plop</h2><label for="balancing">Balancing:</label><ul id="balancing">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -951,7 +1028,7 @@ buf.push('<span style="color: green"> +' + escape((interp = user.balancing) == n
 }
 else
 {
-buf.push('<span style="color: red"> -' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push('<span style="color: red"> ' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
 }
 buf.push('</li>');
     }
@@ -968,14 +1045,32 @@ buf.push('<span style="color: green"> +' + escape((interp = user.balancing) == n
 }
 else
 {
-buf.push('<span style="color: red"> -' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push('<span style="color: red"> ' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
 }
 buf.push('</li>');
    }
   }
 }).call(this);
 
-buf.push('</ul><label for="balancing">How to be square:</label></div><div id="square-btn" class="row"><button id="square-cancel" class="btn btn-default btn-block">Cancel</button></div>');
+buf.push('</ul><label for="balancing">How to be square:</label><ul id="square">');
+// iterate squareMoves
+;(function(){
+  if ('number' == typeof squareMoves.length) {
+    for (var $index = 0, $$l = squareMoves.length; $index < $$l; $index++) {
+      var move = squareMoves[$index];
+
+buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
+    }
+  } else {
+    for (var $index in squareMoves) {
+      var move = squareMoves[$index];
+
+buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
+   }
+  }
+}).call(this);
+
+buf.push('</ul></div>');
 }
 return buf.join("");
 };

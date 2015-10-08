@@ -43,8 +43,14 @@ var StatsView = BaseView.extend({
 
 
 	update: function () {
+		var allExpenses = this.count.get('allExpenses');
+		var nbUsers = this.count.get('users').length;
+
+		var perUserExpenses = (Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+
 		this.$('#nb-expenses').text(this.count.get('expenses').length);
-		this.$('#all-expenses').text(this.count.get('allExpenses'));
+		this.$('#all-expenses').text(allExpenses);
+		this.$('#perUser-expenses').text(perUserExpenses);
 
 		var self = this;
 		this.count.get('users').forEach(function (elem, index) {
