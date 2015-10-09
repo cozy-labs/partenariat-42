@@ -17,7 +17,7 @@ var StatsView = BaseView.extend({
 
 
 	getRenderData: function () {
-		var expensePerUser = (Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
+		var expensePerUser = +(Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
 
 		return {
 			count: this.count.toJSON(),
@@ -43,10 +43,10 @@ var StatsView = BaseView.extend({
 
 
 	update: function () {
-		var allExpenses = this.count.get('allExpenses');
-		var nbUsers = this.count.get('users').length;
+		var allExpenses = Number(this.count.get('allExpenses'));
+		var nbUsers = Number(this.count.get('users').length);
 
-		var perUserExpenses = (Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
 		this.$('#nb-expenses').text(this.count.get('expenses').length);
 		this.$('#all-expenses').text(allExpenses);

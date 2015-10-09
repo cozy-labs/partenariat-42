@@ -633,6 +633,7 @@ var CountView = BaseView.extend({
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
+		this.balancing.update();
 	},
 
 
@@ -650,6 +651,7 @@ var CountView = BaseView.extend({
 		this.listenToOnce(this.module, 'new-transfer', function (data) {
 			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
 			this.stats.update();
+			this.balancing.update();
 			this.removeModule();
 		});
 	},
@@ -706,6 +708,7 @@ var CountView = BaseView.extend({
 		var self = this;
 		this.count.removeExpense(id, function () {
 			self.stats.update();
+			self.balancing.update();
 			self.$(event.target).parent().parent().remove();
 		});
 	},
@@ -757,6 +760,14 @@ var SquareView = BaseView.extend({
 	},
 
 
+	update: function () {
+		this.setUsersBalancing();
+		this.setSquareMoves();
+		this.remove();
+		this.render();
+	},
+
+
 	setUsersBalancing: function () {
 		var allExpenses = this.count.get('allExpenses');
 		var users = this.count.get('users');
@@ -771,8 +782,8 @@ var SquareView = BaseView.extend({
 		});
 
 		this.setSquareMoves();
-
 	},
+
 
 	setSquareMoves: function () {
 		this.squareMoves = [];
@@ -811,17 +822,19 @@ var SquareView = BaseView.extend({
 			if (leecher.balancing * -1 > seeder.balancing) {
 				exchange = seeder.balancing;
 			} else {
-				exchange = leecher.balancing;
+				exchange = - leecher.balancing;
 			}
 
 			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
 			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
 
-			this.squareMoves.push({
-				from: leecher.name,
-				to: seeder.name,
-				exchange: exchange
-			});
+			if (exchange !== 0 && exchange !== 'NaN') {
+				this.squareMoves.push({
+					from: leecher.name,
+					to: seeder.name,
+					exchange: exchange
+				});
+			}
 
 			if (leecher.balancing == 0) {
 				tmpUsers.splice(indexLeecher, 1);
@@ -862,7 +875,7 @@ var StatsView = BaseView.extend({
 
 
 	getRenderData: function () {
-		var expensePerUser = (Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
+		var expensePerUser = +(Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
 
 		return {
 			count: this.count.toJSON(),
@@ -888,10 +901,10 @@ var StatsView = BaseView.extend({
 
 
 	update: function () {
-		var allExpenses = this.count.get('allExpenses');
-		var nbUsers = this.count.get('users').length;
+		var allExpenses = Number(this.count.get('allExpenses'));
+		var nbUsers = Number(this.count.get('users').length);
 
-		var perUserExpenses = (Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
 		this.$('#nb-expenses').text(this.count.get('expenses').length);
 		this.$('#all-expenses').text(allExpenses);
@@ -939,7 +952,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button><button id="square-count" class="btn btn-default btn-block">Make all square</button></div></div></div><div id="expense-list-view"></div></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="expense-list-view"></div></div>');
 }
 return buf.join("");
 };
@@ -1002,7 +1015,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="square-displayer" style="display: none" class="panel-body"><h2>plop</h2><label for="balancing">Balancing:</label><ul id="balancing">');
+buf.push('<div id="square-displayer" style="display: none" class="panel-body"><label for="balancing">Balancing:</label><ul id="balancing">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {

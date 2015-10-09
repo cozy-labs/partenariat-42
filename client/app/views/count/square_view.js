@@ -37,6 +37,14 @@ var SquareView = BaseView.extend({
 	},
 
 
+	update: function () {
+		this.setUsersBalancing();
+		this.setSquareMoves();
+		this.remove();
+		this.render();
+	},
+
+
 	setUsersBalancing: function () {
 		var allExpenses = this.count.get('allExpenses');
 		var users = this.count.get('users');
@@ -51,8 +59,8 @@ var SquareView = BaseView.extend({
 		});
 
 		this.setSquareMoves();
-
 	},
+
 
 	setSquareMoves: function () {
 		this.squareMoves = [];
@@ -91,17 +99,19 @@ var SquareView = BaseView.extend({
 			if (leecher.balancing * -1 > seeder.balancing) {
 				exchange = seeder.balancing;
 			} else {
-				exchange = leecher.balancing;
+				exchange = - leecher.balancing;
 			}
 
 			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
 			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
 
-			this.squareMoves.push({
-				from: leecher.name,
-				to: seeder.name,
-				exchange: exchange
-			});
+			if (exchange !== 0 && exchange !== 'NaN') {
+				this.squareMoves.push({
+					from: leecher.name,
+					to: seeder.name,
+					exchange: exchange
+				});
+			}
 
 			if (leecher.balancing == 0) {
 				tmpUsers.splice(indexLeecher, 1);

@@ -80,6 +80,7 @@ var CountView = BaseView.extend({
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
+		this.balancing.update();
 	},
 
 
@@ -97,6 +98,7 @@ var CountView = BaseView.extend({
 		this.listenToOnce(this.module, 'new-transfer', function (data) {
 			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
 			this.stats.update();
+			this.balancing.update();
 			this.removeModule();
 		});
 	},
@@ -153,6 +155,7 @@ var CountView = BaseView.extend({
 		var self = this;
 		this.count.removeExpense(id, function () {
 			self.stats.update();
+			self.balancing.update();
 			self.$(event.target).parent().parent().remove();
 		});
 	},
