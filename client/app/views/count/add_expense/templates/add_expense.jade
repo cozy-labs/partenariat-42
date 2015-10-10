@@ -1,0 +1,37 @@
+form#add-expense-displayer.form-group(style='display: none')
+		#alert-zone
+		label(for='input-name') Name
+		input#input-name.form-control(type='text', placeholder='Shopping...',
+		maxlength='40', required, autofocus)
+
+	.form-group
+		label(for='input-description') Description
+		textarea#input-description.form-control(rows='5')
+
+	.form-group
+		label(for='input-amount') Amount
+		.input-group
+			input#input-amount.form-control(type='number', placeholder='42.21',
+			aria-label='...', required)
+			div.input-group-btn
+				button#choose-device.btn.btn-default.dropdown-toggle(type='button',
+				data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') €
+				ul.dropdown-menu.dropdown-menu-right
+					li
+						a €
+
+	.form-group
+		label(for='seeder-list') Who Paid ?
+		#seeder-list.form-group
+			each user in users
+				button.btn.btn-default.seeder(type='button', value='#{user.name}') #{user.name}
+
+	.form-group
+		label(for='leecher-list') Who Get Benefice ?
+		#leecher-list.form-group
+			each user in users
+				button.btn.btn-info.leecher(type='button', value='#{user.name}') #{user.name}
+
+	.form-group
+		button#add-expense-save.btn.btn-default.btn-block(type='submit') Save
+		button#add-expense-cancel.btn.btn-default.btn-block Cancel

@@ -550,11 +550,279 @@ return buf.join("");
 };
 });
 
+require.register("views/count/add_expense/add_expense_view", function(exports, require, module) {
+var BaseView = require('../../../lib/base_view');
+var app = require('../../../application');
+
+
+var AddExpenseView = BaseView.extend({
+	template: require('./templates/add_expense'),
+
+	count: null,
+
+
+	events: {
+		'click .seeder'							: 'setSeeder',
+		'click .leecher'						: 'setLeecher',
+		'click #add-expense-save'		: 'lauchSaveExpense',
+		'click #add-expense-cancel'	: 'resetNewExpense',
+	},
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+		var leecher = this.count.get('users').map(function (elem) {
+			return {name: elem.name};
+		});
+		this.data = {
+			leecher: leecher,
+		};
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	render: function () {
+		$('#module').prepend(this.$el);
+		this.$el.html(this.template({users: this.count.get('users')}));
+		this.$('#add-expense-displayer').slideDown('slow');
+
+		this.$('#input-amount')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.amount = event.target.value;};
+		})(this));
+
+		this.$('#input-name')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.name = event.target.value;};
+		})(this));
+
+		this.$('#input-description')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.data.description = event.target.value;};
+		})(this));
+	},
+
+
+	setSeeder: function (event) {
+		var seederTarget = this.$(event.target);
+		var oldSeederTarget = null;
+		var self = this;
+
+		if (this.data.seeder !== null && this.data.seeder !== undefined) {
+			var seederList = this.$('.seeder');
+
+			for (var index = 0; index < seederList.length; index++) {
+				var elem = seederList[index];
+
+				if (seederList[index].value === self.data.seeder) {
+					oldSeederTarget = seederList[index];
+				}
+			};
+
+			oldSeederTarget = this.$(oldSeederTarget);
+			oldSeederTarget.removeClass('btn-info');
+			oldSeederTarget.addClass('btn-default');
+		}
+
+		seederTarget.removeClass('btn-default');
+		seederTarget.addClass('btn-info');
+		this.data.seeder = event.target.value;
+	},
+
+
+	setLeecher: function (event) {
+		var listLeecher = this.data.leecher;
+		var targetButton = this.$(event.target);
+		var leecherIndex = null;;
+
+		listLeecher.find(function (element, index) {
+			if (element.name == event.target.value) {
+				leecherIndex = index;
+				return true;
+			}
+			return false;
+		});
+
+		console.log('index: ', leecherIndex);
+		if (leecherIndex === null) {
+			listLeecher.push({name: event.target.value});
+
+			targetButton.removeClass('btn-default');
+			targetButton.addClass('btn-info');
+		}
+		else {
+			listLeecher.splice(leecherIndex, 1);
+
+			targetButton.removeClass('btn-info');
+			targetButton.addClass('btn-default');
+		}
+		console.log('leechers: ', this.data.leecher);
+	},
+
+
+	addUserToCount: function (newUser) {
+		this.$('#add-transfer-user-content').append('<button type="button" value="'+ newUser +
+				'" class="btn btn-default transfer-user">' + newUser + '</button>');
+	},
+
+
+	lauchSaveExpense: function () {
+		var data = this.data;
+		var error = false;
+
+		this.$('#alert-zone').remove();
+		this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
+		if (data.name === null || data.name == undefined) {
+			this.errorMessage('Your expense need a name');
+			error = true;
+		}
+		if (data.seeder === null || data.seeder == undefined) {
+			this.errorMessage('One person must paid');
+			error = true;
+		}
+		if (data.amount == undefined) {
+			this.errorMessage('You haven\'t set a amount');
+			error = true;
+		} else if (data.amount <= 0) {
+			this.errorMessage('The amount must be positive');
+			error = true;
+		}
+		if (data.leecher.length === 0) {
+			this.errorMessage('You must choose almost one persone who get benefice');
+			error = true;
+		}
+		if (error === false) {
+			this.sendNewExpense();
+		}
+	},
+
+
+	errorMessage: function (msg) {
+		console.log('error')
+		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+	},
+
+
+	sendNewExpense: function () {
+		console.log('data: ', this.data)
+		var self = this;
+		var newExpensesList = this.count.get('expenses');
+		newExpensesList.push(this.data);
+
+		this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+		var allUsers = this.count.get('users');
+		allUsers.every(function (user) {
+			if (self.data.seeder === user.name) {
+				user.seed = self.data.amount;
+				return false;
+			}
+			return true;
+		});
+
+		var leechPerUser = (Math.round(this.data.amount / this.data.leecher.length * 100) / 100).toFixed(2);
+		console.log('leecherPerUser: ', leechPerUser);
+		this.data.leecher.forEach(function (elem) {
+			allUsers.every(function (user) {
+				if (elem.name === user.name) {
+					user.leech += leechPerUser;
+					return false;
+				}
+				return true;
+			});
+		});
+
+		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + this.data.amount) * 100) / 100).toFixed(2);
+		console.log('allUsers: ', allUsers);
+		this.count.save({
+			allExpenses: newAllExpenses,
+			expenses: newExpensesList,
+			users: allUsers,
+		}, {
+			wait: true,
+			success: function (data) {
+				self.trigger('add-transfer', self.data);
+			},
+			error: function (xhr) {
+				console.error(xht);
+				self.trigger('remove-transfer');
+			}
+		});
+	},
+
+	resetNewExpense: function () {
+		this.trigger('remove-new-expense');
+	},
+
+	remove: function () {
+		this.$el.slideUp('slow');
+		BaseView.prototype.remove.call(this);
+	}
+});
+
+module.exports = AddExpenseView;
+
+});
+
+require.register("views/count/add_expense/templates/add_expense", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<form id="add-expense-displayer" style="display: none" class="form-group"><div id="alert-zone"></div><label for="input-name">Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/></form><div class="form-group"><label for="input-description">Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€</button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></div></div></div><div class="form-group"><label for="seeder-list">Who Paid ?</label><div id="seeder-list" class="form-group">');
+// iterate users
+;(function(){
+  if ('number' == typeof users.length) {
+    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
+      var user = users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('seeder') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in users) {
+      var user = users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('seeder') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('</div></div><div class="form-group"><label for="leecher-list">Who Get Benefice ?</label><div id="leecher-list" class="form-group">');
+// iterate users
+;(function(){
+  if ('number' == typeof users.length) {
+    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
+      var user = users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-info') + ' ' + ('leecher') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in users) {
+      var user = users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-info') + ' ' + ('leecher') }, {"type":true,"value":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-default btn-block">Save</button><button id="add-expense-cancel" class="btn btn-default btn-block">Cancel</button></div>');
+}
+return buf.join("");
+};
+});
+
 require.register("views/count/count_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
-var TransferView = require('./transfer/transfer_view');
+var AddExpenseView = require('./add_expense/add_expense_view');
 var StatsView = require('./stats_view');
 var SquareView = require('./square_view');
 
@@ -566,18 +834,18 @@ var CountView = BaseView.extend({
 	template: require('./templates/count'),
 
 	templateExpense : require('./templates/expense_elem'),
-	templateActionBtn: require('./templates/action_btn'),
 
 	count: null,
 	dataResume: {
 		allExpense: 0,
 	},
 
-	transferView: null,
+	newExpense: null,
+	balancing: null,
 
 	events: {
 		'click #count-lauch-add-user'	:	'addUser',
-		'click #add-new-transfer'			: 'lauchNewExpense',
+		'click #add-new-expense'			: 'lauchNewExpense',
 		'click #header-balancing'			: 'printBalancing',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
@@ -625,54 +893,51 @@ var CountView = BaseView.extend({
 		var newUser = this.$('#count-input-add-user').val();
 		var color = colorSet[userList.length % colorSet.length];
 
-		userList.push({name: newUser, expenses: 0, color: color});
+		userList.push({name: newUser, seed: 0, leech: 0, color: color});
 		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
-		if (this.transferView !== null) {
-			this.transferView.addUserToCount(newUser);
+		if (this.newExpense !== null) {
+			this.newExpense.addUserToCount(newUser);
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
+		if (this.balancing !== null) {
 		this.balancing.update();
+		}
 	},
 
 
 	lauchNewExpense: function (event) {
-		if (this.module == null) {
-			this.module = new TransferView({
-				count: this.count,
-				users: this.count.get('users'),
-				pieChart: this.pieChart
-			});
+		if (this.newExpense == null) {
+			this.newExpense = new AddExpenseView({count: this.count});
 		}
-		this.renderModule();
+		this.renderNewExpense();
 
 
-		this.listenToOnce(this.module, 'new-transfer', function (data) {
+		this.listenToOnce(this.newExpense, 'new-transfer', function (data) {
 			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
 			this.stats.update();
 			this.balancing.update();
-			this.removeModule();
+			this.removeNewExpense();
 		});
 	},
 
 
-	renderModule: function () {
-		this.$('#add-new-transfer').remove();
-		this.$('#square-count').remove();
+	renderNewExpense: function () {
+		this.$('#add-new-expense').remove();
 
-		this.module.render();
+		this.newExpense.render();
 
-		this.listenToOnce(this.module, 'remove-module', this.removeModule);
+		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
 	},
 
 
-	removeModule: function () {
-		this.module.remove();
-		delete this.module
-		this.module = null;
+	removeNewExpense: function () {
+		this.newExpense.remove();
+		delete this.newExpense
+		this.newExpense= null;
 
-		this.$('#module').prepend(this.templateActionBtn());
+		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
 	},
 
 
@@ -932,19 +1197,6 @@ module.exports = StatsView;
 
 });
 
-require.register("views/count/templates/action_btn", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button>');
-}
-return buf.join("");
-};
-});
-
 require.register("views/count/templates/count", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
@@ -952,7 +1204,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-transfer" class="btn btn-default btn-block">Add a new expense</button></div></div></div><div id="expense-list-view"></div></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1112,294 +1364,6 @@ buf.push('</div><div class="row"><div class="input-group"><input id="count-input
 }
 return buf.join("");
 };
-});
-
-require.register("views/count/transfer/templates/transfer", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div id="new-transfer-displayer" style="display: none"><label for="new-transfer-amount">Name</label><div id="new-transfer-name"><input id="transfer-input-name" type="text" placeholder="Shopping..." class="form-contrl"/></div><label for="new-transfer-amount">Description</label><div id="new-transfer-description"><input id="transfer-input-description" type="text" class="form-contrl"/></div><label for="new-transfer-amount">amount</label><div id="new-transfer-amount" class="row"><div class="col-lg-6"><div class="input-group"><input id="transfer-input-amount" type="number" placeholder="42.21" aria-label="..." class="form-control"/></div></div></div><label for="new-transfer-user">Users</label><div id="new-transfer-user" class="row"><div id="new-transfer-user-content" class="form-group">');
-// iterate users
-;(function(){
-  if ('number' == typeof users.length) {
-    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
-      var user = users[$index];
-
-buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
-    }
-  } else {
-    for (var $index in users) {
-      var user = users[$index];
-
-buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('transfer-user') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
-   }
-  }
-}).call(this);
-
-buf.push('</div></div></div><div id="new-transfer-btn" class="row"><button id="transfer-cancel" class="btn btn-default btn-block">Cancel</button></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/transfer/templates/transfer_contrib", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div id="new-transfer-contrib-section"><table id="new-transfer-contrib-table" class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th></tr></thead></table></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/transfer/templates/transfer_contrib_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/transfer/transfer_view", function(exports, require, module) {
-var BaseView = require('../../../lib/base_view');
-var app = require('../../../application');
-
-var template = require('./templates/transfer');
-
-var templateTransferContrib = require('./templates/transfer_contrib');
-var templateTransferContribRow = require('./templates/transfer_contrib_row');
-
-
-var TransferView = BaseView.extend({
-	template: template,
-
-
-	templateTransferContrib: templateTransferContrib,
-	templateTransferContribRow: templateTransferContribRow,
-
-
-	count: null,
-	users: null,
-
-
-
-	events: {
-		'click .transfer-user'	: 'setTransferUser',
-		'click #transfer-send'	: 'sendTransfer',
-		'click #transfer-cancel': 'resetNewTransfer',
-	},
-
-	initialize: function (attributes) {
-		this.count = attributes.count;
-		this.users = attributes.users;
-		this.pieChart = attributes.pieChart;
-		this.data = {
-			users: [],
-			amount: 0,
-		};
-
-		BaseView.prototype.initialize.call(this);
-	},
-
-
-	render: function () {
-		$('#module').prepend(this.$el);
-		this.$el.html(this.template({users: this.users}));
-		this.$('#new-transfer-displayer').slideDown('slow');
-
-		this.$('#transfer-input-amount')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.updateContribTable(event);};
-		})(this));
-
-		this.$('#transfer-input-name')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.name = event.target.value;};
-		})(this));
-
-		this.$('#transfer-input-description')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.description = event.target.value;};
-		})(this));
-	},
-
-
-	updateContribTable: function () {
-		this.data.amount = this.$('#transfer-input-amount').val();
-
-		if (this.data.users.length > 0) {
-			var oldContrib = this.$('#new-transfer-contrib-content');
-			if (oldContrib !== null && oldContrib !== undefined) {
-				oldContrib.remove();
-			}
-
-			this.$('#new-transfer-contrib-table').append('<tbody id="new-transfer-contrib-content"></tbody>');
-			var self = this;
-			this.data.users.forEach(function (user) {
-				user.amount = +(Math.round(self.data.amount / 100 * user.share * 100) / 100).toFixed(2);
-				user.share = +(Math.round(user.share * 100) / 100).toFixed(2);
-				self.$('#new-transfer-contrib-content').append(
-						self.templateTransferContribRow({user: user}));
-			});
-		}
-	},
-
-
-	addUserToTransfer: function (event) {
-		var userName = event.target.value;
-		var listUsers = this.data.users;
-		var targetButton = this.$(event.target);
-
-		if (listUsers.length == 0) {
-			this.$('#new-transfer-displayer').append(this.templateTransferContrib());
-			this.$('#new-transfer-btn').prepend('<button id="transfer-send" class="btn btn-default btn-block"> Save</button>');
-		}
-
-		var nbUsers = listUsers.length + 1;
-		var shareCollected = 0;
-
-		if (listUsers.length > 0) {
-			listUsers.forEach(function (elem) {
-				shareCollected += elem.share / nbUsers;
-				elem.share = elem.share - elem.share / nbUsers;
-			});
-		}
-		else {
-			shareCollected = 100;
-		}
-
-		listUsers.push({name: userName, share: shareCollected});
-
-		targetButton.removeClass('btn-default');
-		targetButton.addClass('btn-info');
-	},
-
-
-	removeUserFromTransfer: function (event) {
-		var userName = event.target.value;
-		var listUsers = this.data.users;
-		var targetButton = this.$(event.target);
-		var userDeleted;
-
-		{
-			var index = 0;
-			while (index < listUsers.length) {
-				if (listUsers[index].name == userName) {
-					break;
-				}
-				index++;
-			}
-			userDeleted = listUsers.splice(index, 1);
-		}
-
-		if (listUsers.length == 0) {
-			this.$('#new-transfer-contrib-section').remove();
-			this.$('#transfer-send').remove();
-		}
-
-		targetButton.removeClass('btn-info');
-		targetButton.addClass('btn-default');
-
-
-		if (listUsers.length > 0) {
-			var shareToDistribute = userDeleted[0].share / listUsers.length;
-
-			listUsers.forEach(function (elem) {
-				elem.share = Number(elem.share) + Number(shareToDistribute);
-			});
-		}
-	},
-
-
-	setTransferUser: function (event) {
-		var find = this.data.users.find(function (element) {
-			if (element.name == event.target.value) {
-				return element;
-			}
-			return null;
-		});
-
-		if (find == undefined) {
-			this.addUserToTransfer(event);
-		}
-		else {
-			this.removeUserFromTransfer(event);
-		}
-
-		this.updateContribTable();
-	},
-
-
-	addUserToCount: function (newUser) {
-		this.$('#new-transfer-user-content').append('<button type="button" value="'+ newUser +
-				'" class="btn btn-default transfer-user">' + newUser + '</button>');
-	},
-
-
-	sendTransfer: function () {
-		if (this.data.amount != 0) {
-			var newExpensesList = this.count.get('expenses');
-			newExpensesList.push(this.data);
-
-			this.data.id = Date.now() + Math.round(Math.random() % 100);
-
-			var userInExpense = this.data.users;
-			var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
-
-			var newUserList = this.count.get('users').map(function (user) {
-				userInExpense.every(function (elem) {
-					if (elem.name === user.name) {
-						user.expenses = (Math.round((Number(user.expenses) + Number(elem.amount)) * 100) / 100).toFixed(2);
-						return false;
-					}
-					return true;
-				});
-				return user;
-			});
-
-			var self = this;
-			this.count.save({
-				allExpenses: newAllExpenses,
-				expenses: newExpensesList,
-				users: newUserList,
-			}, {
-				wait: true,
-				success: function (data) {
-					self.trigger('new-transfer', self.data);
-				},
-				error: function (xhr) {
-					console.error(xht);
-					self.trigger('remove-transfer');
-				}
-			});
-
-		}
-	},
-
-	resetNewTransfer: function () {
-		this.trigger('remove-module');
-	},
-
-	remove: function () {
-		this.$el.slideUp('');
-		BaseView.prototype.remove.call(this);
-	}
-});
-
-module.exports = TransferView;
-
 });
 
 require.register("views/home/count_list_view", function(exports, require, module) {

@@ -1,7 +1,7 @@
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
-var TransferView = require('./transfer/transfer_view');
+var AddExpenseView = require('./add_expense/add_expense_view');
 var StatsView = require('./stats_view');
 var SquareView = require('./square_view');
 
@@ -13,18 +13,18 @@ var CountView = BaseView.extend({
 	template: require('./templates/count'),
 
 	templateExpense : require('./templates/expense_elem'),
-	templateActionBtn: require('./templates/action_btn'),
 
 	count: null,
 	dataResume: {
 		allExpense: 0,
 	},
 
-	transferView: null,
+	newExpense: null,
+	balancing: null,
 
 	events: {
 		'click #count-lauch-add-user'	:	'addUser',
-		'click #add-new-transfer'			: 'lauchNewExpense',
+		'click #add-new-expense'			: 'lauchNewExpense',
 		'click #header-balancing'			: 'printBalancing',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
@@ -72,54 +72,51 @@ var CountView = BaseView.extend({
 		var newUser = this.$('#count-input-add-user').val();
 		var color = colorSet[userList.length % colorSet.length];
 
-		userList.push({name: newUser, expenses: 0, color: color});
+		userList.push({name: newUser, seed: 0, leech: 0, color: color});
 		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
-		if (this.transferView !== null) {
-			this.transferView.addUserToCount(newUser);
+		if (this.newExpense !== null) {
+			this.newExpense.addUserToCount(newUser);
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
+		if (this.balancing !== null) {
 		this.balancing.update();
+		}
 	},
 
 
 	lauchNewExpense: function (event) {
-		if (this.module == null) {
-			this.module = new TransferView({
-				count: this.count,
-				users: this.count.get('users'),
-				pieChart: this.pieChart
-			});
+		if (this.newExpense == null) {
+			this.newExpense = new AddExpenseView({count: this.count});
 		}
-		this.renderModule();
+		this.renderNewExpense();
 
 
-		this.listenToOnce(this.module, 'new-transfer', function (data) {
+		this.listenToOnce(this.newExpense, 'new-transfer', function (data) {
 			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
 			this.stats.update();
 			this.balancing.update();
-			this.removeModule();
+			this.removeNewExpense();
 		});
 	},
 
 
-	renderModule: function () {
-		this.$('#add-new-transfer').remove();
-		this.$('#square-count').remove();
+	renderNewExpense: function () {
+		this.$('#add-new-expense').remove();
 
-		this.module.render();
+		this.newExpense.render();
 
-		this.listenToOnce(this.module, 'remove-module', this.removeModule);
+		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
 	},
 
 
-	removeModule: function () {
-		this.module.remove();
-		delete this.module
-		this.module = null;
+	removeNewExpense: function () {
+		this.newExpense.remove();
+		delete this.newExpense
+		this.newExpense= null;
 
-		this.$('#module').prepend(this.templateActionBtn());
+		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
 	},
 
 
