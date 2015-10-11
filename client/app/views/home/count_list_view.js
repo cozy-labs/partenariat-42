@@ -7,6 +7,7 @@ var HomeCountListView = ViewCollection.extend({
 
 	itemView: HomeCountRowView,
 
+
 	initialize: function (collection) {
 		this.collection = collection;
 		ViewCollection.prototype.initialize.call(this);
