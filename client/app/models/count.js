@@ -29,8 +29,8 @@ var Count = Backbone.Model.extend({
 			});
 
 			console.log('user: ', user.name);
-			console.log('seeder: ', seeder.name)
-			if (user.name == seeder.name) {
+			console.log('seeder: ', seeder)
+			if (user.name == seeder) {
 				console.log('seeder')
 					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 			}

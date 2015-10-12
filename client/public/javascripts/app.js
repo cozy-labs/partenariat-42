@@ -332,8 +332,8 @@ var Count = Backbone.Model.extend({
 			});
 
 			console.log('user: ', user.name);
-			console.log('seeder: ', seeder.name)
-			if (user.name == seeder.name) {
+			console.log('seeder: ', seeder)
+			if (user.name == seeder) {
 				console.log('seeder')
 					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 			}
@@ -1065,8 +1065,8 @@ var CountView = BaseView.extend({
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
-		if (this.balancing !== null) {
-		this.balancing.update();
+		if (this.balancing !== null && this.balancing !== undefined) {
+			this.balancing.update();
 		}
 	},
 
@@ -1095,7 +1095,7 @@ var CountView = BaseView.extend({
 	removeNewExpense: function () {
 		this.newExpense.remove();
 		delete this.newExpense
-		this.newExpense= null;
+			this.newExpense= null;
 
 		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
 	},
@@ -1133,7 +1133,9 @@ var CountView = BaseView.extend({
 		var self = this;
 		this.count.removeExpense(id, function () {
 			self.stats.update();
-			//self.balancing.update();
+			if (self.balancing !== null && self.balancing !== undefined) {
+				self.balancing.update();
+			}
 			self.$(event.target).parent().parent().remove();
 		});
 	},
@@ -1376,9 +1378,9 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency) == null ? '' : interp) + '</span></div><div');
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
 buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
-buf.push('><div class="form-btn"><label for="seeder">Who have paid ?</label><button id="seeder" class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button></div><div class="form-btn"><label for="leecher-list">Who take advantage ?</label><div id="leecher-list" class="row">');
+buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who take advantage ?</label><div id="leecher-list" class="form-group">');
 // iterate expense.leecher
 ;(function(){
   if ('number' == typeof expense.leecher.length) {

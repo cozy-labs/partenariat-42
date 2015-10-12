@@ -80,8 +80,8 @@ var CountView = BaseView.extend({
 		}
 		this.count.save({users: userList});
 		this.$('#count-input-add-user').val('');
-		if (this.balancing !== null) {
-		this.balancing.update();
+		if (this.balancing !== null && this.balancing !== undefined) {
+			this.balancing.update();
 		}
 	},
 
@@ -110,7 +110,7 @@ var CountView = BaseView.extend({
 	removeNewExpense: function () {
 		this.newExpense.remove();
 		delete this.newExpense
-		this.newExpense= null;
+			this.newExpense= null;
 
 		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
 	},
@@ -148,7 +148,9 @@ var CountView = BaseView.extend({
 		var self = this;
 		this.count.removeExpense(id, function () {
 			self.stats.update();
-			//self.balancing.update();
+			if (self.balancing !== null && self.balancing !== undefined) {
+				self.balancing.update();
+			}
 			self.$(event.target).parent().parent().remove();
 		});
 	},
