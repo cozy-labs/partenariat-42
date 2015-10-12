@@ -9,14 +9,14 @@ var CountEditor = BaseView.extend({
 	template: template,
 
 	userList: [],
-	deviseList: [],
+	currencies: [],
 	countName: '',
 	nameIsUsed: false,
 
 	events: {
 		'click #submit-editor':	'submitEditor',
 		'click #add-user'			: 'addUser',
-		'click .devise'				: 'setDevise',
+		'click .currency'			: 'setCurrency',
 	},
 
 
@@ -84,24 +84,26 @@ var CountEditor = BaseView.extend({
 		var color = colorSet[this.userList.length % colorSet.length];
 		var newUser = this.$('#input-users').val();
 
-		this.userList.push({
-			name: newUser,
-			seed: 0,
-			leech: 0,
-			color: color
-		});
+		if (newUser.length > 0) {
+			this.userList.push({
+				name: newUser,
+				seed: 0,
+				leech: 0,
+				color: color
+			});
 
-		this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+			this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+		}
 	},
 
 
-	setDevise: function (event) {
-		var selectedDevise = event.target.value;
-		var deviseIndex = null;
+	setCurrency: function (event) {
+		var selectedCurrency = event.target.value;
+		var currencyIndex = null;
 
-		this.deviseList.find(function (elem, index) {
-			if (elem == selectedDevise) {
-				deviseIndex = index;
+		this.currencies.find(function (elem, index) {
+			if (elem.name == selectedCurrency) {
+				currencyIndex = index;
 				return true;
 			}
 			return false;
@@ -109,20 +111,24 @@ var CountEditor = BaseView.extend({
 
 		var btnTarget = this.$(event.target);
 
-		if (deviseIndex == null) {
+		if (currencyIndex == null) {
 			btnTarget.removeClass('btn-default');
 			btnTarget.addClass('btn-info');
-			this.deviseList.push(selectedDevise);
+			this.currencies.push({
+				name: selectedCurrency,
+				taux: 1,
+			});
 		} else {
 			btnTarget.removeClass('btn-info');
 			btnTarget.addClass('btn-default');
-			this.deviseList.splice(deviseIndex, 1);
+			this.currencies.splice(deviseIndex, 1);
 		}
 	},
 
 
 	lauchCountCreation: function () {
 		var countDescription = this.$('#input-description').val();
+		var countName = this.countName;
 
 		var error = false;
 
@@ -141,20 +147,21 @@ var CountEditor = BaseView.extend({
 			this.errorMessage('Your count need almost one user');
 			error = true;
 		}
-		if (this.deviseList.length <= 0) {
-			this.errorMessage('Your count need almost one devise');
+		if (this.currencies.length <= 0) {
+			this.errorMessage('Your count need almost one currency');
 			error = true;
 		}
+
 		if (error === false) {
 			window.countCollection.create({
 				name: this.countName,
 				description: countDescription,
 				users: this.userList,
-				devises: this.deviseList,
+				currencies: this.currencies,
 			},{
 				wait: true,
 				success: function () {
-					app.router.navigate('count/' + this.countName, {trigger: true});
+					app.router.navigate('count/' + countName, {trigger: true});
 				},
 				error: function (xhr) {
 					console.error(xhr);

@@ -14,11 +14,12 @@ form#add-expense-displayer.form-group(style='display: none')
 			input#input-amount.form-control(type='number', placeholder='42.21',
 			aria-label='...', required)
 			div.input-group-btn
-				button#choose-device.btn.btn-default.dropdown-toggle(type='button',
-				data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') €
+				button#choose-currency.btn.btn-default.dropdown-toggle(type='button',
+				data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') #{currencies[0].name}
 				ul.dropdown-menu.dropdown-menu-right
-					li
-						a €
+					for currency in currencies
+						li.currency
+							a #{currency.name}
 
 	.form-group
 		label(for='seeder-list') Who Paid ?
@@ -27,7 +28,7 @@ form#add-expense-displayer.form-group(style='display: none')
 				button.btn.btn-default.seeder(type='button', value='#{user.name}') #{user.name}
 
 	.form-group
-		label(for='leecher-list') Who Get Benefice ?
+		label(for='leecher-list') Who take Part ?
 		#leecher-list.form-group
 			each user in users
 				button.btn.btn-info.leecher(type='button', value='#{user.name}') #{user.name}

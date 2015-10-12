@@ -306,6 +306,7 @@ require.register("lib/view_helper", function(exports, require, module) {
 var Count = Backbone.Model.extend({
 
 	removeExpense: function (id, callback) {
+		console.log('id: ', id)
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -314,24 +315,32 @@ var Count = Backbone.Model.extend({
 		});
 
 		var newExpenses = this.get('expenses');
-		var expenseRemove = newExpenses.splice(index, 1);
+		var expenseRemove = newExpenses.splice(index, 1)[0];
 
 		var currentExpenses = this.get('allExpenses');
 		var currentUsers = this.get('users');
-		var usersInExpense = expenseRemove[0].users
+		var leecherList = expenseRemove.leecher;
+		var seeder = expenseRemove.seeder;
 
-		var newUsersList = this.get('users').map(function (elem) {
-			usersInExpense.every(function (user) {
-				if (elem.name === user.name) {
-					elem.expenses = (Math.round((Number(elem.expenses) - Number(user.amount)) * 100) / 100).toFixed(2);
+		var newUsersList = this.get('users').map(function (user) {
+			leecherList.every(function (expenseUser) {
+				if (user.name === expenseUser.name) {
+					user.leech = (Math.round((Number(user.leech) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 					return false;
 				}
 				return true;
 			});
-			return elem;
+
+			console.log('user: ', user.name);
+			console.log('seeder: ', seeder.name)
+			if (user.name == seeder.name) {
+				console.log('seeder')
+					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+			}
+			return user;
 		});
 
-		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove[0].amount)) * 100) / 100).toFixed(2);
+		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 
 		this.save({
 			expenses: newExpenses,
@@ -452,14 +461,14 @@ var CountEditor = BaseView.extend({
 	template: template,
 
 	userList: [],
-	deviseList: [],
+	currencies: [],
 	countName: '',
 	nameIsUsed: false,
 
 	events: {
 		'click #submit-editor':	'submitEditor',
 		'click #add-user'			: 'addUser',
-		'click .devise'				: 'setDevise',
+		'click .currency'			: 'setCurrency',
 	},
 
 
@@ -527,24 +536,26 @@ var CountEditor = BaseView.extend({
 		var color = colorSet[this.userList.length % colorSet.length];
 		var newUser = this.$('#input-users').val();
 
-		this.userList.push({
-			name: newUser,
-			seed: 0,
-			leech: 0,
-			color: color
-		});
+		if (newUser.length > 0) {
+			this.userList.push({
+				name: newUser,
+				seed: 0,
+				leech: 0,
+				color: color
+			});
 
-		this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+			this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+		}
 	},
 
 
-	setDevise: function (event) {
-		var selectedDevise = event.target.value;
-		var deviseIndex = null;
+	setCurrency: function (event) {
+		var selectedCurrency = event.target.value;
+		var currencyIndex = null;
 
-		this.deviseList.find(function (elem, index) {
-			if (elem == selectedDevise) {
-				deviseIndex = index;
+		this.currencies.find(function (elem, index) {
+			if (elem.name == selectedCurrency) {
+				currencyIndex = index;
 				return true;
 			}
 			return false;
@@ -552,20 +563,24 @@ var CountEditor = BaseView.extend({
 
 		var btnTarget = this.$(event.target);
 
-		if (deviseIndex == null) {
+		if (currencyIndex == null) {
 			btnTarget.removeClass('btn-default');
 			btnTarget.addClass('btn-info');
-			this.deviseList.push(selectedDevise);
+			this.currencies.push({
+				name: selectedCurrency,
+				taux: 1,
+			});
 		} else {
 			btnTarget.removeClass('btn-info');
 			btnTarget.addClass('btn-default');
-			this.deviseList.splice(deviseIndex, 1);
+			this.currencies.splice(deviseIndex, 1);
 		}
 	},
 
 
 	lauchCountCreation: function () {
 		var countDescription = this.$('#input-description').val();
+		var countName = this.countName;
 
 		var error = false;
 
@@ -584,20 +599,21 @@ var CountEditor = BaseView.extend({
 			this.errorMessage('Your count need almost one user');
 			error = true;
 		}
-		if (this.deviseList.length <= 0) {
-			this.errorMessage('Your count need almost one devise');
+		if (this.currencies.length <= 0) {
+			this.errorMessage('Your count need almost one currency');
 			error = true;
 		}
+
 		if (error === false) {
 			window.countCollection.create({
 				name: this.countName,
 				description: countDescription,
 				users: this.userList,
-				devises: this.deviseList,
+				currencies: this.currencies,
 			},{
 				wait: true,
 				success: function () {
-					app.router.navigate('count/' + this.countName, {trigger: true});
+					app.router.navigate('count/' + countName, {trigger: true});
 				},
 				error: function (xhr) {
 					console.error(xhr);
@@ -665,7 +681,7 @@ buf.push('/></div><button id="submit-editor" class="btn btn-default">Submit</but
 }
 else
 {
-buf.push('<h1>New Count</h1><form id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="devise">Count Devises</label><div id="devise" class="form-group"><button type="button" value="€" class="btn btn-default devise">€</button><button type="button" value="$" class="btn btn-default devise">$</button></div><div id="list-users" class="row"></div><div class="form-group"><label for="input-users">Count Users</label><input id="input-users" type="text" placeholder="Name" class="form-control"/><button id="add-user" type="button" class="btn btn-default">Add user</button></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+buf.push('<h1>New Count</h1><form id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="currency">Count Currencies</label><div id="currency" class="form-group"><button type="button" value="€" class="btn btn-default currency">€</button><button type="button" value="$" class="btn btn-default currency">$</button></div><div id="list-users" class="row"></div><div id="input-user-grp" class="form-group"><label for="input-users">Count Users</label><input id="input-users" type="text" placeholder="Name" class="form-control"/><button id="add-user" type="button" class="btn btn-default">Add user</button></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
 }
 }
 return buf.join("");
@@ -688,6 +704,7 @@ var AddExpenseView = BaseView.extend({
 		'click .leecher'						: 'setLeecher',
 		'click #add-expense-save'		: 'lauchSaveExpense',
 		'click #add-expense-cancel'	: 'resetNewExpense',
+		'click .currency'						:	'setCurrency',
 	},
 
 	initialize: function (attributes) {
@@ -697,6 +714,7 @@ var AddExpenseView = BaseView.extend({
 		});
 		this.data = {
 			leecher: leecher,
+			currency: this.count.get('currencies')[0],
 		};
 
 		BaseView.prototype.initialize.call(this);
@@ -705,7 +723,10 @@ var AddExpenseView = BaseView.extend({
 
 	render: function () {
 		$('#module').prepend(this.$el);
-		this.$el.html(this.template({users: this.count.get('users')}));
+		this.$el.html(this.template({
+			users: this.count.get('users'),
+			currencies: this.count.get('currencies')
+		}));
 		this.$('#add-expense-displayer').slideDown('slow');
 
 		this.$('#input-amount')[0].addEventListener('change', (function(_this) {
@@ -784,6 +805,12 @@ var AddExpenseView = BaseView.extend({
 		this.$('#leecher-list').append('<button type="button" value="'+ newUser +
 				'" class="btn btn-info leecher">' + newUser + '</button>');
 		this.data.leecher.push({name: newUser});
+	},
+
+
+	setCurrency: function (event) {
+		this.data.currency = event.target.text;
+		this.$('#choose-currency').text(this.data.currency);
 	},
 
 
@@ -887,7 +914,25 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<form id="add-expense-displayer" style="display: none" class="form-group"><div id="alert-zone"></div><label for="input-name">Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/></form><div class="form-group"><label for="input-description">Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-device" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">€</button><ul class="dropdown-menu dropdown-menu-right"><li><a>€</a></li></ul></div></div></div><div class="form-group"><label for="seeder-list">Who Paid ?</label><div id="seeder-list" class="form-group">');
+buf.push('<form id="add-expense-displayer" style="display: none" class="form-group"><div id="alert-zone"></div><label for="input-name">Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/></form><div class="form-group"><label for="input-description">Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-currency" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">' + escape((interp = currencies[0].name) == null ? '' : interp) + '</button><ul class="dropdown-menu dropdown-menu-right">');
+// iterate currencies
+;(function(){
+  if ('number' == typeof currencies.length) {
+    for (var $index = 0, $$l = currencies.length; $index < $$l; $index++) {
+      var currency = currencies[$index];
+
+buf.push('<li class="currency"><a>' + escape((interp = currency.name) == null ? '' : interp) + '</a></li>');
+    }
+  } else {
+    for (var $index in currencies) {
+      var currency = currencies[$index];
+
+buf.push('<li class="currency"><a>' + escape((interp = currency.name) == null ? '' : interp) + '</a></li>');
+   }
+  }
+}).call(this);
+
+buf.push('</ul></div></div></div><div class="form-group"><label for="seeder-list">Who Paid ?</label><div id="seeder-list" class="form-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -909,7 +954,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div></div><div class="form-group"><label for="leecher-list">Who Get Benefice ?</label><div id="leecher-list" class="form-group">');
+buf.push('</div></div><div class="form-group"><label for="leecher-list">Who take Part ?</label><div id="leecher-list" class="form-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
@@ -1088,7 +1133,7 @@ var CountView = BaseView.extend({
 		var self = this;
 		this.count.removeExpense(id, function () {
 			self.stats.update();
-			self.balancing.update();
+			//self.balancing.update();
 			self.$(event.target).parent().parent().remove();
 		});
 	},
@@ -1351,7 +1396,7 @@ buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : 
   }
 }).call(this);
 
-buf.push('</div></div></div></div>');
+buf.push('</div></div><button class="btn btn-default btn-block delete-expense-elem">Delete</button></div></div>');
 }
 return buf.join("");
 };

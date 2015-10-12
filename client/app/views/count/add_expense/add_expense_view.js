@@ -13,6 +13,7 @@ var AddExpenseView = BaseView.extend({
 		'click .leecher'						: 'setLeecher',
 		'click #add-expense-save'		: 'lauchSaveExpense',
 		'click #add-expense-cancel'	: 'resetNewExpense',
+		'click .currency'						:	'setCurrency',
 	},
 
 	initialize: function (attributes) {
@@ -22,6 +23,7 @@ var AddExpenseView = BaseView.extend({
 		});
 		this.data = {
 			leecher: leecher,
+			currency: this.count.get('currencies')[0],
 		};
 
 		BaseView.prototype.initialize.call(this);
@@ -30,7 +32,10 @@ var AddExpenseView = BaseView.extend({
 
 	render: function () {
 		$('#module').prepend(this.$el);
-		this.$el.html(this.template({users: this.count.get('users')}));
+		this.$el.html(this.template({
+			users: this.count.get('users'),
+			currencies: this.count.get('currencies')
+		}));
 		this.$('#add-expense-displayer').slideDown('slow');
 
 		this.$('#input-amount')[0].addEventListener('change', (function(_this) {
@@ -109,6 +114,12 @@ var AddExpenseView = BaseView.extend({
 		this.$('#leecher-list').append('<button type="button" value="'+ newUser +
 				'" class="btn btn-info leecher">' + newUser + '</button>');
 		this.data.leecher.push({name: newUser});
+	},
+
+
+	setCurrency: function (event) {
+		this.data.currency = event.target.text;
+		this.$('#choose-currency').text(this.data.currency);
 	},
 
 

@@ -148,7 +148,7 @@ var CountView = BaseView.extend({
 		var self = this;
 		this.count.removeExpense(id, function () {
 			self.stats.update();
-			self.balancing.update();
+			//self.balancing.update();
 			self.$(event.target).parent().parent().remove();
 		});
 	},
