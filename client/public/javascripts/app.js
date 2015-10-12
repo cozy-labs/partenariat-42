@@ -1376,7 +1376,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + '</span></div><div');
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency) == null ? '' : interp) + '</span></div><div');
 buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
 buf.push('><div class="form-btn"><label for="seeder">Who have paid ?</label><button id="seeder" class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button></div><div class="form-btn"><label for="leecher-list">Who take advantage ?</label><div id="leecher-list" class="row">');
 // iterate expense.leecher

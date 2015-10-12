@@ -1,7 +1,7 @@
 .panel.panel-default
 	.panel-heading.header-expense-elem
 		span  #{expense.name}
-		span(style='float: right') #{expense.amount}
+		span(style='float: right') #{expense.amount} #{expense.currency}
 
 	.panel-body(style='display: none', id="#{expense.id}")
 		.form-btn
