@@ -54,11 +54,11 @@ var CountView = BaseView.extend({
 
 
 	afterRender: function () {
-		var expense = this.count.get('expenses');
+		var expenseList = this.count.get('expenses');
 		var self = this;
 
-		expense.forEach(function (transfer) {
-			self.$('#expense-list-view').append(self.templateExpense({transfer: transfer}));
+		expenseList.forEach(function (expense) {
+			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
 		});
 
 		this.stats = new StatsView({count: this.count});
@@ -90,24 +90,20 @@ var CountView = BaseView.extend({
 		if (this.newExpense == null) {
 			this.newExpense = new AddExpenseView({count: this.count});
 		}
-		this.renderNewExpense();
 
-
-		this.listenToOnce(this.newExpense, 'new-transfer', function (data) {
-			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
-			this.stats.update();
-			this.balancing.update();
-			this.removeNewExpense();
-		});
-	},
-
-
-	renderNewExpense: function () {
 		this.$('#add-new-expense').remove();
-
 		this.newExpense.render();
 
 		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
+
+		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
+			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+			this.stats.update();
+			if (this.balancing !== null && this.balancing !== undefined) {
+				this.balancing.update();
+			}
+			this.removeNewExpense();
+		});
 	},
 
 

@@ -158,14 +158,13 @@ var AddExpenseView = BaseView.extend({
 		var allUsers = this.count.get('users');
 		allUsers.every(function (user) {
 			if (self.data.seeder === user.name) {
-				user.seed = self.data.amount;
+				user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
 				return false;
 			}
 			return true;
 		});
 
-		var leechPerUser = (Math.round(this.data.amount / this.data.leecher.length * 100) / 100).toFixed(2);
-		console.log('leecherPerUser: ', leechPerUser);
+		var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
 		this.data.leecher.forEach(function (elem) {
 			allUsers.every(function (user) {
 				if (elem.name === user.name) {
@@ -176,7 +175,7 @@ var AddExpenseView = BaseView.extend({
 			});
 		});
 
-		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + this.data.amount) * 100) / 100).toFixed(2);
+		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
 		console.log('allUsers: ', allUsers);
 		this.count.save({
 			allExpenses: newAllExpenses,
@@ -185,11 +184,11 @@ var AddExpenseView = BaseView.extend({
 		}, {
 			wait: true,
 			success: function (data) {
-				self.trigger('add-transfer', self.data);
+				self.trigger('add-new-expense', self.data);
 			},
 			error: function (xhr) {
 				console.error(xht);
-				self.trigger('remove-transfer');
+				self.trigger('remove-new-expense');
 			}
 		});
 	},

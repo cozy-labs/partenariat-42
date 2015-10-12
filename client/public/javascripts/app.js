@@ -452,7 +452,7 @@ var CountEditor = BaseView.extend({
 	template: template,
 
 	count: null,
-	userList: [{}],
+	userList: [],
 
 	events: {
 		'click #submit-editor':	'submitEditor',
@@ -502,12 +502,20 @@ var CountEditor = BaseView.extend({
 
 	lauchCountCreation: function () {
 		console.log('this.userList: ', this.userList);
+		var countName = this.$('#input-name').val();
 		window.countCollection.create({
-			name: this.$('#input-name').val(),
+			name: countName,
 			description: this.$('#input-description').val(),
 			users: this.userList,
-		});
-		app.router.navigate('', {trigger: true});
+		},{
+			wait: true,
+			success: function () {
+				app.router.navigate('count/' + countName, {trigger: true});
+			},
+			error: function (xhr) {
+				console.error(xhr);
+				app.router.navigate('', {trigger: true});
+			}});
 	},
 
 	lauchCountUpdate: function () {
@@ -730,14 +738,13 @@ var AddExpenseView = BaseView.extend({
 		var allUsers = this.count.get('users');
 		allUsers.every(function (user) {
 			if (self.data.seeder === user.name) {
-				user.seed = self.data.amount;
+				user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
 				return false;
 			}
 			return true;
 		});
 
-		var leechPerUser = (Math.round(this.data.amount / this.data.leecher.length * 100) / 100).toFixed(2);
-		console.log('leecherPerUser: ', leechPerUser);
+		var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
 		this.data.leecher.forEach(function (elem) {
 			allUsers.every(function (user) {
 				if (elem.name === user.name) {
@@ -748,7 +755,7 @@ var AddExpenseView = BaseView.extend({
 			});
 		});
 
-		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + this.data.amount) * 100) / 100).toFixed(2);
+		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
 		console.log('allUsers: ', allUsers);
 		this.count.save({
 			allExpenses: newAllExpenses,
@@ -757,11 +764,11 @@ var AddExpenseView = BaseView.extend({
 		}, {
 			wait: true,
 			success: function (data) {
-				self.trigger('add-transfer', self.data);
+				self.trigger('add-new-expense', self.data);
 			},
 			error: function (xhr) {
 				console.error(xht);
-				self.trigger('remove-transfer');
+				self.trigger('remove-new-expense');
 			}
 		});
 	},
@@ -894,11 +901,11 @@ var CountView = BaseView.extend({
 
 
 	afterRender: function () {
-		var expense = this.count.get('expenses');
+		var expenseList = this.count.get('expenses');
 		var self = this;
 
-		expense.forEach(function (transfer) {
-			self.$('#expense-list-view').append(self.templateExpense({transfer: transfer}));
+		expenseList.forEach(function (expense) {
+			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
 		});
 
 		this.stats = new StatsView({count: this.count});
@@ -930,24 +937,20 @@ var CountView = BaseView.extend({
 		if (this.newExpense == null) {
 			this.newExpense = new AddExpenseView({count: this.count});
 		}
-		this.renderNewExpense();
 
-
-		this.listenToOnce(this.newExpense, 'new-transfer', function (data) {
-			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
-			this.stats.update();
-			this.balancing.update();
-			this.removeNewExpense();
-		});
-	},
-
-
-	renderNewExpense: function () {
 		this.$('#add-new-expense').remove();
-
 		this.newExpense.render();
 
 		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
+
+		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
+			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+			this.stats.update();
+			if (this.balancing !== null && this.balancing !== undefined) {
+				this.balancing.update();
+			}
+			this.removeNewExpense();
+		});
 	},
 
 
@@ -1056,12 +1059,11 @@ var SquareView = BaseView.extend({
 		var allExpenses = this.count.get('allExpenses');
 		var users = this.count.get('users');
 
-		var expensePerUser = (Math.round(allExpenses / users.length * 100) / 100).toFixed(2);
 		this.usersBalancing = users.map(function (user) {
 			return {
 				name: user.name,
 				color: user.color,
-				balancing: (Math.round((user.expenses - expensePerUser) * 100) / 100).toFixed(2)
+				balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
 			}
 		});
 
@@ -1223,7 +1225,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div></div></div>');
+buf.push('<div class="jumbotron"><h1>' + escape((interp = count.name) == null ? '' : interp) + '</h1><p>' + escape((interp = count.description) == null ? '' : interp) + '</p></div><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div><div id="expense-list-view"></div></div></div>');
 }
 return buf.join("");
 };
@@ -1236,26 +1238,27 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-var expense_row_mixin = function(user){
-var block = this.block, attributes = this.attributes || {}, escaped = this.escaped || {};
-buf.push('<tr><td>' + escape((interp = user.name) == null ? '' : interp) + '</td><td>' + escape((interp = user.share) == null ? '' : interp) + '</td><td>' + escape((interp = user.amount) == null ? '' : interp) + '</td></tr>');
-};
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = transfer.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = transfer.amount) == null ? '' : interp) + '</span></div><div');
-buf.push(attrs({ 'style':('display: none'), 'id':("" + (transfer.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
-buf.push('>');
-if ( transfer.title)
-{
-buf.push('<h3>' + escape((interp = transfer.title) == null ? '' : interp) + '</h3>');
-}
-if ( transfer.description)
-{
-buf.push('<p>' + escape((interp = transfer.description) == null ? '' : interp) + '</p>');
-}
-if ( transfer.date)
-{
-buf.push('<p>Date: ' + escape((interp = transfer.date) == null ? '' : interp) + '</p>');
-}
-buf.push('</div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + '</span></div><div');
+buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
+buf.push('><div class="form-btn"><label for="seeder">Who have paid ?</label><button id="seeder" class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button></div><div class="form-btn"><label for="leecher-list">Who take advantage ?</label><div id="leecher-list" class="row">');
+// iterate expense.leecher
+;(function(){
+  if ('number' == typeof expense.leecher.length) {
+    for (var $index = 0, $$l = expense.leecher.length; $index < $$l; $index++) {
+      var leecher = expense.leecher[$index];
+
+buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in expense.leecher) {
+      var leecher = expense.leecher[$index];
+
+buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('</div></div></div></div>');
 }
 return buf.join("");
 };

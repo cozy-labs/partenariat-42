@@ -49,12 +49,11 @@ var SquareView = BaseView.extend({
 		var allExpenses = this.count.get('allExpenses');
 		var users = this.count.get('users');
 
-		var expensePerUser = (Math.round(allExpenses / users.length * 100) / 100).toFixed(2);
 		this.usersBalancing = users.map(function (user) {
 			return {
 				name: user.name,
 				color: user.color,
-				balancing: (Math.round((user.expenses - expensePerUser) * 100) / 100).toFixed(2)
+				balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
 			}
 		});
 

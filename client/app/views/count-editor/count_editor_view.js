@@ -9,7 +9,7 @@ var CountEditor = BaseView.extend({
 	template: template,
 
 	count: null,
-	userList: [{}],
+	userList: [],
 
 	events: {
 		'click #submit-editor':	'submitEditor',
@@ -59,12 +59,20 @@ var CountEditor = BaseView.extend({
 
 	lauchCountCreation: function () {
 		console.log('this.userList: ', this.userList);
+		var countName = this.$('#input-name').val();
 		window.countCollection.create({
-			name: this.$('#input-name').val(),
+			name: countName,
 			description: this.$('#input-description').val(),
 			users: this.userList,
-		});
-		app.router.navigate('', {trigger: true});
+		},{
+			wait: true,
+			success: function () {
+				app.router.navigate('count/' + countName, {trigger: true});
+			},
+			error: function (xhr) {
+				console.error(xhr);
+				app.router.navigate('', {trigger: true});
+			}});
 	},
 
 	lauchCountUpdate: function () {

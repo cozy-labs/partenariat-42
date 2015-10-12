@@ -1,31 +1,15 @@
-mixin expense_row(user)
-	tr
-		td #{user.name}
-		td #{user.share}
-		td #{user.amount}
-
-
-
 .panel.panel-default
 	.panel-heading.header-expense-elem
-		span  #{transfer.name}
-		span(style='float: right') #{transfer.amount}
+		span  #{expense.name}
+		span(style='float: right') #{expense.amount}
 
-	.panel-body(style='display: none', id="#{transfer.id}")
-		if transfer.title
-			h3 #{transfer.title}
-		if transfer.description
-			p #{transfer.description}
-		if transfer.date
-			p Date: #{transfer.date}
+	.panel-body(style='display: none', id="#{expense.id}")
+		.form-btn
+			label(for='seeder') Who have paid ?
+			button#seeder.btn #{expense.seeder}
 
-		//-table.table
-			//-thead
-				//-tr
-					//-th Name
-					//-th %
-					//-th Amount
-			//-tbody
-				//-for user in transfer.users
-					//-+expense_row(user)
-		//-button.delete-expense-elem.btn.btn-default.btn-block Delete
+		.form-btn
+			label(for='leecher-list') Who take advantage ?
+			#leecher-list.row
+				for leecher in expense.leecher
+					button.btn #{leecher.name}
