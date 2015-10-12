@@ -97,7 +97,7 @@ var CountView = BaseView.extend({
 		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
 
 		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
-			this.$('#expense-list-view').prepend(this.templateExpense({transfer: data}));
+			this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
 			this.stats.update();
 			if (this.balancing !== null && this.balancing !== undefined) {
 				this.balancing.update();

@@ -87,7 +87,6 @@ var AddExpenseView = BaseView.extend({
 			return false;
 		});
 
-		console.log('index: ', leecherIndex);
 		if (leecherIndex === null) {
 			listLeecher.push({name: event.target.value});
 
@@ -100,13 +99,16 @@ var AddExpenseView = BaseView.extend({
 			targetButton.removeClass('btn-info');
 			targetButton.addClass('btn-default');
 		}
-		console.log('leechers: ', this.data.leecher);
 	},
 
 
 	addUserToCount: function (newUser) {
-		this.$('#add-transfer-user-content').append('<button type="button" value="'+ newUser +
-				'" class="btn btn-default transfer-user">' + newUser + '</button>');
+		this.$('#seeder-list').append('<button type="button" value="'+ newUser +
+				'" class="btn btn-default seeder">' + newUser + '</button>');
+
+		this.$('#leecher-list').append('<button type="button" value="'+ newUser +
+				'" class="btn btn-info leecher">' + newUser + '</button>');
+		this.data.leecher.push({name: newUser});
 	},
 
 
@@ -142,13 +144,11 @@ var AddExpenseView = BaseView.extend({
 
 
 	errorMessage: function (msg) {
-		console.log('error')
 		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
 	},
 
 
 	sendNewExpense: function () {
-		console.log('data: ', this.data)
 		var self = this;
 		var newExpensesList = this.count.get('expenses');
 		newExpensesList.push(this.data);
@@ -176,7 +176,6 @@ var AddExpenseView = BaseView.extend({
 		});
 
 		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
-		console.log('allUsers: ', allUsers);
 		this.count.save({
 			allExpenses: newAllExpenses,
 			expenses: newExpensesList,
@@ -187,7 +186,6 @@ var AddExpenseView = BaseView.extend({
 				self.trigger('add-new-expense', self.data);
 			},
 			error: function (xhr) {
-				console.error(xht);
 				self.trigger('remove-new-expense');
 			}
 		});
