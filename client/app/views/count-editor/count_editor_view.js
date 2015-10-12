@@ -8,18 +8,56 @@ var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
-	count: null,
 	userList: [],
+	deviseList: [],
+	countName: '',
+	nameIsUsed: false,
 
 	events: {
 		'click #submit-editor':	'submitEditor',
-		'click #add-user'			: 'addUser'
+		'click #add-user'			: 'addUser',
+		'click .devise'				: 'setDevise',
 	},
 
 
 	initialize: function (params) {
 		this.count = params.countId;
 		BaseView.prototype.initialize.call(this);
+	},
+
+
+	afterRender: function () {
+		this.$('#input-name')[0].addEventListener('change', (function(_this) {
+			return function (event) {_this.checkCountName(event);};
+		})(this));
+	},
+
+
+	checkCountName(event) {
+		var countName = event.target.value;
+
+		var nameIsTaken = window.listCount.find(function (elem) {
+			if (elem.name == countName) {
+				return true;
+			}
+			return false;
+		});
+
+		var inputGrp = this.$('#input-name-grp');
+		if (nameIsTaken !== null && nameIsTaken !== undefined) {
+			if (this.nameIsUsed === false) {
+				inputGrp.addClass('has-error');
+				inputGrp.append('<div id="name-used" class="alert alert-danger" role="alert">Name already use</div>');
+				this.nameIsUsed = true;
+			}
+		} else {
+				if (this.nameIsUsed === true) {
+					this.$('#name-used').remove();
+					inputGrp.removeClass('has-error');
+					this.nameIsUsed = false;
+				}
+				this.countName = countName;
+		}
 	},
 
 
@@ -57,23 +95,80 @@ var CountEditor = BaseView.extend({
 	},
 
 
-	lauchCountCreation: function () {
-		console.log('this.userList: ', this.userList);
-		var countName = this.$('#input-name').val();
-		window.countCollection.create({
-			name: countName,
-			description: this.$('#input-description').val(),
-			users: this.userList,
-		},{
-			wait: true,
-			success: function () {
-				app.router.navigate('count/' + countName, {trigger: true});
-			},
-			error: function (xhr) {
-				console.error(xhr);
-				app.router.navigate('', {trigger: true});
-			}});
+	setDevise: function (event) {
+		var selectedDevise = event.target.value;
+		var deviseIndex = null;
+
+		this.deviseList.find(function (elem, index) {
+			if (elem == selectedDevise) {
+				deviseIndex = index;
+				return true;
+			}
+			return false;
+		});
+
+		var btnTarget = this.$(event.target);
+
+		if (deviseIndex == null) {
+			btnTarget.removeClass('btn-default');
+			btnTarget.addClass('btn-info');
+			this.deviseList.push(selectedDevise);
+		} else {
+			btnTarget.removeClass('btn-info');
+			btnTarget.addClass('btn-default');
+			this.deviseList.splice(deviseIndex, 1);
+		}
 	},
+
+
+	lauchCountCreation: function () {
+		var countDescription = this.$('#input-description').val();
+
+		var error = false;
+
+		this.$('#alert-zone').remove();
+		this.$('#formular').prepend('<div id="alert-zone"></div>');
+
+		if (this.nameIsUsed == true) {
+			this.errorMessage('Your namee is already use');
+			error = true;
+		}
+		if (this.countName.length <= 0) {
+			this.errorMessage('Your count need a name');
+			error = true;
+		}
+		if (this.userList.length <= 0) {
+			this.errorMessage('Your count need almost one user');
+			error = true;
+		}
+		if (this.deviseList.length <= 0) {
+			this.errorMessage('Your count need almost one devise');
+			error = true;
+		}
+		if (error === false) {
+			window.countCollection.create({
+				name: countName,
+				description: countDescription,
+				users: this.userList,
+				devises: this.deviseList,
+			},{
+				wait: true,
+				success: function () {
+					app.router.navigate('count/' + countName, {trigger: true});
+				},
+				error: function (xhr) {
+					console.error(xhr);
+					app.router.navigate('', {trigger: true});
+				}});
+		}
+	},
+
+
+	errorMessage: function (msg) {
+		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+	},
+
+
 
 	lauchCountUpdate: function () {
 		var model = window.countCollection.get(this.count);
