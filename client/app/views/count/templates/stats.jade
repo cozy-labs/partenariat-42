@@ -2,7 +2,7 @@
 	.panel-heading Users
 	.panel-body
 		.row
-			.col-md-4
+			.col-md-6
 				#user-list
 					each user in count.users
 						.row
@@ -12,9 +12,7 @@
 						input#count-input-add-user.form-control(type='text', placeholder='My name')
 						span.input-group-btn
 							button#count-lauch-add-user.btn.btn-default(type='button') Add user
-			.col-md-4
-				canvas#chart-users
-			.col-md-4
+			.col-md-6
 				label(for='all-expenses') All Expenses:
 				p#all-expenses #{count.allExpenses}
 				label(for='nb-expenses') Number Expenses:
