@@ -2,15 +2,18 @@ var BaseView = require('../../lib/base_view');
 var template = require('./templates/count_editor');
 var app = require('../../application');
 
+var colorSet = require('../../helper/color_set');
 
 var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
 	count: null,
+	userList: [{}],
 
 	events: {
 		'click #submit-editor':	'submitEditor',
+		'click #add-user'			: 'addUser'
 	},
 
 
@@ -39,11 +42,27 @@ var CountEditor = BaseView.extend({
 	},
 
 
+	addUser: function (event) {
+		var color = colorSet[this.userList.length % colorSet.length];
+		var newUser = this.$('#input-users').val();
+
+		this.userList.push({
+			name: newUser,
+			seed: 0,
+			leech: 0,
+			color: color
+		});
+
+		this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+	},
+
+
 	lauchCountCreation: function () {
+		console.log('this.userList: ', this.userList);
 		window.countCollection.create({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
-			users: [],
+			users: this.userList,
 		});
 		app.router.navigate('', {trigger: true});
 	},

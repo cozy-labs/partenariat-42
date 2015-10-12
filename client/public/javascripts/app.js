@@ -445,15 +445,18 @@ var BaseView = require('../../lib/base_view');
 var template = require('./templates/count_editor');
 var app = require('../../application');
 
+var colorSet = require('../../helper/color_set');
 
 var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
 	count: null,
+	userList: [{}],
 
 	events: {
 		'click #submit-editor':	'submitEditor',
+		'click #add-user'			: 'addUser'
 	},
 
 
@@ -482,11 +485,27 @@ var CountEditor = BaseView.extend({
 	},
 
 
+	addUser: function (event) {
+		var color = colorSet[this.userList.length % colorSet.length];
+		var newUser = this.$('#input-users').val();
+
+		this.userList.push({
+			name: newUser,
+			seed: 0,
+			leech: 0,
+			color: color
+		});
+
+		this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+	},
+
+
 	lauchCountCreation: function () {
+		console.log('this.userList: ', this.userList);
 		window.countCollection.create({
 			name: this.$('#input-name').val(),
 			description: this.$('#input-description').val(),
-			users: [],
+			users: this.userList,
 		});
 		app.router.navigate('', {trigger: true});
 	},
@@ -543,7 +562,7 @@ buf.push('/></div><button id="submit-editor" class="btn btn-default">Submit</but
 }
 else
 {
-buf.push('<h1>New Count</h1><form><div class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+buf.push('<h1>New Count</h1><form><div class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><div id="list-users" class="row"></div><div class="form-group"><label for="input-users">Count Users</label><input id="input-users" type="text" placeholder="Name" class="form-control"/><button id="add-user" type="button" class="btn btn-default">Add user</button></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
 }
 }
 return buf.join("");
@@ -722,7 +741,7 @@ var AddExpenseView = BaseView.extend({
 		this.data.leecher.forEach(function (elem) {
 			allUsers.every(function (user) {
 				if (elem.name === user.name) {
-					user.leech += leechPerUser;
+					user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
 					return false;
 				}
 				return true;
@@ -1236,25 +1255,7 @@ if ( transfer.date)
 {
 buf.push('<p>Date: ' + escape((interp = transfer.date) == null ? '' : interp) + '</p>');
 }
-buf.push('<table class="table"><thead><tr><th>Name</th><th>%</th><th>Amount</th></tr></thead><tbody>');
-// iterate transfer.users
-;(function(){
-  if ('number' == typeof transfer.users.length) {
-    for (var $index = 0, $$l = transfer.users.length; $index < $$l; $index++) {
-      var user = transfer.users[$index];
-
-expense_row_mixin(user);
-    }
-  } else {
-    for (var $index in transfer.users) {
-      var user = transfer.users[$index];
-
-expense_row_mixin(user);
-   }
-  }
-}).call(this);
-
-buf.push('</tbody></table><button class="delete-expense-elem btn btn-default btn-block">Delete</button></div></div>');
+buf.push('</div></div>');
 }
 return buf.join("");
 };
@@ -1376,6 +1377,7 @@ var HomeCountListView = ViewCollection.extend({
 
 	itemView: HomeCountRowView,
 
+
 	initialize: function (collection) {
 		this.collection = collection;
 		ViewCollection.prototype.initialize.call(this);
@@ -1424,12 +1426,11 @@ var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 
 
-var template = require('./templates/home');
 var app = require('../../application');
 
 var HomeView = BaseView.extend({
 	id: 'home-screen',
-  template: template,
+  template: require('./templates/home'),
 
 	events: {
 		'click #create-new-count' : 'createNewCount',

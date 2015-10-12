@@ -169,7 +169,7 @@ var AddExpenseView = BaseView.extend({
 		this.data.leecher.forEach(function (elem) {
 			allUsers.every(function (user) {
 				if (elem.name === user.name) {
-					user.leech += leechPerUser;
+					user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
 					return false;
 				}
 				return true;

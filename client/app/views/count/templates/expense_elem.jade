@@ -18,13 +18,14 @@ mixin expense_row(user)
 			p #{transfer.description}
 		if transfer.date
 			p Date: #{transfer.date}
-		table.table
-			thead
-				tr
-					th Name
-					th %
-					th Amount
-			tbody
-				for user in transfer.users
-					+expense_row(user)
-		button.delete-expense-elem.btn.btn-default.btn-block Delete
+
+		//-table.table
+			//-thead
+				//-tr
+					//-th Name
+					//-th %
+					//-th Amount
+			//-tbody
+				//-for user in transfer.users
+					//-+expense_row(user)
+		//-button.delete-expense-elem.btn.btn-default.btn-block Delete

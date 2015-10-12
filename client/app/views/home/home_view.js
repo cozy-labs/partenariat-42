@@ -2,12 +2,11 @@ var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 
 
-var template = require('./templates/home');
 var app = require('../../application');
 
 var HomeView = BaseView.extend({
 	id: 'home-screen',
-  template: template,
+  template: require('./templates/home'),
 
 	events: {
 		'click #create-new-count' : 'createNewCount',
