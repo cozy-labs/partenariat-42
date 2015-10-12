@@ -4,6 +4,7 @@ var Count = require('../models/count');
 
 
 module.exports.create = function (req, res, next) {
+	console.log('bosy: ', req.body)
 	Count.create(req.body, function (err, newCount) {
 		if (err !== null && err !== undefined) {
 			console.error(err);
@@ -34,7 +35,6 @@ module.exports.destroy = function (req, res, next) {
 }
 
 module.exports.update = function (req, res, next) {
-	console.log('data: ', req.body);
 	Count.find(req.params.id, function (err, count) {
 			if (err !== null && err !== undefined) {
 				res.status(500).send({error: 'Count find fail'});

@@ -590,14 +590,14 @@ var CountEditor = BaseView.extend({
 		}
 		if (error === false) {
 			window.countCollection.create({
-				name: countName,
+				name: this.countName,
 				description: countDescription,
 				users: this.userList,
 				devises: this.deviseList,
 			},{
 				wait: true,
 				success: function () {
-					app.router.navigate('count/' + countName, {trigger: true});
+					app.router.navigate('count/' + this.countName, {trigger: true});
 				},
 				error: function (xhr) {
 					console.error(xhr);

@@ -8,7 +8,7 @@ var CountModel = cozydb.getModel('Count', {
 	allExpenses:	{type: Number, default: 0},
 	users:				[Object],
 	expenses:			[Object],
-	devises:			[String]
+	devises:			[String],
 });
 
 module.exports = CountModel;
