@@ -1,8 +1,8 @@
 form#add-expense-displayer.form-group(style='display: none')
-		#alert-zone
-		label(for='input-name') Name
-		input#input-name.form-control(type='text', placeholder='Shopping...',
-		maxlength='40', required, autofocus)
+	#alert-zone
+	label(for='input-name') Name
+	input#input-name.form-control(type='text', placeholder='Shopping...',
+	maxlength='40', required, autofocus)
 
 	.form-group
 		label(for='input-description') Description
@@ -21,17 +21,19 @@ form#add-expense-displayer.form-group(style='display: none')
 						li.currency
 							a #{currency.name}
 
-	.form-group
-		label(for='seeder-list') Who Paid ?
-		#seeder-list.form-group
+	label(for='seeder-list') Who Paid ?
+	#seeder-list.form-group
+		.btn-group(data-toggle='buttons')
 			each user in users
-				button.btn.btn-default.seeder(type='button', value='#{user.name}') #{user.name}
+				label.btn.btn-primary.seeder
+					<input type='radio', autocomplete='off', value="#{user.name}")> #{user.name}
 
-	.form-group
-		label(for='leecher-list') Who take Part ?
-		#leecher-list.form-group
+	label(for='leecher-list') Who take Part ?
+	#leecher-list.form-group
+		.btn-group(data-toggle='buttons')
 			each user in users
-				button.btn.btn-info.leecher(type='button', value='#{user.name}') #{user.name}
+				label.btn.btn-primary.leecher.active
+					<input type='checkbox', autocomplete='off', value="#{user.name}")> #{user.name}
 
 	.form-group
 		button#add-expense-save.btn.btn-default.btn-block(type='submit') Save

@@ -37,7 +37,7 @@ var StatsView = BaseView.extend({
 
 	computeDataCount: function () {
 		return this.count.get('users').map(function (elem) {
-			return {value: elem.expenses, color: '#'+elem.color, label: elem.name}
+			return {value: elem.seed, color: '#'+elem.color, label: elem.name}
 		});
 	},
 
@@ -55,7 +55,7 @@ var StatsView = BaseView.extend({
 		var self = this;
 		this.count.get('users').forEach(function (elem, index) {
 			if (index < self.pieChart.segments.length) {
-				self.pieChart.segments[index].value = elem.expenses;
+				self.pieChart.segments[index].value = elem.seed;
 				self.pieChart.update();
 			}
 			else {

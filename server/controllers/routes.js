@@ -5,17 +5,17 @@ var count = require('./count');
 
 module.exports = {
 
-	'': {
-		get: index.index
-	},
+  '': {
+	get: index.index
+  },
 
-	'count': {
-		post: count.create
-	},
+  'count': {
+	post: count.create
+  },
 
-	'count/:id': {
-		delete: count.destroy,
-		put: count.update
-	}
+  'count/:id': {
+	delete: count.destroy,
+	put: count.update
+  }
 };
 

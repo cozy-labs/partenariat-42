@@ -7,6 +7,11 @@ var SquareView = BaseView.extend({
 	template: require('./templates/square'),
 
 
+	events: {
+		'click #archive-count': 'archive',
+	},
+
+
 	initialize: function (attributes) {
 		this.count = attributes.count;
 
@@ -119,6 +124,11 @@ var SquareView = BaseView.extend({
 				tmpUsers.splice(indexSeeder, 1);
 			}
 		}
+	},
+
+
+	archive: function () {
+		this.$el.append('<div class="alert alert-warning" role="alert">Are you sure to close this count ?</div>')
 	},
 
 

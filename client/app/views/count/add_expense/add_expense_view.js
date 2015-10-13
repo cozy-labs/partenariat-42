@@ -53,39 +53,22 @@ var AddExpenseView = BaseView.extend({
 
 
 	setSeeder: function (event) {
-		var seederTarget = this.$(event.target);
-		var oldSeederTarget = null;
-		var self = this;
-
-		if (this.data.seeder !== null && this.data.seeder !== undefined) {
-			var seederList = this.$('.seeder');
-
-			for (var index = 0; index < seederList.length; index++) {
-				var elem = seederList[index];
-
-				if (seederList[index].value === self.data.seeder) {
-					oldSeederTarget = seederList[index];
-				}
-			};
-
-			oldSeederTarget = this.$(oldSeederTarget);
-			oldSeederTarget.removeClass('btn-info');
-			oldSeederTarget.addClass('btn-default');
+		var target = this.$(event.target).children().get(0).value;
+		if (this.data.seeder === target) {
+			this.data.seeder = null;
+		} else {
+			this.data.seeder = target;
 		}
-
-		seederTarget.removeClass('btn-default');
-		seederTarget.addClass('btn-info');
-		this.data.seeder = event.target.value;
 	},
 
 
 	setLeecher: function (event) {
+		var target = this.$(event.target).children().get(0).value;
 		var listLeecher = this.data.leecher;
-		var targetButton = this.$(event.target);
 		var leecherIndex = null;;
 
 		listLeecher.find(function (element, index) {
-			if (element.name == event.target.value) {
+			if (element.name == target) {
 				leecherIndex = index;
 				return true;
 			}
@@ -93,16 +76,10 @@ var AddExpenseView = BaseView.extend({
 		});
 
 		if (leecherIndex === null) {
-			listLeecher.push({name: event.target.value});
-
-			targetButton.removeClass('btn-default');
-			targetButton.addClass('btn-info');
+			listLeecher.push({name: target});
 		}
 		else {
 			listLeecher.splice(leecherIndex, 1);
-
-			targetButton.removeClass('btn-info');
-			targetButton.addClass('btn-default');
 		}
 	},
 
@@ -203,11 +180,11 @@ var AddExpenseView = BaseView.extend({
 	},
 
 	resetNewExpense: function () {
+		this.$('#add-expense-displayer').slideUp('slow');
 		this.trigger('remove-new-expense');
 	},
 
 	remove: function () {
-		this.$el.slideUp('slow');
 		BaseView.prototype.remove.call(this);
 	}
 });

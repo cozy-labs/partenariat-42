@@ -134,7 +134,7 @@ var CountView = BaseView.extend({
 		}
 
 		if (expenseBody.is('.printed')) {
-			expenseBody.slideUp('');
+			expenseBody.slideUp('slow');
 			expenseBody.removeClass('printed');
 		} else {
 			expenseBody.slideDown('slow');

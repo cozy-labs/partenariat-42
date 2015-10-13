@@ -748,39 +748,22 @@ var AddExpenseView = BaseView.extend({
 
 
 	setSeeder: function (event) {
-		var seederTarget = this.$(event.target);
-		var oldSeederTarget = null;
-		var self = this;
-
-		if (this.data.seeder !== null && this.data.seeder !== undefined) {
-			var seederList = this.$('.seeder');
-
-			for (var index = 0; index < seederList.length; index++) {
-				var elem = seederList[index];
-
-				if (seederList[index].value === self.data.seeder) {
-					oldSeederTarget = seederList[index];
-				}
-			};
-
-			oldSeederTarget = this.$(oldSeederTarget);
-			oldSeederTarget.removeClass('btn-info');
-			oldSeederTarget.addClass('btn-default');
+		var target = this.$(event.target).children().get(0).value;
+		if (this.data.seeder === target) {
+			this.data.seeder = null;
+		} else {
+			this.data.seeder = target;
 		}
-
-		seederTarget.removeClass('btn-default');
-		seederTarget.addClass('btn-info');
-		this.data.seeder = event.target.value;
 	},
 
 
 	setLeecher: function (event) {
+		var target = this.$(event.target).children().get(0).value;
 		var listLeecher = this.data.leecher;
-		var targetButton = this.$(event.target);
 		var leecherIndex = null;;
 
 		listLeecher.find(function (element, index) {
-			if (element.name == event.target.value) {
+			if (element.name == target) {
 				leecherIndex = index;
 				return true;
 			}
@@ -788,16 +771,10 @@ var AddExpenseView = BaseView.extend({
 		});
 
 		if (leecherIndex === null) {
-			listLeecher.push({name: event.target.value});
-
-			targetButton.removeClass('btn-default');
-			targetButton.addClass('btn-info');
+			listLeecher.push({name: target});
 		}
 		else {
 			listLeecher.splice(leecherIndex, 1);
-
-			targetButton.removeClass('btn-info');
-			targetButton.addClass('btn-default');
 		}
 	},
 
@@ -898,11 +875,11 @@ var AddExpenseView = BaseView.extend({
 	},
 
 	resetNewExpense: function () {
+		this.$('#add-expense-displayer').slideUp('slow');
 		this.trigger('remove-new-expense');
 	},
 
 	remove: function () {
-		this.$el.slideUp('slow');
 		BaseView.prototype.remove.call(this);
 	}
 });
@@ -918,7 +895,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<form id="add-expense-displayer" style="display: none" class="form-group"><div id="alert-zone"></div><label for="input-name">Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/></form><div class="form-group"><label for="input-description">Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-currency" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">' + escape((interp = currencies[0].name) == null ? '' : interp) + '</button><ul class="dropdown-menu dropdown-menu-right">');
+buf.push('<form id="add-expense-displayer" style="display: none" class="form-group"><div id="alert-zone"></div><label for="input-name">Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/><div class="form-group"><label for="input-description">Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-currency" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">' + escape((interp = currencies[0].name) == null ? '' : interp) + '</button><ul class="dropdown-menu dropdown-menu-right">');
 // iterate currencies
 ;(function(){
   if ('number' == typeof currencies.length) {
@@ -936,51 +913,43 @@ buf.push('<li class="currency"><a>' + escape((interp = currency.name) == null ? 
   }
 }).call(this);
 
-buf.push('</ul></div></div></div><div class="form-group"><label for="seeder-list">Who Paid ?</label><div id="seeder-list" class="form-group">');
+buf.push('</ul></div></div></div><label for="seeder-list">Who Paid ?</label><div id="seeder-list" class="form-group"><div data-toggle="buttons" class="btn-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
     for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
       var user = users[$index];
 
-buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('seeder') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
     }
   } else {
     for (var $index in users) {
       var user = users[$index];
 
-buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-default') + ' ' + ('seeder') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
    }
   }
 }).call(this);
 
-buf.push('</div></div><div class="form-group"><label for="leecher-list">Who take Part ?</label><div id="leecher-list" class="form-group">');
+buf.push('</div></div><label for="leecher-list">Who take Part ?</label><div id="leecher-list" class="form-group"><div data-toggle="buttons" class="btn-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
     for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
       var user = users[$index];
 
-buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-info') + ' ' + ('leecher') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
     }
   } else {
     for (var $index in users) {
       var user = users[$index];
 
-buf.push('<button');
-buf.push(attrs({ 'type':('button'), 'value':('' + (user.name) + ''), "class": ('btn') + ' ' + ('btn-info') + ' ' + ('leecher') }, {"type":true,"value":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
    }
   }
 }).call(this);
 
-buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-default btn-block">Save</button><button id="add-expense-cancel" class="btn btn-default btn-block">Cancel</button></div>');
+buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-default btn-block">Save</button><button id="add-expense-cancel" class="btn btn-default btn-block">Cancel</button></div></form>');
 }
 return buf.join("");
 };
@@ -1123,7 +1092,7 @@ var CountView = BaseView.extend({
 		}
 
 		if (expenseBody.is('.printed')) {
-			expenseBody.slideUp('');
+			expenseBody.slideUp('slow');
 			expenseBody.removeClass('printed');
 		} else {
 			expenseBody.slideDown('slow');
@@ -1159,6 +1128,11 @@ var app = require('../../application');
 var SquareView = BaseView.extend({
 	id: 'square-view',
 	template: require('./templates/square'),
+
+
+	events: {
+		'click #archive-count': 'archive',
+	},
 
 
 	initialize: function (attributes) {
@@ -1276,6 +1250,11 @@ var SquareView = BaseView.extend({
 	},
 
 
+	archive: function () {
+		this.$el.append('<div class="alert alert-warning" role="alert">Are you sure to close this count ?</div>')
+	},
+
+
 	resetSquare: function () {
 		this.trigger('remove-module');
 	},
@@ -1325,7 +1304,7 @@ var StatsView = BaseView.extend({
 
 	computeDataCount: function () {
 		return this.count.get('users').map(function (elem) {
-			return {value: elem.expenses, color: '#'+elem.color, label: elem.name}
+			return {value: elem.seed, color: '#'+elem.color, label: elem.name}
 		});
 	},
 
@@ -1343,7 +1322,7 @@ var StatsView = BaseView.extend({
 		var self = this;
 		this.count.get('users').forEach(function (elem, index) {
 			if (index < self.pieChart.segments.length) {
-				self.pieChart.segments[index].value = elem.expenses;
+				self.pieChart.segments[index].value = elem.seed;
 				self.pieChart.update();
 			}
 			else {
@@ -1369,7 +1348,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div><div id="expense-list-view"></div></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div><div id="expense-list-view"></div></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1473,7 +1452,7 @@ buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave 
   }
 }).call(this);
 
-buf.push('</ul></div>');
+buf.push('</ul><button id="archive-count" class="btn btn-default btn-block">Close and archive</button></div>');
 }
 return buf.join("");
 };
@@ -1486,7 +1465,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">Users</div><div class="panel-body"><div class="row"><div class="col-md-6"><div id="user-list">');
+buf.push('<div class="panel panel-default"><div class="panel-heading">Users</div><div class="panel-body"><div class="col-md-4"><div id="user-list">');
 // iterate count.users
 ;(function(){
   if ('number' == typeof count.users.length) {
@@ -1508,7 +1487,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div></div>');
+buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4 col-xs-6"><label for="chart-users-block">Expenses per users</label><div id="chart-users-block"><canvas id="chart-users"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
 }
 return buf.join("");
 };
@@ -1647,7 +1626,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"></div><div id="list-all-count"><label for="home-list">All Count</label><ul id="home-list-count" class="nav nav-sidebar"></ul></div><button id="create-new-count" class="btn btn-default">Create New Count</button></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="list-all-count"><label for="home-list">All Count</label><ul id="home-list-count" class="nav nav-sidebar"></ul></div><button id="create-new-count" class="btn btn-default">Create New Count</button></div></div>');
 }
 return buf.join("");
 };
