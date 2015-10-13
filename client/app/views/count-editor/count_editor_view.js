@@ -172,7 +172,7 @@ var CountEditor = BaseView.extend({
 
 
 	errorMessage: function (msg) {
-		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>'+msg+'</div>');
 	},
 
 
