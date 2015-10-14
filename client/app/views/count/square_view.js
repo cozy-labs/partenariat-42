@@ -127,8 +127,8 @@ var SquareView = BaseView.extend({
 	},
 
 
-	archive: function () {
-		this.$el.append('<div class="alert alert-warning" role="alert">Are you sure to close this count ?</div>')
+	archive: function (event) {
+		console.log('plop');
 	},
 
 

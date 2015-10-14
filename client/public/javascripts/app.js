@@ -150,24 +150,23 @@ module.exports = CountList;
 
 require.register("helper/color_set", function(exports, require, module) {
 module.exports = [
-    '304FFE',
     '2979FF',
-    '00B0FF',
-    '00DCE9',
-    '00D5B8',
-    '00C853',
-    'E70505',
-    'FF5700',
-    'FF7900',
-    'FFA300',
     'B3C51D',
-    '64DD17',
-    'FF2828',
+    '00D5B8',
+    'FF5700',
     'F819AA',
-    'AA00FF',
-    '6200EA',
     '7190AB',
-    '51658D'
+    '00B0FF',
+    'E70505',
+    'FF7900',
+    '51658D',
+    '304FFE',
+    '00DCE9',
+    'FF2828',
+    '6200EA',
+    '64DD17',
+    '00C853',
+    'FFA300',
 ]
 
 });
@@ -1250,8 +1249,8 @@ var SquareView = BaseView.extend({
 	},
 
 
-	archive: function () {
-		this.$el.append('<div class="alert alert-warning" role="alert">Are you sure to close this count ?</div>')
+	archive: function (event) {
+		console.log('plop');
 	},
 
 
@@ -1452,7 +1451,7 @@ buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave 
   }
 }).call(this);
 
-buf.push('</ul><button id="archive-count" class="btn btn-default btn-block">Close and archive</button></div>');
+buf.push('</ul><button id="archive-count" class="btn btn-primary btn-block">Close and archive</button></div>');
 }
 return buf.join("");
 };
@@ -1742,7 +1741,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<label for="menu-section">Count</label><div id="menu-section"><ul class="nav"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul><ul class="nav nav-sidebar"><li><a id="menu-add-count">Create a Count</a></li></ul></div>');
+buf.push('<label for="menu-section">Count</label><div id="menu-section"><ul class="nav"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul></div><Label for="action">Actions</Label><ul id="action" class="nav nav-sidebar"><li><a id="menu-add-count">Create a Count</a></li><li><a id="archives">Archives</a></li></ul>');
 }
 return buf.join("");
 };
