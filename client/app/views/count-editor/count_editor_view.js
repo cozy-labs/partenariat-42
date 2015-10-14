@@ -158,6 +158,7 @@ var CountEditor = BaseView.extend({
 				description: countDescription,
 				users: this.userList,
 				currencies: this.currencies,
+				status: 'active',
 			},{
 				wait: true,
 				success: function () {

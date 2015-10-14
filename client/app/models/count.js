@@ -1,9 +1,9 @@
 
+var app = require('../application');
 
 var Count = Backbone.Model.extend({
 
 	removeExpense: function (id, callback) {
-		console.log('id: ', id)
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -28,10 +28,7 @@ var Count = Backbone.Model.extend({
 				return true;
 			});
 
-			console.log('user: ', user.name);
-			console.log('seeder: ', seeder)
 			if (user.name == seeder) {
-				console.log('seeder')
 					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 			}
 			return user;
@@ -49,6 +46,23 @@ var Count = Backbone.Model.extend({
 				callback();
 			},
 			error: function (xht) {
+				console.error(xhr);
+			}
+		});
+	},
+
+
+	archive: function () {
+		var self = this;
+		this.save({
+			status: 'archive'
+		}, {
+			wait: true,
+			success: function () {
+				window.countCollection.remove(self);
+				app.router.navigate('', {trigger: true});
+			},
+			error: function (xhr) {
 				console.error(xhr);
 			}
 		});

@@ -305,11 +305,11 @@ require.register("lib/view_helper", function(exports, require, module) {
 
 ;require.register("models/count", function(exports, require, module) {
 
+var app = require('../application');
 
 var Count = Backbone.Model.extend({
 
 	removeExpense: function (id, callback) {
-		console.log('id: ', id)
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -334,10 +334,7 @@ var Count = Backbone.Model.extend({
 				return true;
 			});
 
-			console.log('user: ', user.name);
-			console.log('seeder: ', seeder)
 			if (user.name == seeder) {
-				console.log('seeder')
 					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 			}
 			return user;
@@ -355,6 +352,23 @@ var Count = Backbone.Model.extend({
 				callback();
 			},
 			error: function (xht) {
+				console.error(xhr);
+			}
+		});
+	},
+
+
+	archive: function () {
+		var self = this;
+		this.save({
+			status: 'archive'
+		}, {
+			wait: true,
+			success: function () {
+				window.countCollection.remove(self);
+				app.router.navigate('', {trigger: true});
+			},
+			error: function (xhr) {
 				console.error(xhr);
 			}
 		});
@@ -383,7 +397,7 @@ var Router = Backbone.Router.extend({
 
 	initialize: function () {
 		if (window.countCollection == null || window.countCollection == undefined) {
-			this.createCountCollection();
+			this.initializeCollections();
 		}
 
 		this.mainMenu = new MenuView();
@@ -431,19 +445,25 @@ var Router = Backbone.Router.extend({
 	},
 
 
-	createCountCollection: function () {
+	initializeCollections: function () {
 		window.countCollection = new CountList();
+		window.archiveCollection = new CountList();
 
 		if (window.listCount == null || window.listCount == undefined || window.listCount == "") {
 			console.log('listCount empty');
 			return;
 		}
 
-		var index = 0;
-		while (index < window.listCount.length) {
-			var newCount = new Count(window.listCount[index]);
-			window.countCollection.add(newCount);
-			index++;
+		for (index in window.listCount) {
+			var count = window.listCount[index];
+			if (count.status === 'active') {
+				var newCount = new Count(count);
+				window.countCollection.add(newCount);
+			}
+			else if (count.status === 'archive') {
+				var newCount = new Count(count);
+				window.archiveCollection.add(newCount);
+			}
 		}
 	},
 });
@@ -613,6 +633,7 @@ var CountEditor = BaseView.extend({
 				description: countDescription,
 				users: this.userList,
 				currencies: this.currencies,
+				status: 'active',
 			},{
 				wait: true,
 				success: function () {
@@ -1250,7 +1271,7 @@ var SquareView = BaseView.extend({
 
 
 	archive: function (event) {
-		console.log('plop');
+		this.count.archive();
 	},
 
 

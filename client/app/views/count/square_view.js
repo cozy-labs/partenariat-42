@@ -128,7 +128,7 @@ var SquareView = BaseView.extend({
 
 
 	archive: function (event) {
-		console.log('plop');
+		this.count.archive();
 	},
 
 
