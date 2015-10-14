@@ -1,10 +1,7 @@
 var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 
-
-var app = require('../../application');
-
-var AllCount = BaseView.extend({
+var AllCountView = BaseView.extend({
 	id: 'all-count-screen',
   template: require('./templates/all_count'),
 
@@ -12,19 +9,18 @@ var AllCount = BaseView.extend({
 		'click #create-new-count' : 'createNewCount',
 	},
 
+
 	initialize: function (attributes) {
-		this.collection = attributes.collection;
-		this.itemView = attributes.itemView;
+		this.collection = window.countCollection;
 		BaseView.prototype.initialize.call(this);
 	},
 
 
 	afterRender: function () {
-		this.countCollectionView = new CountListView({
+		this.collectionView = new CountListView({
 			collection: this.collection,
-			itemView: this.itemView
 		});
-		this.countCollectionView.render();
+		this.collectionView.render();
 	},
 
 
@@ -34,4 +30,4 @@ var AllCount = BaseView.extend({
 
 });
 
-module.exports = AllCount;
+module.exports = AllCountView;

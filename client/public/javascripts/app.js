@@ -381,15 +381,13 @@ module.exports = Count;
 
 require.register("router", function(exports, require, module) {
 
-var AllCount = require('views/allCount/all_count_view');
+var AllCountView = require('views/allCount/all_count_view');
+var AllArchiveView = require('views/allArchives/all_archive_view');
+
+var CountView = require('views/count/count_view');
 var MenuView = require('views/menu/menu_view');
 var CountEditorView = require('views/count-editor/count_editor_view');
-var CountView = require('views/count/count_view');
-
-var CountRowView = require('views/allCount/count_row_view');
-var ArchiveRowView = require('views/allCount/archive_row_view');
-
-
+var ArchiveView = require('views/archive/archive_view');
 
 var CountList = require('collections/count_list');
 var Count = require('models/count');
@@ -415,15 +413,13 @@ var Router = Backbone.Router.extend({
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
 		'count/:name'					: 'printCount',
-		'archive'							: 'printArchive',
+		'archive'							: 'printAllArchive',
+		'archive/:name'				: 'printArchive',
 	},
 
 
 	mainBoard: function () {
-		view = new AllCount({
-			collection: window.countCollection,
-			itemView: CountRowView,
-		});
+		view = new AllCountView();
 
 		this.displayView(view);
 	},
@@ -437,16 +433,26 @@ var Router = Backbone.Router.extend({
 
 
 	printCount: function (countName) {
-		view = new CountView({countName: countName});
+		view = new CountView({
+			countName: countName,
+			modifyPermission: true,
+		});
 
 		this.displayView(view);
 	},
 
 
-	printArchive: function () {
-		view = new AllCount({
-			collection: window.archiveCollection,
-			itemView: ArchiveRowView,
+	printAllArchive: function () {
+		view = new AllArchiveView();
+
+		this.displayView(view);
+	},
+
+
+	printArchive: function (archiveName) {
+		view = new ArchiveView({
+			countName: archiveName,
+			modifyPermission: false,
 		});
 
 		this.displayView(view);
@@ -490,48 +496,54 @@ module.exports = Router;
 
 });
 
-require.register("views/allCount/all_count_view", function(exports, require, module) {
+require.register("views/allArchives/all_archive_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
-var CountListView = require('./count_list_view');
+var ArchiveListView = require('./archive_list_view');
+
+var AllArchiveView = BaseView.extend({
+	id: 'all-archive-screen',
+  template: require('./templates/all_archive'),
 
 
-var app = require('../../application');
-
-var AllCount = BaseView.extend({
-	id: 'all-count-screen',
-  template: require('./templates/all_count'),
-
-	events: {
-		'click #create-new-count' : 'createNewCount',
-	},
-
-	initialize: function (attributes) {
-		this.collection = attributes.collection;
-		this.itemView = attributes.itemView;
+	initialize: function () {
+		console.log('archvecol: ', window.archiveCollection);
+		this.collection = window.archiveCollection;
 		BaseView.prototype.initialize.call(this);
 	},
 
 
 	afterRender: function () {
-		this.countCollectionView = new CountListView({
+		this.collectionView = new ArchiveListView({
 			collection: this.collection,
-			itemView: this.itemView
 		});
-		this.countCollectionView.render();
+		this.collectionView.render();
 	},
+});
 
-
-	createNewCount: function () {
-		app.router.navigate('count/create', {trigger: true});
-	},
+module.exports = AllArchiveView;
 
 });
 
-module.exports = AllCount;
+require.register("views/allArchives/archive_list_view", function(exports, require, module) {
+var ViewCollection = require('../../lib/view_collection');
+var ArchiveRowView = require('./archive_row_view');
+
+var ArchiveListView = ViewCollection.extend({
+	el: '#list-view',
+
+	itemView: ArchiveRowView,
+
+	initialize: function () {
+		this.collection = window.archiveCollection;
+		ViewCollection.prototype.initialize.call(this);
+	}
+});
+
+module.exports = ArchiveListView;
 
 });
 
-require.register("views/allCount/archive_row_view", function(exports, require, module) {
+require.register("views/allArchives/archive_row_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 
 var app = require('../../application');
@@ -540,92 +552,37 @@ var ArchiveRowView = BaseView.extend({
 	template: require('./templates/archive_row'),
 
 	events: {
-		'click .home-delete-count' : 'deleteCount',
-		'click .home-modify-count' : 'modifyCount',
+		'click .archive-see-count'	: 'seeArchive',
 	},
 
 	getRenderData: function () {
 		return ({model: this.model.toJSON()});
 	},
 
-	deleteCount: function () {
-		window.countCollection.remove(this);
-		this.model.destroy();
-	},
 
-	modifyCount: function () {
-		app.router.navigate('count/update/' + this.model.id, {trigger: true});
+	seeArchive: function () {
+		app.router.navigate('archive/' + this.model.get('name'), {trigger: true});
 	},
-
 });
 
 module.exports = ArchiveRowView;
 
 });
 
-require.register("views/allCount/count_list_view", function(exports, require, module) {
-var ViewCollection = require('../../lib/view_collection');
-
-var CountListView = ViewCollection.extend({
-	el: '#home-list-count',
-
-	initialize: function (attributes) {
-		this.collection = attributes.collection;
-		this.itemView = attributes.itemView;
-		ViewCollection.prototype.initialize.call(this);
-	},
-});
-
-module.exports = CountListView;
-
-});
-
-require.register("views/allCount/count_row_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-
-var app = require('../../application');
-
-var CountRowView = BaseView.extend({
-	template: require('./templates/count_row'),
-
-	events: {
-		'click .home-delete-count' : 'deleteCount',
-		'click .home-modify-count' : 'modifyCount',
-	},
-
-	getRenderData: function () {
-		return ({model: this.model.toJSON()});
-	},
-
-	deleteCount: function () {
-		window.countCollection.remove(this);
-		this.model.destroy();
-	},
-
-	modifyCount: function () {
-		app.router.navigate('count/update/' + this.model.id, {trigger: true});
-	},
-
-});
-
-module.exports = CountRowView;
-
-});
-
-require.register("views/allCount/templates/all_count", function(exports, require, module) {
+require.register("views/allArchives/templates/all_archive", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="list-all-count"><label for="home-list">All Count</label><ul id="home-list-count" class="nav nav-sidebar"></ul></div><button id="create-new-count" class="btn btn-default">Create New Count</button></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body"><ul id="list-view" class="nav nav-sidebar"></ul></div></div>');
 }
 return buf.join("");
 };
 });
 
-require.register("views/allCount/templates/archive_row", function(exports, require, module) {
+require.register("views/allArchives/templates/archive_row", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -654,7 +611,110 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="btn btn-primary btn-block">See</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="archive-see-count btn btn-primary btn-block">See</button></div></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/allCount/all_count_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var CountListView = require('./count_list_view');
+
+var AllCountView = BaseView.extend({
+	id: 'all-count-screen',
+  template: require('./templates/all_count'),
+
+	events: {
+		'click #create-new-count' : 'createNewCount',
+	},
+
+
+	initialize: function (attributes) {
+		this.collection = window.countCollection;
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	afterRender: function () {
+		this.collectionView = new CountListView({
+			collection: this.collection,
+		});
+		this.collectionView.render();
+	},
+
+
+	createNewCount: function () {
+		app.router.navigate('count/create', {trigger: true});
+	},
+
+});
+
+module.exports = AllCountView;
+
+});
+
+require.register("views/allCount/count_list_view", function(exports, require, module) {
+
+var ViewCollection = require('../../lib/view_collection');
+var CountRowView = require('./count_row_view');
+
+var CountListView = ViewCollection.extend({
+	el: '#list-view',
+
+	itemView: CountRowView,
+
+	initialize: function () {
+		this.collection = window.countCollection;
+		ViewCollection.prototype.initialize.call(this);
+	}
+});
+
+module.exports = CountListView;
+
+});
+
+require.register("views/allCount/count_row_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+
+var app = require('../../application');
+
+var CountRowView = BaseView.extend({
+	template: require('./templates/count_row'),
+
+	events: {
+		'click .count-delete-count' : 'deleteCount',
+		'click .count-modify-count' : 'modifyCount',
+	},
+
+	getRenderData: function () {
+		return ({model: this.model.toJSON()});
+	},
+
+	deleteCount: function () {
+		window.countCollection.remove(this);
+		this.model.destroy();
+	},
+
+
+	modifyCount: function () {
+		app.router.navigate('count/update/' + this.model.id, {trigger: true});
+	},
+
+});
+
+module.exports = CountRowView;
+
+});
+
+require.register("views/allCount/templates/all_count", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-body"><ul id="list-view" class="nav nav-sidebar"><button id="create-new-count" class="btn btn-default">Create New Count</button></ul></div></div>');
 }
 return buf.join("");
 };
@@ -689,7 +749,59 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="home-delete-count btn btn-primary btn-block">Supprimer</button><button class="home-modify-count btn btn-primary btn-block">Modifier</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="count btn btn-primary btn-block">Supprimer</button><button class="count btn btn-primary btn-block">Modifier</button></div></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/archive/archive_view", function(exports, require, module) {
+var CountBaseView = require('../countBase/count_base_view');
+var app = require('../../application');
+
+var ArchiveView = CountBaseView.extend({
+	id: 'archive-screen',
+	template: require('./templates/archive'),
+
+	count: null,
+	dataResume: {
+		allExpense: 0,
+	},
+
+	newExpense: null,
+	balancing: null,
+
+
+	events: {
+		'click #header-balancing'			: 'printBalancing',
+	},
+
+	initialize: function (attributes) {
+		this.count = window.archiveCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return false;
+		});
+
+		CountBaseView.prototype.initialize.call(this);
+	},
+
+
+});
+
+module.exports = ArchiveView;
+
+});
+
+require.register("views/archive/templates/archive", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div id="expense-list-view" class="panel-body"></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1192,28 +1304,25 @@ buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\'
   }
 }).call(this);
 
-buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-default btn-block">Save</button><button id="add-expense-cancel" class="btn btn-default btn-block">Cancel</button></div></form>');
+buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-primary btn-block">Save</button><button id="add-expense-cancel" class="btn btn-primary btn-block">Cancel</button></div></form>');
 }
 return buf.join("");
 };
 });
 
 require.register("views/count/count_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
+var CountBaseView = require('../countBase/count_base_view');
 var app = require('../../application');
 
 var AddExpenseView = require('./add_expense/add_expense_view');
-var StatsView = require('./stats_view');
-var SquareView = require('./square_view');
-
 
 var colorSet = require('../../helper/color_set');
 
-var CountView = BaseView.extend({
+
+
+var CountView = CountBaseView.extend({
 	id: 'count-screen',
 	template: require('./templates/count'),
-
-	templateExpense : require('./templates/expense_elem'),
 
 	count: null,
 	dataResume: {
@@ -1226,7 +1335,6 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user'	:	'addUser',
 		'click #add-new-expense'			: 'lauchNewExpense',
-		'click #header-balancing'			: 'printBalancing',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
 	},
@@ -1237,34 +1345,10 @@ var CountView = BaseView.extend({
 			if (count.get('name') == attributes.countName) {
 				return true;
 			}
-			return null;
-		});
-		if (this.count == undefined || this.count == null) {
-			console.error('invalide route');
-		}
-		BaseView.prototype.initialize.call(this);
-	},
-
-
-	getRenderData: function () {
-		if (this.count !== null && this.count !== undefined) {
-			return ({count: this.count.toJSON()});
-		}
-		return ({count: null});
-	},
-
-
-	afterRender: function () {
-		var expenseList = this.count.get('expenses');
-		var self = this;
-
-		expenseList.forEach(function (expense) {
-			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+			return false;
 		});
 
-		this.stats = new StatsView({count: this.count});
-		this.stats.render();
-
+		CountBaseView.prototype.initialize.call(this);
 	},
 
 
@@ -1317,15 +1401,6 @@ var CountView = BaseView.extend({
 	},
 
 
-	printBalancing: function () {
-		if (this.balancing === null || this.balancing === undefined) {
-			this.balancing = new SquareView({count: this.count});
-			this.balancing.render();
-		}
-		this.balancing.clickDisplayer()
-	},
-
-
 	printTransferBody: function (event) {
 		var elem =  $(event.target);
 		if (elem.is('span')) {
@@ -1363,7 +1438,77 @@ module.exports = CountView;
 
 });
 
-require.register("views/count/square_view", function(exports, require, module) {
+require.register("views/count/templates/count", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div><div id="expense-list-view"></div></div></div></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/countBase/count_base_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+var StatsView = require('./stats_view');
+var SquareView = require('./square_view');
+
+
+var CountBaseView = BaseView.extend({
+	templateExpense : require('./templates/expense_elem'),
+
+	initialize: function () {
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+		}
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	getRenderData: function () {
+		if (this.count !== null && this.count !== undefined) {
+			return ({count: this.count.toJSON()});
+		}
+		return ({count: null});
+	},
+
+
+	render: function () {
+		BaseView.prototype.render.call(this);
+
+		var expenseList = this.count.get('expenses');
+		var self = this;
+
+		expenseList.forEach(function (expense) {
+			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+		});
+
+		this.stats = new StatsView({count: this.count});
+		this.stats.render();
+
+	},
+
+
+	printBalancing: function () {
+		if (this.balancing === null || this.balancing === undefined) {
+			this.balancing = new SquareView({count: this.count});
+			this.balancing.render();
+		}
+		this.balancing.clickDisplayer()
+	},
+});
+
+module.exports = CountBaseView;
+
+});
+
+require.register("views/countBase/square_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
@@ -1507,7 +1652,7 @@ module.exports = SquareView;
 
 });
 
-require.register("views/count/stats_view", function(exports, require, module) {
+require.register("views/countBase/stats_view", function(exports, require, module) {
 
 var BaseView = require('../../lib/base_view');
 var template = require('./templates/stats');
@@ -1584,20 +1729,7 @@ module.exports = StatsView;
 
 });
 
-require.register("views/count/templates/count", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div><div id="expense-list-view"></div></div></div></div></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/templates/expense_elem", function(exports, require, module) {
+require.register("views/countBase/templates/expense_elem", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -1630,7 +1762,7 @@ return buf.join("");
 };
 });
 
-require.register("views/count/templates/square", function(exports, require, module) {
+require.register("views/countBase/templates/square", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -1701,7 +1833,7 @@ return buf.join("");
 };
 });
 
-require.register("views/count/templates/stats", function(exports, require, module) {
+require.register("views/countBase/templates/stats", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;

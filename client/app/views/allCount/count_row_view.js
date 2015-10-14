@@ -6,8 +6,8 @@ var CountRowView = BaseView.extend({
 	template: require('./templates/count_row'),
 
 	events: {
-		'click .home-delete-count' : 'deleteCount',
-		'click .home-modify-count' : 'modifyCount',
+		'click .count-delete-count' : 'deleteCount',
+		'click .count-modify-count' : 'modifyCount',
 	},
 
 	getRenderData: function () {
@@ -18,6 +18,7 @@ var CountRowView = BaseView.extend({
 		window.countCollection.remove(this);
 		this.model.destroy();
 	},
+
 
 	modifyCount: function () {
 		app.router.navigate('count/update/' + this.model.id, {trigger: true});

@@ -6,23 +6,17 @@ var ArchiveRowView = BaseView.extend({
 	template: require('./templates/archive_row'),
 
 	events: {
-		'click .home-delete-count' : 'deleteCount',
-		'click .home-modify-count' : 'modifyCount',
+		'click .archive-see-count'	: 'seeArchive',
 	},
 
 	getRenderData: function () {
 		return ({model: this.model.toJSON()});
 	},
 
-	deleteCount: function () {
-		window.countCollection.remove(this);
-		this.model.destroy();
-	},
 
-	modifyCount: function () {
-		app.router.navigate('count/update/' + this.model.id, {trigger: true});
+	seeArchive: function () {
+		app.router.navigate('archive/' + this.model.get('name'), {trigger: true});
 	},
-
 });
 
 module.exports = ArchiveRowView;

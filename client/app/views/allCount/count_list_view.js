@@ -1,13 +1,16 @@
+
 var ViewCollection = require('../../lib/view_collection');
+var CountRowView = require('./count_row_view');
 
 var CountListView = ViewCollection.extend({
-	el: '#home-list-count',
+	el: '#list-view',
 
-	initialize: function (attributes) {
-		this.collection = attributes.collection;
-		this.itemView = attributes.itemView;
+	itemView: CountRowView,
+
+	initialize: function () {
+		this.collection = window.countCollection;
 		ViewCollection.prototype.initialize.call(this);
-	},
+	}
 });
 
 module.exports = CountListView;

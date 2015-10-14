@@ -1,13 +1,11 @@
 
-var AllCount = require('views/allCount/all_count_view');
+var AllCountView = require('views/allCount/all_count_view');
+var AllArchiveView = require('views/allArchives/all_archive_view');
+
+var CountView = require('views/count/count_view');
 var MenuView = require('views/menu/menu_view');
 var CountEditorView = require('views/count-editor/count_editor_view');
-var CountView = require('views/count/count_view');
-
-var CountRowView = require('views/allCount/count_row_view');
-var ArchiveRowView = require('views/allCount/archive_row_view');
-
-
+var ArchiveView = require('views/archive/archive_view');
 
 var CountList = require('collections/count_list');
 var Count = require('models/count');
@@ -33,15 +31,13 @@ var Router = Backbone.Router.extend({
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
 		'count/:name'					: 'printCount',
-		'archive'							: 'printArchive',
+		'archive'							: 'printAllArchive',
+		'archive/:name'				: 'printArchive',
 	},
 
 
 	mainBoard: function () {
-		view = new AllCount({
-			collection: window.countCollection,
-			itemView: CountRowView,
-		});
+		view = new AllCountView();
 
 		this.displayView(view);
 	},
@@ -55,16 +51,26 @@ var Router = Backbone.Router.extend({
 
 
 	printCount: function (countName) {
-		view = new CountView({countName: countName});
+		view = new CountView({
+			countName: countName,
+			modifyPermission: true,
+		});
 
 		this.displayView(view);
 	},
 
 
-	printArchive: function () {
-		view = new AllCount({
-			collection: window.archiveCollection,
-			itemView: ArchiveRowView,
+	printAllArchive: function () {
+		view = new AllArchiveView();
+
+		this.displayView(view);
+	},
+
+
+	printArchive: function (archiveName) {
+		view = new ArchiveView({
+			countName: archiveName,
+			modifyPermission: false,
 		});
 
 		this.displayView(view);

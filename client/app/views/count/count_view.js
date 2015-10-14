@@ -1,18 +1,15 @@
-var BaseView = require('../../lib/base_view');
+var CountBaseView = require('../countBase/count_base_view');
 var app = require('../../application');
 
 var AddExpenseView = require('./add_expense/add_expense_view');
-var StatsView = require('./stats_view');
-var SquareView = require('./square_view');
-
 
 var colorSet = require('../../helper/color_set');
 
-var CountView = BaseView.extend({
+
+
+var CountView = CountBaseView.extend({
 	id: 'count-screen',
 	template: require('./templates/count'),
-
-	templateExpense : require('./templates/expense_elem'),
 
 	count: null,
 	dataResume: {
@@ -25,7 +22,6 @@ var CountView = BaseView.extend({
 	events: {
 		'click #count-lauch-add-user'	:	'addUser',
 		'click #add-new-expense'			: 'lauchNewExpense',
-		'click #header-balancing'			: 'printBalancing',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
 	},
@@ -36,34 +32,10 @@ var CountView = BaseView.extend({
 			if (count.get('name') == attributes.countName) {
 				return true;
 			}
-			return null;
-		});
-		if (this.count == undefined || this.count == null) {
-			console.error('invalide route');
-		}
-		BaseView.prototype.initialize.call(this);
-	},
-
-
-	getRenderData: function () {
-		if (this.count !== null && this.count !== undefined) {
-			return ({count: this.count.toJSON()});
-		}
-		return ({count: null});
-	},
-
-
-	afterRender: function () {
-		var expenseList = this.count.get('expenses');
-		var self = this;
-
-		expenseList.forEach(function (expense) {
-			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+			return false;
 		});
 
-		this.stats = new StatsView({count: this.count});
-		this.stats.render();
-
+		CountBaseView.prototype.initialize.call(this);
 	},
 
 
@@ -113,15 +85,6 @@ var CountView = BaseView.extend({
 			this.newExpense= null;
 
 		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
-	},
-
-
-	printBalancing: function () {
-		if (this.balancing === null || this.balancing === undefined) {
-			this.balancing = new SquareView({count: this.count});
-			this.balancing.render();
-		}
-		this.balancing.clickDisplayer()
 	},
 
 
