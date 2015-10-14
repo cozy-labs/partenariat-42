@@ -13,7 +13,6 @@ var ArchiveView = CountBaseView.extend({
 	newExpense: null,
 	balancing: null,
 
-
 	events: {
 		'click #header-balancing'			: 'printBalancing',
 	},

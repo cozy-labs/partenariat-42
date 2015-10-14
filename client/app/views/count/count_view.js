@@ -24,6 +24,7 @@ var CountView = CountBaseView.extend({
 		'click #add-new-expense'			: 'lauchNewExpense',
 		'click .header-expense-elem'	: 'printTransferBody',
 		'click .delete-expense-elem'	: 'deleteExpense',
+		'click #header-balancing'			: 'printBalancing',
 	},
 
 
