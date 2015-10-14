@@ -1,0 +1,9 @@
+div.panel.panel-default
+	div.panel-heading #{model.name}
+	div.panel-body
+		h4 Description
+		p #{model.description}
+		if model.users.length > 0
+			h4 Users
+			each user in model.users
+				button.btn(style="background-color: ##{user.color}") #{user.name}

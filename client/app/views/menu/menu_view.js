@@ -11,6 +11,7 @@ var MenuView = BaseView.extend({
 	events: {
 		'click #menu-all-count'		: 'goHomeView',
 		'click #menu-add-count'		: 'createNewCount',
+		'click #menu-archives'		: 'goToArchives',
 	},
 
 	afterRender: function () {
@@ -26,6 +27,11 @@ var MenuView = BaseView.extend({
 
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});
+	},
+
+
+	goToArchives: function () {
+		app.router.navigate('archive', {trigger: true});
 	},
 
 });

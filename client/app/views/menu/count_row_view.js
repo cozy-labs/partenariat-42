@@ -1,9 +1,8 @@
 var BaseView = require('../../lib/base_view');
-var template = require('./templates/count_row');
 var app = require('../../application');
 
 var MenuCountRowView = BaseView.extend({
-	template: template,
+	template: require('./templates/count_row'),
 
 	className: 'menu-count-row',
 	tagName: 'li',

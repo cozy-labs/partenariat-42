@@ -381,10 +381,14 @@ module.exports = Count;
 
 require.register("router", function(exports, require, module) {
 
-var HomeView = require('views/home/home_view');
+var AllCount = require('views/allCount/all_count_view');
 var MenuView = require('views/menu/menu_view');
 var CountEditorView = require('views/count-editor/count_editor_view');
 var CountView = require('views/count/count_view');
+
+var CountRowView = require('views/allCount/count_row_view');
+var ArchiveRowView = require('views/allCount/archive_row_view');
+
 
 
 var CountList = require('collections/count_list');
@@ -411,11 +415,15 @@ var Router = Backbone.Router.extend({
 		'count/create'				: 'countEditor',
 		'count/update/:id'		: 'countEditor',
 		'count/:name'					: 'printCount',
+		'archive'							: 'printArchive',
 	},
 
 
 	mainBoard: function () {
-		view = new HomeView();
+		view = new AllCount({
+			collection: window.countCollection,
+			itemView: CountRowView,
+		});
 
 		this.displayView(view);
 	},
@@ -430,6 +438,16 @@ var Router = Backbone.Router.extend({
 
 	printCount: function (countName) {
 		view = new CountView({countName: countName});
+
+		this.displayView(view);
+	},
+
+
+	printArchive: function () {
+		view = new AllCount({
+			collection: window.archiveCollection,
+			itemView: ArchiveRowView,
+		});
 
 		this.displayView(view);
 	},
@@ -470,6 +488,220 @@ var Router = Backbone.Router.extend({
 
 module.exports = Router;
 
+});
+
+require.register("views/allCount/all_count_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var CountListView = require('./count_list_view');
+
+
+var app = require('../../application');
+
+var AllCount = BaseView.extend({
+	id: 'all-count-screen',
+  template: require('./templates/all_count'),
+
+	events: {
+		'click #create-new-count' : 'createNewCount',
+	},
+
+	initialize: function (attributes) {
+		this.collection = attributes.collection;
+		this.itemView = attributes.itemView;
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	afterRender: function () {
+		this.countCollectionView = new CountListView({
+			collection: this.collection,
+			itemView: this.itemView
+		});
+		this.countCollectionView.render();
+	},
+
+
+	createNewCount: function () {
+		app.router.navigate('count/create', {trigger: true});
+	},
+
+});
+
+module.exports = AllCount;
+
+});
+
+require.register("views/allCount/archive_row_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+
+var app = require('../../application');
+
+var ArchiveRowView = BaseView.extend({
+	template: require('./templates/archive_row'),
+
+	events: {
+		'click .home-delete-count' : 'deleteCount',
+		'click .home-modify-count' : 'modifyCount',
+	},
+
+	getRenderData: function () {
+		return ({model: this.model.toJSON()});
+	},
+
+	deleteCount: function () {
+		window.countCollection.remove(this);
+		this.model.destroy();
+	},
+
+	modifyCount: function () {
+		app.router.navigate('count/update/' + this.model.id, {trigger: true});
+	},
+
+});
+
+module.exports = ArchiveRowView;
+
+});
+
+require.register("views/allCount/count_list_view", function(exports, require, module) {
+var ViewCollection = require('../../lib/view_collection');
+
+var CountListView = ViewCollection.extend({
+	el: '#home-list-count',
+
+	initialize: function (attributes) {
+		this.collection = attributes.collection;
+		this.itemView = attributes.itemView;
+		ViewCollection.prototype.initialize.call(this);
+	},
+});
+
+module.exports = CountListView;
+
+});
+
+require.register("views/allCount/count_row_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+
+var app = require('../../application');
+
+var CountRowView = BaseView.extend({
+	template: require('./templates/count_row'),
+
+	events: {
+		'click .home-delete-count' : 'deleteCount',
+		'click .home-modify-count' : 'modifyCount',
+	},
+
+	getRenderData: function () {
+		return ({model: this.model.toJSON()});
+	},
+
+	deleteCount: function () {
+		window.countCollection.remove(this);
+		this.model.destroy();
+	},
+
+	modifyCount: function () {
+		app.router.navigate('count/update/' + this.model.id, {trigger: true});
+	},
+
+});
+
+module.exports = CountRowView;
+
+});
+
+require.register("views/allCount/templates/all_count", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="list-all-count"><label for="home-list">All Count</label><ul id="home-list-count" class="nav nav-sidebar"></ul></div><button id="create-new-count" class="btn btn-default">Create New Count</button></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/allCount/templates/archive_row", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p>');
+if ( model.users.length > 0)
+{
+buf.push('<h4>Users</h4>');
+// iterate model.users
+;(function(){
+  if ('number' == typeof model.users.length) {
+    for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
+      var user = model.users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in model.users) {
+      var user = model.users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+}
+buf.push('</div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/allCount/templates/count_row", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p>');
+if ( model.users.length > 0)
+{
+buf.push('<h4>Users</h4>');
+// iterate model.users
+;(function(){
+  if ('number' == typeof model.users.length) {
+    for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
+      var user = model.users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in model.users) {
+      var user = model.users[$index];
+
+buf.push('<button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('<p></p>');
+}
+buf.push('<div><button class="home-delete-count btn btn-default btn-block">Supprimer</button><button class="home-modify-count btn btn-default btn-block">Modifier</button></div></div></div>');
+}
+return buf.join("");
+};
 });
 
 require.register("views/count-editor/count_editor_view", function(exports, require, module) {
@@ -1513,145 +1745,6 @@ return buf.join("");
 };
 });
 
-require.register("views/home/count_list_view", function(exports, require, module) {
-
-var ViewCollection = require('../../lib/view_collection');
-var HomeCountRowView = require('./count_row_view');
-
-var HomeCountListView = ViewCollection.extend({
-	el: '#home-list-count',
-
-	itemView: HomeCountRowView,
-
-
-	initialize: function (collection) {
-		this.collection = collection;
-		ViewCollection.prototype.initialize.call(this);
-	},
-});
-
-module.exports = HomeCountListView;
-
-});
-
-require.register("views/home/count_row_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-var template = require('./templates/count_row');
-
-var app = require('../../application');
-
-var HomeCountRowView = BaseView.extend({
-	template: template,
-
-	events: {
-		'click .home-delete-count' : 'deleteCount',
-		'click .home-modify-count' : 'modifyCount',
-	},
-
-	getRenderData: function () {
-		return ({model: this.model.toJSON()});
-	},
-
-	deleteCount: function () {
-		window.countCollection.remove(this);
-		this.model.destroy();
-	},
-
-	modifyCount: function () {
-		app.router.navigate('count/update/' + this.model.id, {trigger: true});
-	},
-
-});
-
-module.exports = HomeCountRowView;
-
-});
-
-require.register("views/home/home_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-var CountListView = require('./count_list_view');
-
-
-var app = require('../../application');
-
-var HomeView = BaseView.extend({
-	id: 'home-screen',
-  template: require('./templates/home'),
-
-	events: {
-		'click #create-new-count' : 'createNewCount',
-	},
-
-
-	afterRender: function () {
-		this.countCollectionView = new CountListView(window.countCollection);
-		this.countCollectionView.render();
-	},
-
-
-	createNewCount: function () {
-		app.router.navigate('count/create', {trigger: true});
-	},
-
-});
-
-module.exports = HomeView;
-
-});
-
-require.register("views/home/templates/count_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p>');
-if ( model.users.length > 0)
-{
-buf.push('<h4>Users</h4>');
-// iterate model.users
-;(function(){
-  if ('number' == typeof model.users.length) {
-    for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
-      var user = model.users[$index];
-
-buf.push('<button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
-    }
-  } else {
-    for (var $index in model.users) {
-      var user = model.users[$index];
-
-buf.push('<button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
-   }
-  }
-}).call(this);
-
-buf.push('<p></p>');
-}
-buf.push('<div><button class="home-delete-count btn btn-default btn-block">Supprimer</button><button class="home-modify-count btn btn-default btn-block">Modifier</button></div></div></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/home/templates/home", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="list-all-count"><label for="home-list">All Count</label><ul id="home-list-count" class="nav nav-sidebar"></ul></div><button id="create-new-count" class="btn btn-default">Create New Count</button></div></div>');
-}
-return buf.join("");
-};
-});
-
 require.register("views/menu/count_list_view", function(exports, require, module) {
 
 var ViewCollection = require('../../lib/view_collection');
@@ -1674,11 +1767,10 @@ module.exports = MenuCountListView;
 
 require.register("views/menu/count_row_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
-var template = require('./templates/count_row');
 var app = require('../../application');
 
 var MenuCountRowView = BaseView.extend({
-	template: template,
+	template: require('./templates/count_row'),
 
 	className: 'menu-count-row',
 	tagName: 'li',
@@ -1719,6 +1811,7 @@ var MenuView = BaseView.extend({
 	events: {
 		'click #menu-all-count'		: 'goHomeView',
 		'click #menu-add-count'		: 'createNewCount',
+		'click #menu-archives'		: 'goToArchives',
 	},
 
 	afterRender: function () {
@@ -1734,6 +1827,11 @@ var MenuView = BaseView.extend({
 
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});
+	},
+
+
+	goToArchives: function () {
+		app.router.navigate('archive', {trigger: true});
 	},
 
 });
@@ -1762,7 +1860,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<label for="menu-section">Count</label><div id="menu-section"><ul class="nav"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul></div><Label for="action">Actions</Label><ul id="action" class="nav nav-sidebar"><li><a id="menu-add-count">Create a Count</a></li><li><a id="archives">Archives</a></li></ul>');
+buf.push('<label for="menu-section">Count</label><div id="menu-section"><ul class="nav"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul></div><Label for="action">Actions</Label><ul id="action" class="nav nav-sidebar"><li><a id="menu-add-count">Create a Count</a></li><li><a id="menu-archives">Archives</a></li></ul>');
 }
 return buf.join("");
 };

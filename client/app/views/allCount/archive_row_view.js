@@ -1,10 +1,9 @@
 var BaseView = require('../../lib/base_view');
-var template = require('./templates/count_row');
 
 var app = require('../../application');
 
-var HomeCountRowView = BaseView.extend({
-	template: template,
+var ArchiveRowView = BaseView.extend({
+	template: require('./templates/archive_row'),
 
 	events: {
 		'click .home-delete-count' : 'deleteCount',
@@ -26,4 +25,4 @@ var HomeCountRowView = BaseView.extend({
 
 });
 
-module.exports = HomeCountRowView;
+module.exports = ArchiveRowView;
