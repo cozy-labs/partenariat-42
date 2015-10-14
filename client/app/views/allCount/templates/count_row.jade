@@ -1,13 +1,16 @@
 div.panel.panel-default
-	div.panel-heading #{model.name}
-	div.panel-body
-		h4 Description
-		p #{model.description}
-		if model.users.length > 0
-			h4 Users
+	.panel-heading #{model.name}
+	.panel-body
+
+		label(for='description') Description
+		#description.form-group
+			p #{model.description}
+
+		label(for='user-list') Users
+		#user-list.form-group
 			each user in model.users
 				button.btn(style="background-color: ##{user.color}") #{user.name}
-			p
-		div
-			button.home-delete-count.btn.btn-default.btn-block Supprimer
-			button.home-modify-count.btn.btn-default.btn-block Modifier
+
+		.form-group
+			button.home-delete-count.btn.btn-primary.btn-block Supprimer
+			button.home-modify-count.btn.btn-primary.btn-block Modifier

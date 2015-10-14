@@ -632,10 +632,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p>');
-if ( model.users.length > 0)
-{
-buf.push('<h4>Users</h4>');
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div><label for="user-list">Users</label><div id="user-list" class="form-group">');
 // iterate model.users
 ;(function(){
   if ('number' == typeof model.users.length) {
@@ -657,8 +654,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-}
-buf.push('</div></div>');
+buf.push('</div><div class="form-group"><button class="btn btn-primary btn-block">See</button></div></div></div>');
 }
 return buf.join("");
 };
@@ -671,10 +667,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><h4>Description</h4><p>' + escape((interp = model.description) == null ? '' : interp) + '</p>');
-if ( model.users.length > 0)
-{
-buf.push('<h4>Users</h4>');
+buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div><label for="user-list">Users</label><div id="user-list" class="form-group">');
 // iterate model.users
 ;(function(){
   if ('number' == typeof model.users.length) {
@@ -696,9 +689,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('<p></p>');
-}
-buf.push('<div><button class="home-delete-count btn btn-default btn-block">Supprimer</button><button class="home-modify-count btn btn-default btn-block">Modifier</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="home-delete-count btn btn-primary btn-block">Supprimer</button><button class="home-modify-count btn btn-primary btn-block">Modifier</button></div></div></div>');
 }
 return buf.join("");
 };
