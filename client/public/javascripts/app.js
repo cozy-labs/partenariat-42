@@ -420,9 +420,12 @@ var Router = Backbone.Router.extend({
 
 
 	mainBoard: function () {
-		view = new AllCountView();
-
-		this.displayView(view);
+		if (window.countCollection.length === 0) {
+			this.navigate('count/create', {trigger: true});
+		} else {
+			view = new AllCountView();
+			this.displayView(view);
+		}
 	},
 
 
