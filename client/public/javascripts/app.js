@@ -819,11 +819,6 @@ var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
-	userList: [],
-	currencies: [],
-	countName: '',
-	nameIsUsed: false,
-
 	events: {
 		'click #submit-editor':	'submitEditor',
 		'click #add-user'			: 'addUser',
@@ -832,6 +827,11 @@ var CountEditor = BaseView.extend({
 
 
 	initialize: function (params) {
+		this.userList = [];
+		this.currencies = [];
+		this.countName = '';
+		this.nameIsUsed = false;
+
 		this.count = params.countId;
 		BaseView.prototype.initialize.call(this);
 	},
@@ -847,7 +847,7 @@ var CountEditor = BaseView.extend({
 	checkCountName(event) {
 		var countName = event.target.value;
 
-		var nameIsTaken = window.listCount.find(function (elem) {
+		var nameIsTaken = window.countCollection.find(function (elem) {
 			if (elem.name == countName) {
 				return true;
 			}
