@@ -328,7 +328,8 @@ var Count = Backbone.Model.extend({
 		var newUsersList = this.get('users').map(function (user) {
 			leecherList.every(function (expenseUser) {
 				if (user.name === expenseUser.name) {
-					user.leech = (Math.round((Number(user.leech) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+					var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
+					user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
 					return false;
 				}
 				return true;
