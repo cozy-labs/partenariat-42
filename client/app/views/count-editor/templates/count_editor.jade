@@ -10,7 +10,7 @@ if model
 		button#submit-editor.btn.btn-default Submit
 else
 	h1 New Count
-	form#formular
+	#formular
 		#input-name-grp.form-group
 			label(for='input-name') Count Name
 			input#input-name.form-control(type='text', placeholder='Name')
@@ -25,11 +25,17 @@ else
 			button.btn.btn-default.currency(type='button', value='$') $
 
 
-		#list-users.btn-group
+		.form-group
+			#list-users.btn-group
+
+		label(for='input-user-grp') Count Users
 		#input-user-grp.form-group
-			label(for='input-users') Count Users
-			input#input-users.form-control(type='text', placeholder='Name')
-			button#add-user.btn.btn-default(type='button') Add user
+			.input-group
+				form
+					input#input-users.form-control(type='text', placeholder='My name')
+					span.input-group-btn
+						input#add-user.btn.btn-default(type='submit', value='Add user')
+		#name-alert
 
 		button#submit-editor.btn.btn-default Submit
 

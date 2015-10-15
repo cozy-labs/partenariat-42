@@ -18,6 +18,9 @@ var CountRowView = BaseView.extend({
 	deleteCount: function () {
 		window.countCollection.remove(this);
 		this.model.destroy();
+		if (window.countCollection.length === 0) {
+			app.router.navigate('count/create', {trigger: true});
+		}
 	},
 
 

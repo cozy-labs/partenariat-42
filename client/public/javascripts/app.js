@@ -713,6 +713,9 @@ var CountRowView = BaseView.extend({
 	deleteCount: function () {
 		window.countCollection.remove(this);
 		this.model.destroy();
+		if (window.countCollection.length === 0) {
+			app.router.navigate('count/create', {trigger: true});
+		}
 	},
 
 
@@ -1078,7 +1081,7 @@ buf.push('/></div><button id="submit-editor" class="btn btn-default">Submit</but
 }
 else
 {
-buf.push('<h1>New Count</h1><form id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="currency">Count Currencies</label><div id="currency" class="form-group"><button type="button" value="€" class="btn btn-default currency">€</button><button type="button" value="$" class="btn btn-default currency">$</button></div><div id="list-users" class="btn-group"></div><div id="input-user-grp" class="form-group"><label for="input-users">Count Users</label><input id="input-users" type="text" placeholder="Name" class="form-control"/><button id="add-user" type="button" class="btn btn-default">Add user</button></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+buf.push('<h1>New Count</h1><div id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="currency">Count Currencies</label><div id="currency" class="form-group"><button type="button" value="€" class="btn btn-default currency">€</button><button type="button" value="$" class="btn btn-default currency">$</button></div><div class="form-group"><div id="list-users" class="btn-group"></div></div><label for="input-user-grp">Count Users</label><div id="input-user-grp" class="form-group"><div class="input-group"><form><input id="input-users" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div><div id="name-alert"></div><button id="submit-editor" class="btn btn-default">Submit</button></div>');
 }
 }
 return buf.join("");
