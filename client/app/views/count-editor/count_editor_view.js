@@ -107,7 +107,7 @@ var CountEditor = BaseView.extend({
 				color: color
 			});
 
-			this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+			this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
 		}
 	},
 

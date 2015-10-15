@@ -918,7 +918,7 @@ var CountEditor = BaseView.extend({
 				color: color
 			});
 
-			this.$('#list-users').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+			this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
 		}
 	},
 
@@ -1056,7 +1056,7 @@ buf.push('/></div><button id="submit-editor" class="btn btn-default">Submit</but
 }
 else
 {
-buf.push('<h1>New Count</h1><form id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="currency">Count Currencies</label><div id="currency" class="form-group"><button type="button" value="€" class="btn btn-default currency">€</button><button type="button" value="$" class="btn btn-default currency">$</button></div><div id="list-users" class="row"></div><div id="input-user-grp" class="form-group"><label for="input-users">Count Users</label><input id="input-users" type="text" placeholder="Name" class="form-control"/><button id="add-user" type="button" class="btn btn-default">Add user</button></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+buf.push('<h1>New Count</h1><form id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="currency">Count Currencies</label><div id="currency" class="form-group"><button type="button" value="€" class="btn btn-default currency">€</button><button type="button" value="$" class="btn btn-default currency">$</button></div><div id="list-users" class="btn-group"></div><div id="input-user-grp" class="form-group"><label for="input-users">Count Users</label><input id="input-users" type="text" placeholder="Name" class="form-control"/><button id="add-user" type="button" class="btn btn-default">Add user</button></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
 }
 }
 return buf.join("");
