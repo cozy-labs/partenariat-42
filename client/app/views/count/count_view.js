@@ -45,8 +45,21 @@ var CountView = CountBaseView.extend({
 		var newUser = this.$('#count-input-add-user').val();
 		var color = colorSet[userList.length % colorSet.length];
 
+		this.$('#alert-name').remove();
+		var nameIsTaken = userList.find(function (elem) {
+			if (elem.name === newUser) {
+				return true;
+			}
+			return false;
+		});
+
+		if (nameIsTaken !== undefined) {
+			this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+			return;
+		}
+
 		userList.push({name: newUser, seed: 0, leech: 0, color: color});
-		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+		this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
 		if (this.newExpense !== null) {
 			this.newExpense.addUserToCount(newUser);

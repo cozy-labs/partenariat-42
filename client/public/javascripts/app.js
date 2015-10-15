@@ -1396,8 +1396,21 @@ var CountView = CountBaseView.extend({
 		var newUser = this.$('#count-input-add-user').val();
 		var color = colorSet[userList.length % colorSet.length];
 
+		this.$('#alert-name').remove();
+		var nameIsTaken = userList.find(function (elem) {
+			if (elem.name === newUser) {
+				return true;
+			}
+			return false;
+		});
+
+		if (nameIsTaken !== undefined) {
+			this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+			return;
+		}
+
 		userList.push({name: newUser, seed: 0, leech: 0, color: color});
-		this.$('#user-list').append('<div><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+		this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
 		if (this.newExpense !== null) {
 			this.newExpense.addUserToCount(newUser);
@@ -1913,7 +1926,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></
   }
 }).call(this);
 
-buf.push('</div><div class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4 col-xs-6"><label for="chart-users-block">Expenses per users</label><div id="chart-users-block"><canvas id="chart-users"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
+buf.push('</div><div id="name-alert" class="row"><div class="input-group"><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><button id="count-lauch-add-user" type="button" class="btn btn-default">Add user</button></span></div></div></div><div class="col-md-4 col-xs-6"><label for="chart-users-block">Expenses per users</label><div id="chart-users-block"><canvas id="chart-users"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
 }
 return buf.join("");
 };
