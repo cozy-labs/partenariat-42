@@ -4,7 +4,6 @@ var app = require('../../application');
 var MenuCountRowView = BaseView.extend({
 	template: require('./templates/count_row'),
 
-	className: 'menu-count-row',
 	tagName: 'li',
 
 	initialize: function () {
@@ -21,7 +20,6 @@ var MenuCountRowView = BaseView.extend({
 
 
 	printCount: function () {
-		app.router.selectInMenu(this.$el);
 		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
 });

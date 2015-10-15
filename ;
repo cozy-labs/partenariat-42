@@ -8,7 +8,7 @@ var CountRowView = BaseView.extend({
 	events: {
 		'click .count-delete' : 'deleteCount',
 		'click .count-modify' : 'modifyCount',
-		'click .count-see'		: 'seeCount',
+		'click .count-see'		: 'SeeCount',
 	},
 
 	getRenderData: function () {
@@ -24,11 +24,6 @@ var CountRowView = BaseView.extend({
 	modifyCount: function () {
 		app.router.navigate('count/update/' + this.model.id, {trigger: true});
 	},
-
-
-	seeCount: function () {
-		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
-	}
 
 });
 

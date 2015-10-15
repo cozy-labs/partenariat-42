@@ -441,6 +441,7 @@ var Router = Backbone.Router.extend({
 
 
 	printCount: function (countName) {
+		this.selectInMenu($('#count-'+countName).parent());
 		view = new CountView({
 			countName: countName,
 			modifyPermission: true,
@@ -702,6 +703,7 @@ var CountRowView = BaseView.extend({
 	events: {
 		'click .count-delete' : 'deleteCount',
 		'click .count-modify' : 'modifyCount',
+		'click .count-see'		: 'seeCount',
 	},
 
 	getRenderData: function () {
@@ -709,7 +711,6 @@ var CountRowView = BaseView.extend({
 	},
 
 	deleteCount: function () {
-		console.log('plop')
 		window.countCollection.remove(this);
 		this.model.destroy();
 	},
@@ -718,6 +719,11 @@ var CountRowView = BaseView.extend({
 	modifyCount: function () {
 		app.router.navigate('count/update/' + this.model.id, {trigger: true});
 	},
+
+
+	seeCount: function () {
+		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
+	}
 
 });
 
@@ -767,7 +773,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="count-delete btn btn-primary btn-block">Supprimer</button><button class="count-modify btn btn-primary btn-block">Modifier</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="count-see btn btn-primary btn-block">See</button><button class="count-modify btn btn-primary btn-block">Modifier</button><button class="count-delete btn btn-primary btn-block">Supprimer</button></div></div></div>');
 }
 return buf.join("");
 };
@@ -1940,7 +1946,6 @@ var app = require('../../application');
 var MenuCountRowView = BaseView.extend({
 	template: require('./templates/count_row'),
 
-	className: 'menu-count-row',
 	tagName: 'li',
 
 	initialize: function () {
@@ -1957,7 +1962,6 @@ var MenuCountRowView = BaseView.extend({
 
 
 	printCount: function () {
-		app.router.selectInMenu(this.$el);
 		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
 });
@@ -2016,7 +2020,9 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<a>' + escape((interp = model.name) == null ? '' : interp) + '</a>');
+buf.push('<a');
+buf.push(attrs({ 'id':('count-' + (model.name) + '') }, {"id":true}));
+buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a>');
 }
 return buf.join("");
 };

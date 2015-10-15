@@ -58,6 +58,7 @@ var Router = Backbone.Router.extend({
 
 
 	printCount: function (countName) {
+		this.selectInMenu($('#count-'+countName).parent());
 		view = new CountView({
 			countName: countName,
 			modifyPermission: true,
