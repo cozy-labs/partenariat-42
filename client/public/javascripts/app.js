@@ -683,8 +683,8 @@ var CountRowView = BaseView.extend({
 	template: require('./templates/count_row'),
 
 	events: {
-		'click .count-delete-count' : 'deleteCount',
-		'click .count-modify-count' : 'modifyCount',
+		'click .count-delete' : 'deleteCount',
+		'click .count-modify' : 'modifyCount',
 	},
 
 	getRenderData: function () {
@@ -692,6 +692,7 @@ var CountRowView = BaseView.extend({
 	},
 
 	deleteCount: function () {
+		console.log('plop')
 		window.countCollection.remove(this);
 		this.model.destroy();
 	},
@@ -749,7 +750,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="count btn btn-primary btn-block">Supprimer</button><button class="count btn btn-primary btn-block">Modifier</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="count-delete btn btn-primary btn-block">Supprimer</button><button class="count-modify btn btn-primary btn-block">Modifier</button></div></div></div>');
 }
 return buf.join("");
 };
