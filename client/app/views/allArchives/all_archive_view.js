@@ -7,7 +7,6 @@ var AllArchiveView = BaseView.extend({
 
 
 	initialize: function () {
-		console.log('archvecol: ', window.archiveCollection);
 		this.collection = window.archiveCollection;
 		BaseView.prototype.initialize.call(this);
 	},

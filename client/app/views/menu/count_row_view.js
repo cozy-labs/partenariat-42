@@ -21,6 +21,7 @@ var MenuCountRowView = BaseView.extend({
 
 
 	printCount: function () {
+		app.router.selectInMenu(this.$el);
 		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
 });

@@ -14,6 +14,7 @@ var Router = Backbone.Router.extend({
 
 	mainScreen: null,
 	mainMenu: null,
+	currentButton: null,
 
 	initialize: function () {
 		if (window.countCollection == null || window.countCollection == undefined) {
@@ -40,13 +41,16 @@ var Router = Backbone.Router.extend({
 		if (window.countCollection.length === 0) {
 			this.navigate('count/create', {trigger: true});
 		} else {
+			this.selectInMenu($('#menu-all-count').parent());
 			view = new AllCountView();
+
 			this.displayView(view);
 		}
 	},
 
 
 	countEditor: function (countId) {
+		this.selectInMenu($('#menu-add-count').parent());
 		view = new CountEditorView({countId: countId});
 
 		this.displayView(view);
@@ -64,6 +68,7 @@ var Router = Backbone.Router.extend({
 
 
 	printAllArchive: function () {
+		this.selectInMenu($('#menu-archives').parent());
 		view = new AllArchiveView();
 
 		this.displayView(view);
@@ -77,6 +82,15 @@ var Router = Backbone.Router.extend({
 		});
 
 		this.displayView(view);
+	},
+
+
+	selectInMenu: function (button) {
+		if (this.currentButton !== null) {
+			this.currentButton.removeClass('active');
+		}
+		this.currentButton = button;
+		this.currentButton.addClass('active');
 	},
 
 

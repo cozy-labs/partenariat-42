@@ -397,6 +397,7 @@ var Router = Backbone.Router.extend({
 
 	mainScreen: null,
 	mainMenu: null,
+	currentButton: null,
 
 	initialize: function () {
 		if (window.countCollection == null || window.countCollection == undefined) {
@@ -423,13 +424,16 @@ var Router = Backbone.Router.extend({
 		if (window.countCollection.length === 0) {
 			this.navigate('count/create', {trigger: true});
 		} else {
+			this.selectInMenu($('#menu-all-count').parent());
 			view = new AllCountView();
+
 			this.displayView(view);
 		}
 	},
 
 
 	countEditor: function (countId) {
+		this.selectInMenu($('#menu-add-count').parent());
 		view = new CountEditorView({countId: countId});
 
 		this.displayView(view);
@@ -447,6 +451,7 @@ var Router = Backbone.Router.extend({
 
 
 	printAllArchive: function () {
+		this.selectInMenu($('#menu-archives').parent());
 		view = new AllArchiveView();
 
 		this.displayView(view);
@@ -460,6 +465,15 @@ var Router = Backbone.Router.extend({
 		});
 
 		this.displayView(view);
+	},
+
+
+	selectInMenu: function (button) {
+		if (this.currentButton !== null) {
+			this.currentButton.removeClass('active');
+		}
+		this.currentButton = button;
+		this.currentButton.addClass('active');
 	},
 
 
@@ -510,7 +524,6 @@ var AllArchiveView = BaseView.extend({
 
 
 	initialize: function () {
-		console.log('archvecol: ', window.archiveCollection);
 		this.collection = window.archiveCollection;
 		BaseView.prototype.initialize.call(this);
 	},
@@ -1944,6 +1957,7 @@ var MenuCountRowView = BaseView.extend({
 
 
 	printCount: function () {
+		app.router.selectInMenu(this.$el);
 		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
 });
@@ -2015,7 +2029,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<label for="menu-section">Count</label><div id="menu-section"><ul class="nav"><li><a id="menu-all-count">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-sidebar"></ul></div><Label for="action">Actions</Label><ul id="action" class="nav nav-sidebar"><li><a id="menu-add-count">Create a Count</a></li><li><a id="menu-archives">Archives</a></li></ul>');
+buf.push('<label for="menu-section">Count</label><nav><ul class="nav nav-pills nav-stacked"><li role="presentation"><a id="menu-all-count" href="#">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-pills nav-stacked"></ul><Label for="action">Actions</Label><ul id="action" class="nav nav-pills nav-stacked"><li><a id="menu-add-count">Create a Count</a></li><li><a id="menu-archives">Archives</a></li></ul></nav>');
 }
 return buf.join("");
 };

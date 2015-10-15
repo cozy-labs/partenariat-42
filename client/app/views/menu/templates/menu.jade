@@ -1,12 +1,14 @@
 label(for='menu-section') Count
-#menu-section
-	ul.nav
+nav
+	ul.nav.nav-pills.nav-stacked
+		li(role='presentation')
+			a#menu-all-count(href='#') All Count
+
+	ul#menu-list-count.nav.nav-pills.nav-stacked
+
+	Label(for='action') Actions
+	ul#action.nav.nav-pills.nav-stacked
 		li
-			a#menu-all-count All Count
-	ul#menu-list-count.nav.nav-sidebar
-Label(for='action') Actions
-ul#action.nav.nav-sidebar
-	li
-		a#menu-add-count Create a Count
-	li
-		a#menu-archives Archives
+			a#menu-add-count Create a Count
+		li
+			a#menu-archives Archives
