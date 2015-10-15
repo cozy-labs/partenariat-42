@@ -8,6 +8,11 @@ var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
+	userList: [],
+	currencies: [],
+	countName: '',
+	nameIsUsed: false,
+
 	events: {
 		'click #submit-editor':	'submitEditor',
 		'click #add-user'			: 'addUser',
@@ -16,10 +21,6 @@ var CountEditor = BaseView.extend({
 
 
 	initialize: function (params) {
-		this.userList = [];
-		this.currencies = [];
-		this.countName = '';
-		this.nameIsUsed = false;
 
 		this.count = params.countId;
 		BaseView.prototype.initialize.call(this);
@@ -83,6 +84,20 @@ var CountEditor = BaseView.extend({
 	addUser: function (event) {
 		var color = colorSet[this.userList.length % colorSet.length];
 		var newUser = this.$('#input-users').val();
+
+		this.$('#alert-name').remove();
+
+		var nameIsTaken = this.userList.find(function (user) {
+			if (user.name === newUser) {
+				return true;
+			}
+			return false;
+		});
+
+		if (nameIsTaken !== undefined) {
+			this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+			return;
+		}
 
 		if (newUser.length > 0) {
 			this.userList.push({
