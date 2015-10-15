@@ -8,9 +8,11 @@
 						button.btn(style="background-color: ##{user.color}") #{user.name}
 			#name-alert.row
 				.input-group
-					input#count-input-add-user.form-control(type='text', placeholder='My name')
-					span.input-group-btn
-						button#count-lauch-add-user.btn.btn-default(type='button') Add user
+					form
+						input#count-input-add-user.form-control(type='text', placeholder='My name')
+						span.input-group-btn
+							input#count-lauch-add-user.btn.btn-default(type='submit'
+							value='Add user')
 		.col-md-4.col-xs-6
 			label(for='chart-users-block') Expenses per users
 			#chart-users-block
