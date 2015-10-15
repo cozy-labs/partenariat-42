@@ -1,0 +1,3 @@
+[submodule "Subject"]
+	path = Subject
+	url = git@github.com:Peltoche/Projects.git
