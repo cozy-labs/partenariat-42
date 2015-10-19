@@ -29,12 +29,14 @@ var CountEditor = BaseView.extend({
 
 	afterRender: function () {
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      console.log('plop')
 			return function (event) {_this.checkCountName(event);};
 		})(this));
 	},
 
 
 	checkCountName(event) {
+    console.log('plop2')
 		var countName = event.target.value;
 
     console.log('countname: ', countName);
