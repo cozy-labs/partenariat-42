@@ -29,7 +29,7 @@
   },
   "cozy-permissions": {
 	  "shared-count": {
-		  "description": "Create and manage your count"
+		  "description": "Create and manage your shared count"
 	  }
   },
   "cozy-displayName": "Count"
