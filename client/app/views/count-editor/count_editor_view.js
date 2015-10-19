@@ -8,11 +8,6 @@ var CountEditor = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
-	userList: [],
-	currencies: [],
-	countName: '',
-	nameIsUsed: false,
-
 	events: {
 		'click #submit-editor':	'submitEditor',
 		'click #add-user'			: 'addUser',
@@ -22,6 +17,11 @@ var CountEditor = BaseView.extend({
 
 	initialize: function (params) {
 
+    this.userList = [];
+    this.currencies = [];
+    this.countName = '';
+    this.nameIsUsed = false;
+
 		this.count = params.countId;
 		BaseView.prototype.initialize.call(this);
 	},
@@ -29,20 +29,16 @@ var CountEditor = BaseView.extend({
 
 	afterRender: function () {
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      console.log('plop')
 			return function (event) {_this.checkCountName(event);};
 		})(this));
 	},
 
 
 	checkCountName(event) {
-    console.log('plop2')
 		var countName = event.target.value;
 
-    console.log('countname: ', countName);
-    console.log('collection: ', window.countCollection);
 		var nameIsTaken = window.countCollection.find(function (elem) {
-			if (elem.name == countName) {
+			if (elem.get('name')== countName) {
 				return true;
 			}
 			return false;
@@ -140,7 +136,7 @@ var CountEditor = BaseView.extend({
 		} else {
 			btnTarget.removeClass('btn-info');
 			btnTarget.addClass('btn-default');
-			this.currencies.splice(deviseIndex, 1);
+			this.currencies.splice(currencyIndex, 1);
 		}
 	},
 
@@ -188,10 +184,6 @@ var CountEditor = BaseView.extend({
 					app.router.navigate('', {trigger: true});
 				}});
 		}
-    this.userList = [];
-    this.currencies = [];
-    this.countName = '';
-    this.nameIsUsed = false;
 	},
 
 
@@ -227,10 +219,6 @@ var CountEditor = BaseView.extend({
 					return (null);
 				});
 				view.render();
-        this.userList = [];
-        this.currencies = [];
-        this.countName = '';
-        this.nameIsUsed = false;
 				app.router.navigate('', {trigger: true});
 			}});
 	},

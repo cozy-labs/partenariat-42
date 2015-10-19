@@ -70,6 +70,7 @@ var Router = Backbone.Router.extend({
 
 	printAllArchive: function () {
 		this.selectInMenu($('#menu-archives').parent());
+    console.log('archives: ', window.archiveCollection);
 		view = new AllArchiveView();
 
 		this.displayView(view);
@@ -96,7 +97,9 @@ var Router = Backbone.Router.extend({
 
 
 	displayView: function (view) {
+    console.log('mainview: ', this.mainView)
 		if (this.mainView !== null && this.mainView !== undefined) {
+      console.log('remove')
 			this.mainView.remove();
 		}
 		this.mainView = view;

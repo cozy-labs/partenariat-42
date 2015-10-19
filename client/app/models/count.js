@@ -61,6 +61,7 @@ var Count = Backbone.Model.extend({
 			wait: true,
 			success: function () {
 				window.countCollection.remove(self);
+        window.archiveCollection.push(self);
 				app.router.navigate('', {trigger: true});
 			},
 			error: function (xhr) {
