@@ -44,7 +44,7 @@ var CountEditor = BaseView.extend({
 			return false;
 		});
 
-    if (nameIsTaken === undefined || nameIsTaker === null) {
+    if (nameIsTaken === undefined || nameIsTaken === null) {
       var nameIsTaken = window.archiveCollection.find(function (elem) {
         if (elem.get('name')== countName) {
           return true;
