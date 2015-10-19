@@ -4,7 +4,7 @@ var app = require('../../application');
 
 var colorSet = require('../../helper/color_set');
 
-var CountEditor = BaseView.extend({
+var CountEditorView = BaseView.extend({
 	id: 'count-editor-screen',
 	template: template,
 
@@ -17,6 +17,7 @@ var CountEditor = BaseView.extend({
 
 	initialize: function (params) {
 
+    console.log('initialize')
     this.userList = [];
     this.currencies = [];
     this.countName = '';
@@ -28,6 +29,7 @@ var CountEditor = BaseView.extend({
 
 
 	render: function () {
+    console.log('render')
     BaseView.prototype.render.call(this);
     console.log('afterRender')
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
@@ -241,4 +243,4 @@ var CountEditor = BaseView.extend({
 	},
 });
 
-module.exports = CountEditor;
+module.exports = CountEditorView;
