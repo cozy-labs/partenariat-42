@@ -883,6 +883,13 @@ var CountEditor = BaseView.extend({
 			return false;
 		});
 
+		var nameIsTaken = window.archiveCollection.find(function (elem) {
+			if (elem.get('name')== countName) {
+				return true;
+			}
+			return false;
+		});
+
 		var inputGrp = this.$('#input-name-grp');
 		if (nameIsTaken !== null && nameIsTaken !== undefined) {
 			if (this.nameIsUsed === false) {
