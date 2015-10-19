@@ -433,6 +433,7 @@ var Router = Backbone.Router.extend({
 
 
 	countEditor: function (countId) {
+    console.log('print editor');
 		this.selectInMenu($('#menu-add-count').parent());
 		view = new CountEditorView({countId: countId});
 
@@ -479,11 +480,15 @@ var Router = Backbone.Router.extend({
 
 
 	displayView: function (view) {
+    console.log('display: ', view);
+    console.log('mainview: ', this.nainView);
 		if (this.mainView !== null && this.mainView !== undefined) {
+      console.log('mainview remove');
 			this.mainView.remove();
 		}
 		this.mainView = view;
 		$('#content-screen').append(view.$el);
+    console.log('render view');
 		view.render();
 	},
 
@@ -853,7 +858,7 @@ var CountEditorView = BaseView.extend({
 
 	initialize: function (params) {
 
-    console.log('initialize')
+    console.log('initialize');
     this.userList = [];
     this.currencies = [];
     this.countName = '';
@@ -876,7 +881,7 @@ var CountEditorView = BaseView.extend({
 
 
 	checkCountName(event) {
-    console.log('checkCountname')
+    console.log('checkCountname');
 		var countName = event.target.value;
 
 		var nameIsTaken = window.countCollection.find(function (elem) {
@@ -888,7 +893,7 @@ var CountEditorView = BaseView.extend({
 
     console.log('count: ', nameIsTaken)
     if (nameIsTaken === undefined || nameIsTaken === null) {
-      console.log('enter in archive')
+      console.log('enter in archive');
       var nameIsTaken = window.archiveCollection.find(function (elem) {
         if (elem.get('name')== countName) {
           return true;
