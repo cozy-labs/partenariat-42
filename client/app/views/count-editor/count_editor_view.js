@@ -27,7 +27,8 @@ var CountEditor = BaseView.extend({
 	},
 
 
-	afterRender: function () {
+	render: function () {
+    BaseView.prototype.render.call(this);
     console.log('afterRender')
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
       console.log('event')
