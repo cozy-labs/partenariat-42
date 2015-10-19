@@ -28,13 +28,16 @@ var CountEditor = BaseView.extend({
 
 
 	afterRender: function () {
+    console.log('afterRender')
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      console.log('event')
 			return function (event) {_this.checkCountName(event);};
 		})(this));
 	},
 
 
 	checkCountName(event) {
+    console.log('checkCountname')
 		var countName = event.target.value;
 
 		var nameIsTaken = window.countCollection.find(function (elem) {
@@ -44,15 +47,19 @@ var CountEditor = BaseView.extend({
 			return false;
 		});
 
+    console.log('count: ', nameIsTaken)
     if (nameIsTaken === undefined || nameIsTaken === null) {
+      console.log('enter in archive')
       var nameIsTaken = window.archiveCollection.find(function (elem) {
         if (elem.get('name')== countName) {
           return true;
         }
         return false;
       });
+    console.log('archive: ', nameIsTaken)
     }
 
+    console.log('end: ', nameIsTaken)
 		var inputGrp = this.$('#input-name-grp');
 		if (nameIsTaken !== null && nameIsTaken !== undefined) {
 			if (this.nameIsUsed === false) {
