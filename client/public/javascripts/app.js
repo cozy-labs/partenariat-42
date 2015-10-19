@@ -453,7 +453,6 @@ var Router = Backbone.Router.extend({
 
 	printAllArchive: function () {
 		this.selectInMenu($('#menu-archives').parent());
-    console.log('archives: ', window.archiveCollection);
 		view = new AllArchiveView();
 
 		this.displayView(view);
@@ -480,9 +479,7 @@ var Router = Backbone.Router.extend({
 
 
 	displayView: function (view) {
-    console.log('mainview: ', this.mainView)
 		if (this.mainView !== null && this.mainView !== undefined) {
-      console.log('remove')
 			this.mainView.remove();
 		}
 		this.mainView = view;
@@ -868,14 +865,12 @@ var CountEditor = BaseView.extend({
 
 	afterRender: function () {
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      alert('event')
 			return function (event) {_this.checkCountName(event);};
 		})(this));
 	},
 
 
 	checkCountName(event) {
-    alert('checkcountname')
 		var countName = event.target.value;
 
 		var nameIsTaken = window.countCollection.find(function (elem) {
@@ -885,7 +880,6 @@ var CountEditor = BaseView.extend({
 			return false;
 		});
 
-    alert(nameIsTaker);
     if (nameIsTaken === undefined || nameIsTaken === null) {
       var nameIsTaken = window.archiveCollection.find(function (elem) {
         if (elem.get('name')== countName) {
