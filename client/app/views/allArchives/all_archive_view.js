@@ -8,6 +8,7 @@ var AllArchiveView = BaseView.extend({
 
 	initialize: function () {
 		this.collection = window.archiveCollection;
+    console.log('colelction : ', this.collection);
 		BaseView.prototype.initialize.call(this);
 	},
 
