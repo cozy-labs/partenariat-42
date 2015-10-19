@@ -37,6 +37,8 @@ var CountEditor = BaseView.extend({
 	checkCountName(event) {
 		var countName = event.target.value;
 
+    console.log('countname: ', countName);
+    console.log('collection: ', window.countCollection);
 		var nameIsTaken = window.countCollection.find(function (elem) {
 			if (elem.name == countName) {
 				return true;
