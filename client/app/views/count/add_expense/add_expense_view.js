@@ -85,11 +85,8 @@ var AddExpenseView = BaseView.extend({
 
 
 	addUserToCount: function (newUser) {
-		this.$('#seeder-list').append('<button type="button" value="'+ newUser +
-				'" class="btn btn-default seeder">' + newUser + '</button>');
-
-		this.$('#leecher-list').append('<button type="button" value="'+ newUser +
-				'" class="btn btn-info leecher">' + newUser + '</button>');
+		this.$('#seeder-list').append('<label class="btn btn-primary seeder"><input type="radio", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
+		this.$('#leecher-list').append('<label class="active btn btn-primary seeder"><input type="checkbox", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
 		this.data.leecher.push({name: newUser});
 	},
 

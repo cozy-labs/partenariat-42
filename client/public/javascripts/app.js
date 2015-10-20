@@ -858,7 +858,6 @@ var CountEditorView = BaseView.extend({
 
 	initialize: function (params) {
 
-    console.log('initialize');
     this.userList = [];
     this.currencies = [];
     this.countName = '';
@@ -870,18 +869,14 @@ var CountEditorView = BaseView.extend({
 
 
 	render: function () {
-    console.log('render')
     BaseView.prototype.render.call(this);
-    console.log('afterRender')
 		this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      console.log('event')
 			return function (event) {_this.checkCountName(event);};
 		})(this));
 	},
 
 
 	checkCountName(event) {
-    console.log('checkCountname');
 		var countName = event.target.value;
 
 		var nameIsTaken = window.countCollection.find(function (elem) {
@@ -891,19 +886,15 @@ var CountEditorView = BaseView.extend({
 			return false;
 		});
 
-    console.log('count: ', nameIsTaken)
     if (nameIsTaken === undefined || nameIsTaken === null) {
-      console.log('enter in archive');
       var nameIsTaken = window.archiveCollection.find(function (elem) {
         if (elem.get('name')== countName) {
           return true;
         }
         return false;
       });
-    console.log('archive: ', nameIsTaken)
     }
 
-    console.log('end: ', nameIsTaken)
 		var inputGrp = this.$('#input-name-grp');
 		if (nameIsTaken !== null && nameIsTaken !== undefined) {
 			if (this.nameIsUsed === false) {
@@ -968,6 +959,7 @@ var CountEditorView = BaseView.extend({
 			});
 
 			this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
+      this.$('#input-users').val('');
 		}
 	},
 
@@ -1200,11 +1192,8 @@ var AddExpenseView = BaseView.extend({
 
 
 	addUserToCount: function (newUser) {
-		this.$('#seeder-list').append('<button type="button" value="'+ newUser +
-				'" class="btn btn-default seeder">' + newUser + '</button>');
-
-		this.$('#leecher-list').append('<button type="button" value="'+ newUser +
-				'" class="btn btn-info leecher">' + newUser + '</button>');
+		this.$('#seeder-list').append('<label class="btn btn-primary seeder"><input type="radio", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
+		this.$('#leecher-list').append('<label class="active btn btn-primary seeder"><input type="checkbox", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
 		this.data.leecher.push({name: newUser});
 	},
 
@@ -1333,38 +1322,38 @@ buf.push('<li class="currency"><a>' + escape((interp = currency.name) == null ? 
   }
 }).call(this);
 
-buf.push('</ul></div></div></div><label for="seeder-list">Who Paid ?</label><div id="seeder-list" class="form-group"><div data-toggle="buttons" class="btn-group">');
+buf.push('</ul></div></div></div><label for="seeder-list">Who Paid ?</label><div class="form-group"><div id="seeder-list" data-toggle="buttons" class="btn-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
     for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
       var user = users[$index];
 
-buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
+buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
     }
   } else {
     for (var $index in users) {
       var user = users[$index];
 
-buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
+buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
    }
   }
 }).call(this);
 
-buf.push('</div></div><label for="leecher-list">Who take Part ?</label><div id="leecher-list" class="form-group"><div data-toggle="buttons" class="btn-group">');
+buf.push('</div></div><label for="leecher-list">Who take Part ?</label><div class="form-group"><div id="leecher-list" data-toggle="buttons" class="btn-group">');
 // iterate users
 ;(function(){
   if ('number' == typeof users.length) {
     for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
       var user = users[$index];
 
-buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
+buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
     }
   } else {
     for (var $index in users) {
       var user = users[$index];
 
-buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '")> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
+buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
    }
   }
 }).call(this);

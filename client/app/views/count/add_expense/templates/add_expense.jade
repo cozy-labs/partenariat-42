@@ -22,18 +22,18 @@ form#add-expense-displayer.form-group(style='display: none')
 							a #{currency.name}
 
 	label(for='seeder-list') Who Paid ?
-	#seeder-list.form-group
-		.btn-group(data-toggle='buttons')
+	.form-group
+		#seeder-list.btn-group(data-toggle='buttons')
 			each user in users
 				label.btn.btn-primary.seeder
-					<input type='radio', autocomplete='off', value="#{user.name}")> #{user.name}
+					<input type='radio', autocomplete='off', value="#{user.name}"> #{user.name}
 
 	label(for='leecher-list') Who take Part ?
-	#leecher-list.form-group
-		.btn-group(data-toggle='buttons')
+	.form-group
+		#leecher-list.btn-group(data-toggle='buttons')
 			each user in users
 				label.btn.btn-primary.leecher.active
-					<input type='checkbox', autocomplete='off', value="#{user.name}")> #{user.name}
+					<input type='checkbox', autocomplete='off', value="#{user.name}"> #{user.name}
 
 	.form-group
 		button#add-expense-save.btn.btn-primary.btn-block(type='submit') Save

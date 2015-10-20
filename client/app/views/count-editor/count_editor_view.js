@@ -118,6 +118,7 @@ var CountEditorView = BaseView.extend({
 			});
 
 			this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
+      this.$('#input-users').val('');
 		}
 	},
 
