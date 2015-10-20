@@ -433,7 +433,6 @@ var Router = Backbone.Router.extend({
 
 
 	countEditor: function (countId) {
-    console.log('print editor');
 		this.selectInMenu($('#menu-add-count').parent());
 		view = new CountEditorView({countId: countId});
 
@@ -480,15 +479,11 @@ var Router = Backbone.Router.extend({
 
 
 	displayView: function (view) {
-    console.log('display: ', view);
-    console.log('mainview: ', this.nainView);
 		if (this.mainView !== null && this.mainView !== undefined) {
-      console.log('mainview remove');
 			this.mainView.remove();
 		}
 		this.mainView = view;
 		$('#content-screen').append(view.$el);
-    console.log('render view');
 		view.render();
 	},
 
