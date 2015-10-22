@@ -31,9 +31,13 @@ var CountBaseView = BaseView.extend({
 		var expenseList = this.count.get('expenses');
 		var self = this;
 
-		expenseList.forEach(function (expense) {
-			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
-		});
+    if (expenseList.length == 0) {
+      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    } else {
+      expenseList.forEach(function (expense) {
+        self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+      });
+    }
 
 		this.stats = new StatsView({count: this.count});
 		this.stats.render();

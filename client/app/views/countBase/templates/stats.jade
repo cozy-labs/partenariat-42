@@ -2,11 +2,11 @@
   .panel-heading Users
   .panel-body
     .col-md-4
-      #user-list
+      #user-list.col-md-12
         each user in count.users
           .row
             button.btn(style="background-color: ##{user.color}") #{user.name}
-      #name-alert.row
+      #name-alert.row.col-md-12
         .input-group
           form
             input#count-input-add-user.form-control(type='text', placeholder='My name')
@@ -14,8 +14,8 @@
               input#count-lauch-add-user.btn.btn-default(type='submit'
               value='Add user')
     #canvas-block.col-md-4.col-xs-6
-      h4(style="text-align: center") Expenses per users
-      <canvas id="chart-users" width="200" height="200"></canvas>
+      h4 Expenses per users
+      <canvas id="chart-users" width="150" height="150"></canvas>
     .col-md-4.col-xs-6
       label(for='all-expenses') All Expenses:
       p#all-expenses #{count.allExpenses}

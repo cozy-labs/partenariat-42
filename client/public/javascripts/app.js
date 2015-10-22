@@ -619,7 +619,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div><label for="user-list">Users</label><div id="user-list" class="form-group">');
+buf.push('<div class="panel panel-primary"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div><label for="user-list">Users</label><div id="user-list" class="form-group">');
 // iterate model.users
 ;(function(){
   if ('number' == typeof model.users.length) {
@@ -844,7 +844,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div id="expense-list-view" class="panel-body"></div></div></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">Expense</div><div id="expense-list-view" class="panel-body"></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1462,6 +1462,7 @@ var CountView = CountBaseView.extend({
 		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
 
 		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
+      this.$('#empty-history').remove();
 			this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
 			this.stats.update();
 			if (this.balancing !== null && this.balancing !== undefined) {
@@ -1509,6 +1510,11 @@ var CountView = CountBaseView.extend({
 			}
 			self.$(event.target).parent().parent().remove();
 		});
+    console.log('length: ', this.expenses)
+    console.log('length: ', this.expenses.length)
+    if (this.expenses.length == 0) {
+      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    }
 	},
 
 
@@ -1565,9 +1571,13 @@ var CountBaseView = BaseView.extend({
 		var expenseList = this.count.get('expenses');
 		var self = this;
 
-		expenseList.forEach(function (expense) {
-			self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
-		});
+    if (expenseList.length == 0) {
+      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    } else {
+      expenseList.forEach(function (expense) {
+        self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+      });
+    }
 
 		this.stats = new StatsView({count: this.count});
 		this.stats.render();
@@ -1874,13 +1884,17 @@ buf.push('<div id="square-displayer" style="display: none" class="panel-body"><l
 buf.push('<li><button');
 buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
 buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+if ( user.balancing == 0)
+{
+buf.push('<span style="color: blue">&nbsp;ok</span>');
+}
 if ( user.balancing > 0)
 {
-buf.push('<span style="color: green"> +' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
 }
-else
+if ( user.balancing < 0)
 {
-buf.push('<span style="color: red"> ' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
 }
 buf.push('</li>');
     }
@@ -1891,13 +1905,17 @@ buf.push('</li>');
 buf.push('<li><button');
 buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
 buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+if ( user.balancing == 0)
+{
+buf.push('<span style="color: blue">&nbsp;ok</span>');
+}
 if ( user.balancing > 0)
 {
-buf.push('<span style="color: green"> +' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
 }
-else
+if ( user.balancing < 0)
 {
-buf.push('<span style="color: red"> ' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
 }
 buf.push('</li>');
    }
@@ -1935,7 +1953,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div class="col-md-4"><div id="user-list">');
+buf.push('<div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div class="col-md-4"><div id="user-list" class="col-md-12">');
 // iterate count.users
 ;(function(){
   if ('number' == typeof count.users.length) {
@@ -1957,7 +1975,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></
   }
 }).call(this);
 
-buf.push('</div><div id="name-alert" class="row"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div></div><div id="canvas-block" class="col-md-4 col-xs-6"><h4 style="text-align: center">Expenses per users</h4><canvas id="chart-users" width="200" height="200"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
+buf.push('</div><div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div></div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
 }
 return buf.join("");
 };

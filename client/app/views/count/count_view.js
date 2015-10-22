@@ -83,6 +83,7 @@ var CountView = CountBaseView.extend({
 		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
 
 		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
+      this.$('#empty-history').remove();
 			this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
 			this.stats.update();
 			if (this.balancing !== null && this.balancing !== undefined) {
@@ -130,6 +131,11 @@ var CountView = CountBaseView.extend({
 			}
 			self.$(event.target).parent().parent().remove();
 		});
+    console.log('length: ', this.expenses)
+    console.log('length: ', this.expenses.length)
+    if (this.expenses.length == 0) {
+      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    }
 	},
 
 
