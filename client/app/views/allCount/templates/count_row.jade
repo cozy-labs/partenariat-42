@@ -1,17 +1,18 @@
-div.panel.panel-default
-	.panel-heading #{model.name}
-	.panel-body
+div.panel.panel-primary
+  .panel-heading #{model.name}
+  .panel-body
 
-		label(for='description') Description
-		#description.form-group
-			p #{model.description}
+    if model.description
+      label(for='description') Description
+      #description.form-group
+        p #{model.description}
 
-		label(for='user-list') Users
-		#user-list.form-group
-			each user in model.users
-				button.btn(style="background-color: ##{user.color}") #{user.name}
+    label(for='user-list') Users
+    #user-list.form-group
+      each user in model.users
+        button.btn(style="background-color: ##{user.color}") #{user.name}
 
-		.form-group
-			button.count-see.btn.btn-primary.btn-block See
-			button.count-modify.btn.btn-primary.btn-block Modify
-			button.count-delete.btn.btn-primary.btn-block Delete
+    .form-group
+      button.count-see.btn.btn-default.btn-block See
+      button.count-modify.btn.btn-default.btn-block Modify
+      button.count-delete.btn.btn-default.btn-block Delete

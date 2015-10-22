@@ -1,4 +1,9 @@
 .panel.panel-default
-	.panel-body
-		ul#list-view.nav.nav-sidebar
+  .panel-body
+    if numberArchives > 0
+      ul#list-view.nav.nav-sidebar
+    else
+      .page-header
+        h1 No archive yet
+        p When you archieve some account you can find it here :)
 

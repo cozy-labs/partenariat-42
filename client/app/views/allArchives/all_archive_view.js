@@ -11,6 +11,9 @@ var AllArchiveView = BaseView.extend({
 		BaseView.prototype.initialize.call(this);
 	},
 
+  getRenderData: function () {
+    return {numberArchives: this.collection.length}
+  },
 
 	afterRender: function () {
 		this.collectionView = new ArchiveListView({

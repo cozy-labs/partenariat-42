@@ -529,6 +529,9 @@ var AllArchiveView = BaseView.extend({
 		BaseView.prototype.initialize.call(this);
 	},
 
+  getRenderData: function () {
+    return {numberArchives: this.collection.length}
+  },
 
 	afterRender: function () {
 		this.collectionView = new ArchiveListView({
@@ -594,7 +597,16 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><ul id="list-view" class="nav nav-sidebar"></ul></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body">');
+if ( numberArchives > 0)
+{
+buf.push('<ul id="list-view" class="nav nav-sidebar"></ul>');
+}
+else
+{
+buf.push('<div class="page-header"><h1>No archive yet</h1><p>When you archieve some account you can find it here :)</p></div>');
+}
+buf.push('</div></div>');
 }
 return buf.join("");
 };
@@ -754,7 +766,12 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div><label for="user-list">Users</label><div id="user-list" class="form-group">');
+buf.push('<div class="panel panel-primary"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body">');
+if ( model.description)
+{
+buf.push('<label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div>');
+}
+buf.push('<label for="user-list">Users</label><div id="user-list" class="form-group">');
 // iterate model.users
 ;(function(){
   if ('number' == typeof model.users.length) {
@@ -776,7 +793,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="count-see btn btn-primary btn-block">See</button><button class="count-modify btn btn-primary btn-block">Modify</button><button class="count-delete btn btn-primary btn-block">Delete</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="count-see btn btn-default btn-block">See</button><button class="count-modify btn btn-default btn-block">Modify</button><button class="count-delete btn btn-default btn-block">Delete</button></div></div></div>');
 }
 return buf.join("");
 };
@@ -1508,7 +1525,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading"><span>Balancing</span><span style="float: right" class="caret"></span></div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div><div id="expense-list-view"></div></div></div></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view"></div></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1919,7 +1936,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading">Users</div><div class="panel-body"><div class="col-md-4"><div id="user-list">');
+buf.push('<div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div class="col-md-4"><div id="user-list">');
 // iterate count.users
 ;(function(){
   if ('number' == typeof count.users.length) {
