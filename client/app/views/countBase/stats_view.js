@@ -29,7 +29,6 @@ var StatsView = BaseView.extend({
 
 	afterRender: function () {
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-
 		var data = this.computeDataCount();
 		this.pieChart = new Chart(chartCtx).Pie(data);
 	},

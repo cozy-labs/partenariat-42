@@ -1764,7 +1764,6 @@ var StatsView = BaseView.extend({
 
 	afterRender: function () {
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-
 		var data = this.computeDataCount();
 		this.pieChart = new Chart(chartCtx).Pie(data);
 	},
@@ -1958,7 +1957,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></
   }
 }).call(this);
 
-buf.push('</div><div id="name-alert" class="row"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div></div><div class="col-md-4 col-xs-6"><label for="chart-users-block">Expenses per users</label><div id="chart-users-block"><canvas id="chart-users"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
+buf.push('</div><div id="name-alert" class="row"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div></div><div id="canvas-block" class="col-md-4 col-xs-6"><h4 style="text-align: center">Expenses per users</h4><canvas id="chart-users" width="200" height="200"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
 }
 return buf.join("");
 };

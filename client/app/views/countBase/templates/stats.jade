@@ -1,26 +1,25 @@
 .panel.panel-primary
-	.panel-heading Users
-	.panel-body
-		.col-md-4
-			#user-list
-				each user in count.users
-					.row
-						button.btn(style="background-color: ##{user.color}") #{user.name}
-			#name-alert.row
-				.input-group
-					form
-						input#count-input-add-user.form-control(type='text', placeholder='My name')
-						span.input-group-btn
-							input#count-lauch-add-user.btn.btn-default(type='submit'
-							value='Add user')
-		.col-md-4.col-xs-6
-			label(for='chart-users-block') Expenses per users
-			#chart-users-block
-				canvas#chart-users
-		.col-md-4.col-xs-6
-			label(for='all-expenses') All Expenses:
-			p#all-expenses #{count.allExpenses}
-			label(for='nb-expenses') Number Expenses:
-			p#nb-expenses #{count.expenses.length}
-			label(for='nb-expenses') Expenses per user:
-			p#perUser-expenses #{expensePerUser}
+  .panel-heading Users
+  .panel-body
+    .col-md-4
+      #user-list
+        each user in count.users
+          .row
+            button.btn(style="background-color: ##{user.color}") #{user.name}
+      #name-alert.row
+        .input-group
+          form
+            input#count-input-add-user.form-control(type='text', placeholder='My name')
+            span.input-group-btn
+              input#count-lauch-add-user.btn.btn-default(type='submit'
+              value='Add user')
+    #canvas-block.col-md-4.col-xs-6
+      h4(style="text-align: center") Expenses per users
+      <canvas id="chart-users" width="200" height="200"></canvas>
+    .col-md-4.col-xs-6
+      label(for='all-expenses') All Expenses:
+      p#all-expenses #{count.allExpenses}
+      label(for='nb-expenses') Number Expenses:
+      p#nb-expenses #{count.expenses.length}
+      label(for='nb-expenses') Expenses per user:
+      p#perUser-expenses #{expensePerUser}
