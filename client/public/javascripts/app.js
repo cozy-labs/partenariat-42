@@ -776,7 +776,7 @@ buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>')
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="count-see btn btn-primary btn-block">See</button><button class="count-modify btn btn-primary btn-block">Modifier</button><button class="count-delete btn btn-primary btn-block">Supprimer</button></div></div></div>');
+buf.push('</div><div class="form-group"><button class="count-see btn btn-primary btn-block">See</button><button class="count-modify btn btn-primary btn-block">Modify</button><button class="count-delete btn btn-primary btn-block">Delete</button></div></div></div>');
 }
 return buf.join("");
 };
@@ -1508,7 +1508,7 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div></div><div id="expense-list-view"></div></div></div></div></div>');
+buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div></div><div class="panel panel-default"><div id="header-balancing" class="panel-heading"><span>Balancing</span><span style="float: right" class="caret"></span></div><div id="module-balancing"></div></div><div class="panel panel-default"><div class="panel-heading">Expense</div><div class="panel-body"><div style="background-color: grey" class="panel panel-default"><div id="module" class="panel-body"><button id="add-new-expense" class="btn btn-default btn-block">Add a new expense</button></div><div id="expense-list-view"></div></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1754,9 +1754,13 @@ var StatsView = BaseView.extend({
 
 
 	computeDataCount: function () {
-		return this.count.get('users').map(function (elem) {
-			return {value: elem.seed, color: '#'+elem.color, label: elem.name}
+    var data = [];
+		this.count.get('users').forEach(function (elem) {
+      if (Number(elem.seed) !== 0) {
+        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
+      }
 		});
+    return data;
 	},
 
 
@@ -1811,9 +1815,9 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span class="caret"></span><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
 buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
-buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who take advantage ?</label><div id="leecher-list" class="form-group">');
+buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who contribute ?</label><div id="leecher-list" class="form-group">');
 // iterate expense.leecher
 ;(function(){
   if ('number' == typeof expense.leecher.length) {

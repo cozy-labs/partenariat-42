@@ -36,9 +36,13 @@ var StatsView = BaseView.extend({
 
 
 	computeDataCount: function () {
-		return this.count.get('users').map(function (elem) {
-			return {value: elem.seed, color: '#'+elem.color, label: elem.name}
+    var data = [];
+		this.count.get('users').forEach(function (elem) {
+      if (Number(elem.seed) !== 0) {
+        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
+      }
 		});
+    return data;
 	},
 
 

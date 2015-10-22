@@ -1,16 +1,17 @@
 .panel.panel-default
-	.panel-heading.header-expense-elem
-		span  #{expense.name}
-		span(style='float: right') #{expense.amount} #{expense.currency.name}
+  .panel-heading.header-expense-elem
+    span.caret
+    span  #{expense.name}
+    span(style='float: right') #{expense.amount} #{expense.currency.name}
 
-	.panel-body(style='display: none', id="#{expense.id}")
-		label(for='seeder') Who have paid ?
-		#seeder
-		button.btn #{expense.seeder}
+  .panel-body(style='display: none', id="#{expense.id}")
+    label(for='seeder') Who have paid ?
+    #seeder
+    button.btn #{expense.seeder}
 
-		.form-group
-			label(for='leecher-list') Who take advantage ?
-			#leecher-list.form-group
-				for leecher in expense.leecher
-					button.btn #{leecher.name}
-		button.btn.btn-default.btn-block.delete-expense-elem Delete
+    .form-group
+      label(for='leecher-list') Who contribute ?
+      #leecher-list.form-group
+        for leecher in expense.leecher
+          button.btn #{leecher.name}
+    button.btn.btn-default.btn-block.delete-expense-elem Delete
