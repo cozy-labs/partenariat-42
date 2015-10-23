@@ -4,12 +4,7 @@ var Application = {
 	initialize: function () {
 		var Router = require('./router');
 
-
-		// Ideally, initialized classes should be kept in controllers & mediator.
-		// If you're making big webapp, here's more sophisticated skeleton
-		// https://github.com/paulmillr/brunch-with-chaplin
-
-
+    // Router initialization
 		this.router = new Router();
 
 

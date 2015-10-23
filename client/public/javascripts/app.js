@@ -116,12 +116,7 @@ var Application = {
 	initialize: function () {
 		var Router = require('./router');
 
-
-		// Ideally, initialized classes should be kept in controllers & mediator.
-		// If you're making big webapp, here's more sophisticated skeleton
-		// https://github.com/paulmillr/brunch-with-chaplin
-
-
+    // Router initialization
 		this.router = new Router();
 
 
@@ -174,12 +169,15 @@ module.exports = [
 var application = require('application');
 
 $(function () {
-	application.initialize();
-	Backbone.history.start();
-			$('[data-toggle=offcanvas]').click(function() {
-				    $('.row-offcanvas').toggleClass('active');
+  application.initialize();
 
-				});
+  Backbone.history.start();
+
+
+  // Lauche listenert for responsive menu
+  $('[data-toggle=offcanvas]').click(function() {
+    $('.row-offcanvas').toggleClass('active');
+  });
 });
 
 });
@@ -382,14 +380,18 @@ module.exports = Count;
 
 require.register("router", function(exports, require, module) {
 
+// View list
 var AllCountView = require('views/allCount/all_count_view');
 var AllArchiveView = require('views/allArchives/all_archive_view');
 
+// View screen
 var CountView = require('views/count/count_view');
 var MenuView = require('views/menu/menu_view');
-var CountEditorView = require('views/count-editor/count_editor_view');
-var ArchiveView = require('views/archive/archive_view');
+var CountEditorView = require('views/countEditor/count_editor_view');
+var ArchiveView = require('views/count/archive_view');
+var NewExpense = require('views/newEvent/expense/new_expense_view');
 
+// Models
 var CountList = require('collections/count_list');
 var Count = require('models/count');
 
@@ -399,28 +401,38 @@ var Router = Backbone.Router.extend({
 	mainMenu: null,
 	currentButton: null,
 
+  /*
+   * I Fetch all the data from the server in during the router initialization
+   * because for now there is no much data and it's easy to print any page.
+   *
+   * The main HTML is already render server side, be remain the count list
+   */
 	initialize: function () {
-    console.log('intit router')
-		if (window.countCollection == null || window.countCollection == undefined) {
-			this.initializeCollections();
-		}
+    this.initializeCollections();
 
 		this.mainMenu = new MenuView();
-		this.mainMenu.render();
+		this.mainMenu.renderCounts();
 
 		Backbone.Router.prototype.initialize.call(this);
 	},
 
+
 	routes: {
-		''										: 'mainBoard',
-		'count/create'				: 'countEditor',
-		'count/update/:id'		: 'countEditor',
-		'count/:name'					: 'printCount',
-		'archive'							: 'printAllArchive',
-		'archive/:name'				: 'printArchive',
+		''									    	: 'mainBoard',
+		'count/create'			     	: 'countEditor',
+		'count/update/:id'     		: 'countEditor',
+		'count/:name'				  	  : 'printCount',
+    'count/:name/new-expense' : 'newExpense',
+		'archive'							    : 'printAllArchive',
+		'archive/:name'			    	: 'printArchive',
 	},
 
 
+  /*
+   * Print The main Board with the list of counts.
+   *
+   * If the is not count I redirect to the count creation
+   */
 	mainBoard: function () {
 		if (window.countCollection.length === 0) {
 			this.navigate('count/create', {trigger: true});
@@ -433,6 +445,10 @@ var Router = Backbone.Router.extend({
 	},
 
 
+  /*
+   * This view is used for count creation and count modifiation too.
+   * If the count id is defined there is an udpade otherwise it's a creation
+   */
 	countEditor: function (countId) {
 		this.selectInMenu($('#menu-add-count').parent());
 		view = new CountEditorView({countId: countId});
@@ -441,17 +457,33 @@ var Router = Backbone.Router.extend({
 	},
 
 
+  /*
+   * Screen for create a new expense
+   */
+  newExpense: function (countName) {
+		this.selectInMenu($('#count-'+countName).parent());
+
+		view = new NewExpense({countName: countName});
+
+		this.displayView(view);
+  },
+
+
+  /*
+   * Count printer
+   */
 	printCount: function (countName) {
 		this.selectInMenu($('#count-'+countName).parent());
-		view = new CountView({
-			countName: countName,
-			modifyPermission: true,
-		});
+
+		view = new CountView({countName: countName});
 
 		this.displayView(view);
 	},
 
 
+  /*
+   * Print all archives
+   */
 	printAllArchive: function () {
 		this.selectInMenu($('#menu-archives').parent());
 		view = new AllArchiveView();
@@ -460,16 +492,22 @@ var Router = Backbone.Router.extend({
 	},
 
 
+  /*
+   * Print specifique archive
+   * TODO: Check if we select with archive id or name, need to be with archive
+   * to avoid url conflic with count
+   */
 	printArchive: function (archiveName) {
-		view = new ArchiveView({
-			countName: archiveName,
-			modifyPermission: false,
-		});
+		this.selectInMenu($('#menu-archives').parent());
+		view = new ArchiveView({countName: archiveName});
 
 		this.displayView(view);
 	},
 
 
+  /*
+   * Manage menu overlight, must be call in all path
+   */
 	selectInMenu: function (button) {
 		if (this.currentButton !== null) {
 			this.currentButton.removeClass('active');
@@ -479,6 +517,10 @@ var Router = Backbone.Router.extend({
 	},
 
 
+  /*
+   * Generique function to manage view printing, must be call if you want print
+   * a screen
+   */
 	displayView: function (view) {
 		if (this.mainView !== null && this.mainView !== undefined) {
 			this.mainView.remove();
@@ -489,6 +531,12 @@ var Router = Backbone.Router.extend({
 	},
 
 
+  /*
+   * Fetch the data from server and create two collection:
+   *
+   * - countCollection
+   * - archiveCollection
+   */
 	initializeCollections: function () {
 		window.countCollection = new CountList();
 		window.archiveCollection = new CountList();
@@ -801,8 +849,8 @@ return buf.join("");
 };
 });
 
-require.register("views/archive/archive_view", function(exports, require, module) {
-var CountBaseView = require('../countBase/count_base_view');
+require.register("views/count/archive_view", function(exports, require, module) {
+var CountBaseView = require('./count_base_view');
 var app = require('../../application');
 
 var ArchiveView = CountBaseView.extend({
@@ -838,7 +886,629 @@ module.exports = ArchiveView;
 
 });
 
-require.register("views/count-editor/count_editor_view", function(exports, require, module) {
+require.register("views/count/count_base_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+var StatsView = require('./stats_view');
+var SquareView = require('./square_view');
+
+
+var CountBaseView = BaseView.extend({
+  template: require('./templates/count'),
+
+	initialize: function () {
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+		}
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	getRenderData: function () {
+		if (this.count !== null && this.count !== undefined) {
+      var expensePerUser = +(Math.round(this.count.get('allExpenses') /
+            this.count.get('users').length * 100) / 100).toFixed(2);
+
+			return ({
+        count: this.count.toJSON(),
+        expensePerUser: expensePerUser
+      });
+		}
+	},
+
+
+	afterRender: function () {
+    //var expenseList = this.count.get('expenses');
+    //var self = this;
+
+    //if (expenseList.length == 0) {
+      //this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    //} else {
+      //expenseList.forEach(function (expense) {
+        //self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+      //});
+    //}
+
+    this.stats = new StatsView({count: this.count});
+    this.stats.render();
+
+	},
+
+
+	printBalancing: function () {
+		if (this.balancing === null || this.balancing === undefined) {
+			this.balancing = new SquareView({count: this.count});
+			this.balancing.render();
+		}
+		this.balancing.clickDisplayer()
+	},
+});
+
+module.exports = CountBaseView;
+
+});
+
+require.register("views/count/count_view", function(exports, require, module) {
+var CountBaseView = require('./count_base_view');
+var app = require('../../application');
+
+var colorSet = require('../../helper/color_set');
+
+
+
+var CountView = CountBaseView.extend({
+	id: 'count-screen',
+
+	count: null,
+	dataResume: {
+		allExpense: 0,
+	},
+
+	newExpense: null,
+	balancing: null,
+
+	events: {
+		'click #count-lauch-add-user'	:	'addUser',
+		'click #add-new-expense'			: 'lauchNewExpense',
+		'click .header-expense-elem'	: 'printTransferBody',
+		'click .delete-expense-elem'	: 'deleteExpense',
+		'click #header-balancing'			: 'printBalancing',
+	},
+
+
+	initialize: function (attributes) {
+		this.count = window.countCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return false;
+		});
+
+		CountBaseView.prototype.initialize.call(this);
+	},
+
+
+	addUser: function () {
+		var userList = this.count.get('users');
+		var newUser = this.$('#count-input-add-user').val();
+		var color = colorSet[userList.length % colorSet.length];
+
+		this.$('#alert-name').remove();
+		var nameIsTaken = userList.find(function (elem) {
+			if (elem.name === newUser) {
+				return true;
+			}
+			return false;
+		});
+
+		if (nameIsTaken !== undefined) {
+			this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+			return;
+		}
+
+		userList.push({name: newUser, seed: 0, leech: 0, color: color});
+		this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+
+		if (this.newExpense !== null) {
+			this.newExpense.addUserToCount(newUser);
+		}
+		this.count.save({users: userList});
+		this.$('#count-input-add-user').val('');
+		if (this.balancing !== null && this.balancing !== undefined) {
+			this.balancing.update();
+		}
+	},
+
+
+	lauchNewExpense: function (event) {
+    console.log('plop3');
+    app.router.navigate('count/' + this.count.get('name') + '/new-expense', {trigger: true});
+		//if (this.newExpense == null) {
+			//this.newExpense = new AddExpenseView({count: this.count});
+		//}
+
+		//this.$('#add-new-expense').remove();
+		//this.newExpense.render();
+
+		//this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
+
+		//this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
+      //this.$('#empty-history').remove();
+			//this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
+			//this.stats.update();
+			//if (this.balancing !== null && this.balancing !== undefined) {
+				//this.balancing.update();
+			//}
+			//this.removeNewExpense();
+		//});
+	},
+
+
+	removeNewExpense: function () {
+		this.newExpense.remove();
+		delete this.newExpense
+			this.newExpense= null;
+
+		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
+	},
+
+
+	printTransferBody: function (event) {
+		var elem =  $(event.target);
+		if (elem.is('span')) {
+			var expenseBody =  $(event.target).parent().next('div');
+		} else {
+			var expenseBody =  $(event.target).next('div');
+		}
+
+		if (expenseBody.is('.printed')) {
+			expenseBody.slideUp('slow');
+			expenseBody.removeClass('printed');
+		} else {
+			expenseBody.slideDown('slow');
+			expenseBody.addClass('printed');
+		}
+	},
+
+
+	deleteExpense: function (event) {
+		var id = Number(this.$(event.target).parent().attr('id'));
+		var self = this;
+		this.count.removeExpense(id, function () {
+			self.stats.update();
+			if (self.balancing !== null && self.balancing !== undefined) {
+				self.balancing.update();
+			}
+			self.$(event.target).parent().parent().remove();
+		});
+    if (this.expenses.length == 0) {
+      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    }
+	},
+
+
+});
+
+module.exports = CountView;
+
+});
+
+require.register("views/count/square_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+
+var SquareView = BaseView.extend({
+	id: 'square-view',
+	template: require('./templates/square'),
+
+
+	events: {
+		'click #archive-count': 'archive',
+	},
+
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+
+		this.setUsersBalancing();
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	render: function () {
+		$('#module-balancing').prepend(this.$el);
+		this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
+		this.$('#square-displayer').slideDown('slow');
+
+	},
+
+
+	clickDisplayer: function () {
+		var displayer = this.$('#square-displayer');
+
+		if (displayer.is('.printed')) {
+			displayer.slideUp('slow');
+			displayer.removeClass('printed');
+		} else {
+			displayer.slideDown('slow');
+			displayer.addClass('printed');
+		}
+	},
+
+
+	update: function () {
+		this.setUsersBalancing();
+		this.setSquareMoves();
+		this.remove();
+		this.render();
+	},
+
+
+	setUsersBalancing: function () {
+		var allExpenses = this.count.get('allExpenses');
+		var users = this.count.get('users');
+
+		this.usersBalancing = users.map(function (user) {
+			return {
+				name: user.name,
+				color: user.color,
+				balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
+			}
+		});
+
+		this.setSquareMoves();
+	},
+
+
+	setSquareMoves: function () {
+		this.squareMoves = [];
+
+		var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
+
+		var i = 0;
+
+		while (tmpUsers.length > 1 && i++ < 50) {
+			var leecher = null;
+			var indexLeecher = 0;
+
+			for (index in tmpUsers) {
+				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
+					leecher = {
+						name: tmpUsers[index].name,
+						balancing: Number(tmpUsers[index].balancing)
+					}
+					indexLeecher = index;
+				}
+			}
+
+			var seeder = null;
+			var indexSeeder = 0;
+
+			for (index in tmpUsers) {
+				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
+					seeder = {
+						name: tmpUsers[index].name,
+						balancing: Number(tmpUsers[index].balancing)
+					}
+					indexSeeder = index;
+				}
+			}
+
+			if (leecher.balancing * -1 > seeder.balancing) {
+				exchange = seeder.balancing;
+			} else {
+				exchange = - leecher.balancing;
+			}
+
+			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
+			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
+
+			if (exchange !== 0 && exchange !== 'NaN') {
+				this.squareMoves.push({
+					from: leecher.name,
+					to: seeder.name,
+					exchange: exchange
+				});
+			}
+
+			if (leecher.balancing == 0) {
+				tmpUsers.splice(indexLeecher, 1);
+			}
+			if (seeder.balancing == 0) {
+				tmpUsers.splice(indexSeeder, 1);
+			}
+		}
+	},
+
+
+	archive: function (event) {
+		this.count.archive();
+	},
+
+
+	resetSquare: function () {
+		this.trigger('remove-module');
+	},
+});
+
+module.exports = SquareView;
+
+});
+
+require.register("views/count/stats_view", function(exports, require, module) {
+
+var BaseView = require('../../lib/base_view');
+
+
+var StatsView = BaseView.extend({
+	el: '#stats-module',
+
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+
+	render: function () {
+		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
+		var data = this.computeDataCount();
+		this.pieChart = new Chart(chartCtx).Pie(data);
+	},
+
+
+	computeDataCount: function () {
+    var data = [];
+		this.count.get('users').forEach(function (elem) {
+      if (Number(elem.seed) !== 0) {
+        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
+      }
+		});
+    return data;
+	},
+
+
+	update: function () {
+		var allExpenses = Number(this.count.get('allExpenses'));
+		var nbUsers = Number(this.count.get('users').length);
+
+		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+
+		this.$('#nb-expenses').text(this.count.get('expenses').length);
+		this.$('#all-expenses').text(allExpenses);
+		this.$('#perUser-expenses').text(perUserExpenses);
+
+		var self = this;
+
+		this.count.get('users').forEach(function (user, indexUser) {
+			var indexPie = null;
+			self.pieChart.segments.find(function (pieSegment, index) {
+				if (pieSegment.label === user.name) {
+					indexPie = index;
+					return true;
+				}
+				return false;
+			})
+			if (indexPie !== undefined && indexPie !== null) {
+				if (user.seed == 0) {
+					self.pieChart.removeData(indexPie);
+				} else {
+					self.pieChart.segments[indexPie].value = user.seed;
+					self.pieChart.update();
+				}
+			} else {
+				self.pieChart.addData({
+					value: user.seed,
+					color: '#' + user.color,
+					label: user.name
+				});
+			}
+		});
+	},
+
+});
+
+module.exports = StatsView;
+
+});
+
+require.register("views/count/templates/count", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-body"><div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div id="stats-module"><div class="col-md-4"><div id="user-list" class="col-md-12">');
+// iterate count.users
+;(function(){
+  if ('number' == typeof count.users.length) {
+    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
+      var user = count.users[$index];
+
+buf.push('<div class="row"><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
+    }
+  } else {
+    for (var $index in count.users) {
+      var user = count.users[$index];
+
+buf.push('<div class="row"><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
+   }
+  }
+}).call(this);
+
+buf.push('</div>');
+if ( count.status == 'active')
+{
+buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
+}
+buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div>');
+if ( (count.status == 'active'))
+{
+buf.push('<button id="add-new-expense" class="btn btn-primary btn-block">Add Event</button>');
+}
+buf.push('</div></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
+if ( count.expenses.length == 0)
+{
+buf.push('<span id="empty-history">Your history is empty</span>');
+}
+else
+{
+// iterate count.expenses
+;(function(){
+  if ('number' == typeof count.expenses.length) {
+    for (var $index = 0, $$l = count.expenses.length; $index < $$l; $index++) {
+      var expense = count.expenses[$index];
+
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span class="caret"></span><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
+buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
+buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who contribute ?</label><div id="leecher-list" class="form-group">');
+// iterate expense.leecher
+;(function(){
+  if ('number' == typeof expense.leecher.length) {
+    for (var $index = 0, $$l = expense.leecher.length; $index < $$l; $index++) {
+      var leecher = expense.leecher[$index];
+
+buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in expense.leecher) {
+      var leecher = expense.leecher[$index];
+
+buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('</div></div><button class="btn btn-default btn-block delete-expense-elem">Delete</button></div></div>');
+    }
+  } else {
+    for (var $index in count.expenses) {
+      var expense = count.expenses[$index];
+
+buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span class="caret"></span><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
+buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
+buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who contribute ?</label><div id="leecher-list" class="form-group">');
+// iterate expense.leecher
+;(function(){
+  if ('number' == typeof expense.leecher.length) {
+    for (var $index = 0, $$l = expense.leecher.length; $index < $$l; $index++) {
+      var leecher = expense.leecher[$index];
+
+buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+    }
+  } else {
+    for (var $index in expense.leecher) {
+      var leecher = expense.leecher[$index];
+
+buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+   }
+  }
+}).call(this);
+
+buf.push('</div></div><button class="btn btn-default btn-block delete-expense-elem">Delete</button></div></div>');
+   }
+  }
+}).call(this);
+
+}
+buf.push('</div></div></div></div></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/count/templates/square", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div id="square-displayer" style="display: none" class="panel-body"><label for="balancing">Balancing:</label><ul id="balancing">');
+// iterate users
+;(function(){
+  if ('number' == typeof users.length) {
+    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
+      var user = users[$index];
+
+buf.push('<li><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+if ( user.balancing == 0)
+{
+buf.push('<span style="color: blue">&nbsp;ok</span>');
+}
+if ( user.balancing > 0)
+{
+buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+if ( user.balancing < 0)
+{
+buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+buf.push('</li>');
+    }
+  } else {
+    for (var $index in users) {
+      var user = users[$index];
+
+buf.push('<li><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+if ( user.balancing == 0)
+{
+buf.push('<span style="color: blue">&nbsp;ok</span>');
+}
+if ( user.balancing > 0)
+{
+buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+if ( user.balancing < 0)
+{
+buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+}
+buf.push('</li>');
+   }
+  }
+}).call(this);
+
+buf.push('</ul><label for="balancing">How to be square:</label><ul id="square">');
+// iterate squareMoves
+;(function(){
+  if ('number' == typeof squareMoves.length) {
+    for (var $index = 0, $$l = squareMoves.length; $index < $$l; $index++) {
+      var move = squareMoves[$index];
+
+buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
+    }
+  } else {
+    for (var $index in squareMoves) {
+      var move = squareMoves[$index];
+
+buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
+   }
+  }
+}).call(this);
+
+buf.push('</ul><button id="archive-count" class="btn btn-primary btn-block">Close and archive</button></div>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/countEditor/count_editor_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var template = require('./templates/count_editor');
 var app = require('../../application');
@@ -1080,7 +1750,7 @@ module.exports = CountEditorView;
 
 });
 
-require.register("views/count-editor/templates/count_editor", function(exports, require, module) {
+require.register("views/countEditor/templates/count_editor", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
@@ -1104,13 +1774,120 @@ return buf.join("");
 };
 });
 
-require.register("views/count/add_expense/add_expense_view", function(exports, require, module) {
+require.register("views/menu/count_list_view", function(exports, require, module) {
+
+var ViewCollection = require('../../lib/view_collection');
+var MenuCountRowView = require('./count_row_view');
+
+var MenuCountListView = ViewCollection.extend({
+	el: '#menu-list-count',
+
+	itemView: MenuCountRowView,
+
+	initialize: function (collection) {
+		this.collection = collection;
+		ViewCollection.prototype.initialize.call(this);
+	},
+});
+
+module.exports = MenuCountListView;
+
+});
+
+require.register("views/menu/count_row_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+var MenuCountRowView = BaseView.extend({
+	template: require('./templates/count_row'),
+
+	tagName: 'li',
+
+	initialize: function () {
+		var self = this;
+		this.$el.click(function () {
+			self.printCount();
+		})
+	},
+
+
+	getRenderData: function () {
+		return ({model: this.model.toJSON()});
+	},
+
+
+	printCount: function () {
+		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
+	},
+});
+
+module.exports = MenuCountRowView;
+
+});
+
+require.register("views/menu/menu_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var CountListView = require('./count_list_view');
+var app = require('../../application');
+
+var MenuView = BaseView.extend({
+	el: '#sidebar',
+
+	events: {
+		'click #menu-all-count'		: 'goHomeView',
+		'click #menu-add-count'		: 'createNewCount',
+		'click #menu-archives'		: 'goToArchives',
+	},
+
+	renderCounts: function () {
+		this.countCollectionView = new CountListView(window.countCollection);
+		this.countCollectionView.render();
+	},
+
+
+	goHomeView: function () {
+		app.router.navigate('', {trigger: true});
+	},
+
+
+	createNewCount: function () {
+		app.router.navigate('count/create', {trigger: true});
+	},
+
+
+	goToArchives: function () {
+		app.router.navigate('archive', {trigger: true});
+	},
+
+});
+
+module.exports = MenuView;
+
+});
+
+require.register("views/menu/templates/count_row", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<a');
+buf.push(attrs({ 'id':('count-' + (model.name) + '') }, {"id":true}));
+buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a>');
+}
+return buf.join("");
+};
+});
+
+require.register("views/newEvent/expense/new_expense_view", function(exports, require, module) {
 var BaseView = require('../../../lib/base_view');
 var app = require('../../../application');
 
 
 var AddExpenseView = BaseView.extend({
-	template: require('./templates/add_expense'),
+	template: require('./templates/new_expense'),
+  id: 'new-expense',
 
 	count: null,
 
@@ -1123,11 +1900,24 @@ var AddExpenseView = BaseView.extend({
 		'click .currency'						:	'setCurrency',
 	},
 
+
 	initialize: function (attributes) {
-		this.count = attributes.count;
+		this.count = window.countCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return false;
+		});
+
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+		}
+
 		var leecher = this.count.get('users').map(function (elem) {
 			return {name: elem.name};
 		});
+
 		this.data = {
 			leecher: leecher,
 			currency: this.count.get('currencies')[0],
@@ -1137,26 +1927,26 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
-	render: function () {
-		$('#module').prepend(this.$el);
-		this.$el.html(this.template({
-			users: this.count.get('users'),
-			currencies: this.count.get('currencies')
-		}));
-		this.$('#add-expense-displayer').slideDown('slow');
+  getRenderData: function () {
+    return {
+      currencies: this.count.get('currencies'),
+      users: this.count.get('users'),
+    };
+  },
 
-		this.$('#input-amount')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.amount = event.target.value;};
-		})(this));
+  afterRender: function () {
+    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.amount = event.target.value;};
+    })(this));
 
-		this.$('#input-name')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.name = event.target.value;};
-		})(this));
+    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.name = event.target.value;};
+    })(this));
 
-		this.$('#input-description')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.description = event.target.value;};
-		})(this));
-	},
+    this.$('#input-description')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.description = event.target.value;};
+    })(this));
+  },
 
 
 	setSeeder: function (event) {
@@ -1275,36 +2065,28 @@ var AddExpenseView = BaseView.extend({
 		}, {
 			wait: true,
 			success: function (data) {
-				self.trigger('add-new-expense', self.data);
+        app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
 			},
-			error: function (xhr) {
-				self.trigger('remove-new-expense');
-			}
 		});
 	},
 
 	resetNewExpense: function () {
-		this.$('#add-expense-displayer').slideUp('slow');
-		this.trigger('remove-new-expense');
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
 	},
-
-	remove: function () {
-		BaseView.prototype.remove.call(this);
-	}
 });
 
 module.exports = AddExpenseView;
 
 });
 
-require.register("views/count/add_expense/templates/add_expense", function(exports, require, module) {
+require.register("views/newEvent/expense/templates/new_expense", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<form id="add-expense-displayer" style="display: none" class="form-group"><div id="alert-zone"></div><label for="input-name">Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/><div class="form-group"><label for="input-description">Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-currency" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">' + escape((interp = currencies[0].name) == null ? '' : interp) + '</button><ul class="dropdown-menu dropdown-menu-right">');
+buf.push('<form id="add-expense-displayer" class="form-group"><div id="alert-zone"></div><label for="input-name">Expense Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/><div class="form-group"><label for="input-description">Expense Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-currency" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">' + escape((interp = currencies[0].name) == null ? '' : interp) + '</button><ul class="dropdown-menu dropdown-menu-right">');
 // iterate currencies
 ;(function(){
   if ('number' == typeof currencies.length) {
@@ -1359,776 +2141,6 @@ buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\'
 }).call(this);
 
 buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-primary btn-block">Save</button><button id="add-expense-cancel" class="btn btn-primary btn-block">Cancel</button></div></form>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/count/count_view", function(exports, require, module) {
-var CountBaseView = require('../countBase/count_base_view');
-var app = require('../../application');
-
-var AddExpenseView = require('./add_expense/add_expense_view');
-
-var colorSet = require('../../helper/color_set');
-
-
-
-var CountView = CountBaseView.extend({
-	id: 'count-screen',
-
-	count: null,
-	dataResume: {
-		allExpense: 0,
-	},
-
-	newExpense: null,
-	balancing: null,
-
-	events: {
-		'click #count-lauch-add-user'	:	'addUser',
-		'click #add-new-expense'			: 'lauchNewExpense',
-		'click .header-expense-elem'	: 'printTransferBody',
-		'click .delete-expense-elem'	: 'deleteExpense',
-		'click #header-balancing'			: 'printBalancing',
-	},
-
-
-	initialize: function (attributes) {
-		this.count = window.countCollection.models.find(function (count) {
-			if (count.get('name') == attributes.countName) {
-				return true;
-			}
-			return false;
-		});
-
-		CountBaseView.prototype.initialize.call(this);
-	},
-
-
-	addUser: function () {
-		var userList = this.count.get('users');
-		var newUser = this.$('#count-input-add-user').val();
-		var color = colorSet[userList.length % colorSet.length];
-
-		this.$('#alert-name').remove();
-		var nameIsTaken = userList.find(function (elem) {
-			if (elem.name === newUser) {
-				return true;
-			}
-			return false;
-		});
-
-		if (nameIsTaken !== undefined) {
-			this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
-			return;
-		}
-
-		userList.push({name: newUser, seed: 0, leech: 0, color: color});
-		this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
-
-		if (this.newExpense !== null) {
-			this.newExpense.addUserToCount(newUser);
-		}
-		this.count.save({users: userList});
-		this.$('#count-input-add-user').val('');
-		if (this.balancing !== null && this.balancing !== undefined) {
-			this.balancing.update();
-		}
-	},
-
-
-	lauchNewExpense: function (event) {
-		if (this.newExpense == null) {
-			this.newExpense = new AddExpenseView({count: this.count});
-		}
-
-		this.$('#add-new-expense').remove();
-		this.newExpense.render();
-
-		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
-
-		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
-      this.$('#empty-history').remove();
-			this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
-			this.stats.update();
-			if (this.balancing !== null && this.balancing !== undefined) {
-				this.balancing.update();
-			}
-			this.removeNewExpense();
-		});
-	},
-
-
-	removeNewExpense: function () {
-		this.newExpense.remove();
-		delete this.newExpense
-			this.newExpense= null;
-
-		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
-	},
-
-
-	printTransferBody: function (event) {
-		var elem =  $(event.target);
-		if (elem.is('span')) {
-			var expenseBody =  $(event.target).parent().next('div');
-		} else {
-			var expenseBody =  $(event.target).next('div');
-		}
-
-		if (expenseBody.is('.printed')) {
-			expenseBody.slideUp('slow');
-			expenseBody.removeClass('printed');
-		} else {
-			expenseBody.slideDown('slow');
-			expenseBody.addClass('printed');
-		}
-	},
-
-
-	deleteExpense: function (event) {
-		var id = Number(this.$(event.target).parent().attr('id'));
-		var self = this;
-		this.count.removeExpense(id, function () {
-			self.stats.update();
-			if (self.balancing !== null && self.balancing !== undefined) {
-				self.balancing.update();
-			}
-			self.$(event.target).parent().parent().remove();
-		});
-    if (this.expenses.length == 0) {
-      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-    }
-	},
-
-
-});
-
-module.exports = CountView;
-
-});
-
-require.register("views/countBase/count_base_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-var app = require('../../application');
-
-var StatsView = require('./stats_view');
-var SquareView = require('./square_view');
-
-
-var CountBaseView = BaseView.extend({
-  templateExpense : require('./templates/expense_elem'),
-  template: require('./templates/count'),
-
-	initialize: function () {
-		if (this.count == undefined || this.count == null) {
-			console.error('invalide route');
-      app.router.navigate('', {trigger: true});
-		}
-
-		BaseView.prototype.initialize.call(this);
-	},
-
-
-	getRenderData: function () {
-		if (this.count !== null && this.count !== undefined) {
-      var expensePerUser = +(Math.round(this.count.get('allExpenses') /
-            this.count.get('users').length * 100) / 100).toFixed(2);
-
-			return ({
-        count: this.count.toJSON(),
-        expensePerUser: expensePerUser
-      });
-		}
-	},
-
-
-	afterRender: function () {
-    //var expenseList = this.count.get('expenses');
-    //var self = this;
-
-    //if (expenseList.length == 0) {
-      //this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-    //} else {
-      //expenseList.forEach(function (expense) {
-        //self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
-      //});
-    //}
-
-    this.stats = new StatsView({count: this.count});
-    this.stats.render();
-
-	},
-
-
-	printBalancing: function () {
-		if (this.balancing === null || this.balancing === undefined) {
-			this.balancing = new SquareView({count: this.count});
-			this.balancing.render();
-		}
-		this.balancing.clickDisplayer()
-	},
-});
-
-module.exports = CountBaseView;
-
-});
-
-require.register("views/countBase/square_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-var app = require('../../application');
-
-
-var SquareView = BaseView.extend({
-	id: 'square-view',
-	template: require('./templates/square'),
-
-
-	events: {
-		'click #archive-count': 'archive',
-	},
-
-
-	initialize: function (attributes) {
-		this.count = attributes.count;
-
-		this.setUsersBalancing();
-
-		BaseView.prototype.initialize.call(this);
-	},
-
-
-	render: function () {
-		$('#module-balancing').prepend(this.$el);
-		this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
-		this.$('#square-displayer').slideDown('slow');
-
-	},
-
-
-	clickDisplayer: function () {
-		var displayer = this.$('#square-displayer');
-
-		if (displayer.is('.printed')) {
-			displayer.slideUp('slow');
-			displayer.removeClass('printed');
-		} else {
-			displayer.slideDown('slow');
-			displayer.addClass('printed');
-		}
-	},
-
-
-	update: function () {
-		this.setUsersBalancing();
-		this.setSquareMoves();
-		this.remove();
-		this.render();
-	},
-
-
-	setUsersBalancing: function () {
-		var allExpenses = this.count.get('allExpenses');
-		var users = this.count.get('users');
-
-		this.usersBalancing = users.map(function (user) {
-			return {
-				name: user.name,
-				color: user.color,
-				balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
-			}
-		});
-
-		this.setSquareMoves();
-	},
-
-
-	setSquareMoves: function () {
-		this.squareMoves = [];
-
-		var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
-
-		var i = 0;
-
-		while (tmpUsers.length > 1 && i++ < 50) {
-			var leecher = null;
-			var indexLeecher = 0;
-
-			for (index in tmpUsers) {
-				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
-					leecher = {
-						name: tmpUsers[index].name,
-						balancing: Number(tmpUsers[index].balancing)
-					}
-					indexLeecher = index;
-				}
-			}
-
-			var seeder = null;
-			var indexSeeder = 0;
-
-			for (index in tmpUsers) {
-				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
-					seeder = {
-						name: tmpUsers[index].name,
-						balancing: Number(tmpUsers[index].balancing)
-					}
-					indexSeeder = index;
-				}
-			}
-
-			if (leecher.balancing * -1 > seeder.balancing) {
-				exchange = seeder.balancing;
-			} else {
-				exchange = - leecher.balancing;
-			}
-
-			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
-			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
-
-			if (exchange !== 0 && exchange !== 'NaN') {
-				this.squareMoves.push({
-					from: leecher.name,
-					to: seeder.name,
-					exchange: exchange
-				});
-			}
-
-			if (leecher.balancing == 0) {
-				tmpUsers.splice(indexLeecher, 1);
-			}
-			if (seeder.balancing == 0) {
-				tmpUsers.splice(indexSeeder, 1);
-			}
-		}
-	},
-
-
-	archive: function (event) {
-		this.count.archive();
-	},
-
-
-	resetSquare: function () {
-		this.trigger('remove-module');
-	},
-});
-
-module.exports = SquareView;
-
-});
-
-require.register("views/countBase/stats_view", function(exports, require, module) {
-
-var BaseView = require('../../lib/base_view');
-
-
-var StatsView = BaseView.extend({
-	el: '#stats-module',
-
-
-	initialize: function (attributes) {
-		this.count = attributes.count;
-
-		BaseView.prototype.initialize.call(this);
-	},
-
-
-
-	render: function () {
-		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-		var data = this.computeDataCount();
-		this.pieChart = new Chart(chartCtx).Pie(data);
-	},
-
-
-	computeDataCount: function () {
-    var data = [];
-		this.count.get('users').forEach(function (elem) {
-      if (Number(elem.seed) !== 0) {
-        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
-      }
-		});
-    return data;
-	},
-
-
-	update: function () {
-		var allExpenses = Number(this.count.get('allExpenses'));
-		var nbUsers = Number(this.count.get('users').length);
-
-		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
-
-		this.$('#nb-expenses').text(this.count.get('expenses').length);
-		this.$('#all-expenses').text(allExpenses);
-		this.$('#perUser-expenses').text(perUserExpenses);
-
-		var self = this;
-
-		this.count.get('users').forEach(function (user, indexUser) {
-			var indexPie = null;
-			self.pieChart.segments.find(function (pieSegment, index) {
-				if (pieSegment.label === user.name) {
-					indexPie = index;
-					return true;
-				}
-				return false;
-			})
-			if (indexPie !== undefined && indexPie !== null) {
-				if (user.seed == 0) {
-					self.pieChart.removeData(indexPie);
-				} else {
-					self.pieChart.segments[indexPie].value = user.seed;
-					self.pieChart.update();
-				}
-			} else {
-				self.pieChart.addData({
-					value: user.seed,
-					color: '#' + user.color,
-					label: user.name
-				});
-			}
-		});
-	},
-
-});
-
-module.exports = StatsView;
-
-});
-
-require.register("views/countBase/templates/count", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div id="stats-module" class="col-md-4"><div id="user-list" class="col-md-12">');
-// iterate count.users
-;(function(){
-  if ('number' == typeof count.users.length) {
-    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
-      var user = count.users[$index];
-
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-    }
-  } else {
-    for (var $index in count.users) {
-      var user = count.users[$index];
-
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-   }
-  }
-}).call(this);
-
-buf.push('</div>');
-if ( count.status == 'active')
-{
-buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
-}
-buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div>');
-if ( (count.status == 'active'))
-{
-buf.push('<button class="btn btn-primary btn-block">Add Event</button>');
-}
-buf.push('</div></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
-if ( count.expenses.length == 0)
-{
-buf.push('<span id="empty-history">Your history is empty</span>');
-}
-else
-{
-// iterate count.expenses
-;(function(){
-  if ('number' == typeof count.expenses.length) {
-    for (var $index = 0, $$l = count.expenses.length; $index < $$l; $index++) {
-      var expense = count.expenses[$index];
-
-buf.push('');
-    }
-  } else {
-    for (var $index in count.expenses) {
-      var expense = count.expenses[$index];
-
-buf.push('');
-   }
-  }
-}).call(this);
-
-}
-buf.push('</div></div></div></div></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/countBase/templates/expense_elem", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div id="stats-module" class="col-md-4"><div id="user-list" class="col-md-12">');
-// iterate count.users
-;(function(){
-  if ('number' == typeof count.users.length) {
-    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
-      var user = count.users[$index];
-
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-    }
-  } else {
-    for (var $index in count.users) {
-      var user = count.users[$index];
-
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-   }
-  }
-}).call(this);
-
-buf.push('</div>');
-if ( count.status == 'active')
-{
-buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
-}
-buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
-if ( count.expenses.length == 0)
-{
-buf.push('<span id="empty-history">Your history is empty</span>');
-}
-else
-{
-// iterate count.expenses
-;(function(){
-  if ('number' == typeof count.expenses.length) {
-    for (var $index = 0, $$l = count.expenses.length; $index < $$l; $index++) {
-      var expense = count.expenses[$index];
-
-buf.push('');
-    }
-  } else {
-    for (var $index in count.expenses) {
-      var expense = count.expenses[$index];
-
-buf.push('');
-   }
-  }
-}).call(this);
-
-}
-buf.push('</div></div></div></div></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/countBase/templates/square", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div id="square-displayer" style="display: none" class="panel-body"><label for="balancing">Balancing:</label><ul id="balancing">');
-// iterate users
-;(function(){
-  if ('number' == typeof users.length) {
-    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
-      var user = users[$index];
-
-buf.push('<li><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
-if ( user.balancing == 0)
-{
-buf.push('<span style="color: blue">&nbsp;ok</span>');
-}
-if ( user.balancing > 0)
-{
-buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
-}
-if ( user.balancing < 0)
-{
-buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
-}
-buf.push('</li>');
-    }
-  } else {
-    for (var $index in users) {
-      var user = users[$index];
-
-buf.push('<li><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
-if ( user.balancing == 0)
-{
-buf.push('<span style="color: blue">&nbsp;ok</span>');
-}
-if ( user.balancing > 0)
-{
-buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
-}
-if ( user.balancing < 0)
-{
-buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
-}
-buf.push('</li>');
-   }
-  }
-}).call(this);
-
-buf.push('</ul><label for="balancing">How to be square:</label><ul id="square">');
-// iterate squareMoves
-;(function(){
-  if ('number' == typeof squareMoves.length) {
-    for (var $index = 0, $$l = squareMoves.length; $index < $$l; $index++) {
-      var move = squareMoves[$index];
-
-buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
-    }
-  } else {
-    for (var $index in squareMoves) {
-      var move = squareMoves[$index];
-
-buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
-   }
-  }
-}).call(this);
-
-buf.push('</ul><button id="archive-count" class="btn btn-primary btn-block">Close and archive</button></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/menu/count_list_view", function(exports, require, module) {
-
-var ViewCollection = require('../../lib/view_collection');
-var MenuCountRowView = require('./count_row_view');
-
-var MenuCountListView = ViewCollection.extend({
-	el: '#menu-list-count',
-
-	itemView: MenuCountRowView,
-
-	initialize: function (collection) {
-		this.collection = collection;
-		ViewCollection.prototype.initialize.call(this);
-	},
-});
-
-module.exports = MenuCountListView;
-
-});
-
-require.register("views/menu/count_row_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-var app = require('../../application');
-
-var MenuCountRowView = BaseView.extend({
-	template: require('./templates/count_row'),
-
-	tagName: 'li',
-
-	initialize: function () {
-		var self = this;
-		this.$el.click(function () {
-			self.printCount();
-		})
-	},
-
-
-	getRenderData: function () {
-		return ({model: this.model.toJSON()});
-	},
-
-
-	printCount: function () {
-		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
-	},
-});
-
-module.exports = MenuCountRowView;
-
-});
-
-require.register("views/menu/menu_view", function(exports, require, module) {
-var BaseView = require('../../lib/base_view');
-var CountListView = require('./count_list_view');
-var template = require('./templates/menu');
-var app = require('../../application');
-
-var MenuView = BaseView.extend({
-	el: '#sidebar',
-
-	template: template,
-
-	events: {
-		'click #menu-all-count'		: 'goHomeView',
-		'click #menu-add-count'		: 'createNewCount',
-		'click #menu-archives'		: 'goToArchives',
-	},
-
-	afterRender: function () {
-		this.countCollectionView = new CountListView(window.countCollection);
-		this.countCollectionView.render();
-	},
-
-
-	goHomeView: function () {
-		app.router.navigate('', {trigger: true});
-	},
-
-
-	createNewCount: function () {
-		app.router.navigate('count/create', {trigger: true});
-	},
-
-
-	goToArchives: function () {
-		app.router.navigate('archive', {trigger: true});
-	},
-
-});
-
-module.exports = MenuView;
-
-});
-
-require.register("views/menu/templates/count_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<a');
-buf.push(attrs({ 'id':('count-' + (model.name) + '') }, {"id":true}));
-buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/menu/templates/menu", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<label for="menu-section">Count</label><nav><ul class="nav nav-pills nav-stacked"><li role="presentation"><a id="menu-all-count" href="#">All Count</a></li></ul><ul id="menu-list-count" class="nav nav-pills nav-stacked"></ul><Label for="action">Actions</Label><ul id="action" class="nav nav-pills nav-stacked"><li><a id="menu-add-count">Create a Count</a></li><li><a id="menu-archives">Archives</a></li></ul></nav>');
 }
 return buf.join("");
 };

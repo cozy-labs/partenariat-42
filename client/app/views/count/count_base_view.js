@@ -6,7 +6,6 @@ var SquareView = require('./square_view');
 
 
 var CountBaseView = BaseView.extend({
-  templateExpense : require('./templates/expense_elem'),
   template: require('./templates/count'),
 
 	initialize: function () {

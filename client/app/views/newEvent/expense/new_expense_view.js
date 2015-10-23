@@ -3,7 +3,8 @@ var app = require('../../../application');
 
 
 var AddExpenseView = BaseView.extend({
-	template: require('./templates/add_expense'),
+	template: require('./templates/new_expense'),
+  id: 'new-expense',
 
 	count: null,
 
@@ -16,11 +17,24 @@ var AddExpenseView = BaseView.extend({
 		'click .currency'						:	'setCurrency',
 	},
 
+
 	initialize: function (attributes) {
-		this.count = attributes.count;
+		this.count = window.countCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return false;
+		});
+
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+		}
+
 		var leecher = this.count.get('users').map(function (elem) {
 			return {name: elem.name};
 		});
+
 		this.data = {
 			leecher: leecher,
 			currency: this.count.get('currencies')[0],
@@ -30,26 +44,26 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
-	render: function () {
-		$('#module').prepend(this.$el);
-		this.$el.html(this.template({
-			users: this.count.get('users'),
-			currencies: this.count.get('currencies')
-		}));
-		this.$('#add-expense-displayer').slideDown('slow');
+  getRenderData: function () {
+    return {
+      currencies: this.count.get('currencies'),
+      users: this.count.get('users'),
+    };
+  },
 
-		this.$('#input-amount')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.amount = event.target.value;};
-		})(this));
+  afterRender: function () {
+    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.amount = event.target.value;};
+    })(this));
 
-		this.$('#input-name')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.name = event.target.value;};
-		})(this));
+    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.name = event.target.value;};
+    })(this));
 
-		this.$('#input-description')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.data.description = event.target.value;};
-		})(this));
-	},
+    this.$('#input-description')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.description = event.target.value;};
+    })(this));
+  },
 
 
 	setSeeder: function (event) {
@@ -168,22 +182,14 @@ var AddExpenseView = BaseView.extend({
 		}, {
 			wait: true,
 			success: function (data) {
-				self.trigger('add-new-expense', self.data);
+        app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
 			},
-			error: function (xhr) {
-				self.trigger('remove-new-expense');
-			}
 		});
 	},
 
 	resetNewExpense: function () {
-		this.$('#add-expense-displayer').slideUp('slow');
-		this.trigger('remove-new-expense');
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
 	},
-
-	remove: function () {
-		BaseView.prototype.remove.call(this);
-	}
 });
 
 module.exports = AddExpenseView;

@@ -1,11 +1,11 @@
-form#add-expense-displayer.form-group(style='display: none')
+form#add-expense-displayer.form-group
 	#alert-zone
-	label(for='input-name') Name
+	label(for='input-name') Expense Name
 	input#input-name.form-control(type='text', placeholder='Shopping...',
 	maxlength='40', required, autofocus)
 
 	.form-group
-		label(for='input-description') Description
+		label(for='input-description') Expense Description
 		textarea#input-description.form-control(rows='5')
 
 	.form-group

@@ -1,4 +1,4 @@
-var CountBaseView = require('../countBase/count_base_view');
+var CountBaseView = require('./count_base_view');
 var app = require('../../application');
 
 var ArchiveView = CountBaseView.extend({

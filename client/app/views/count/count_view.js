@@ -1,7 +1,5 @@
-var CountBaseView = require('../countBase/count_base_view');
+var CountBaseView = require('./count_base_view');
 var app = require('../../application');
-
-var AddExpenseView = require('./add_expense/add_expense_view');
 
 var colorSet = require('../../helper/color_set');
 
@@ -72,24 +70,26 @@ var CountView = CountBaseView.extend({
 
 
 	lauchNewExpense: function (event) {
-		if (this.newExpense == null) {
-			this.newExpense = new AddExpenseView({count: this.count});
-		}
+    console.log('plop3');
+    app.router.navigate('count/' + this.count.get('name') + '/new-expense', {trigger: true});
+		//if (this.newExpense == null) {
+			//this.newExpense = new AddExpenseView({count: this.count});
+		//}
 
-		this.$('#add-new-expense').remove();
-		this.newExpense.render();
+		//this.$('#add-new-expense').remove();
+		//this.newExpense.render();
 
-		this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
+		//this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
 
-		this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
-      this.$('#empty-history').remove();
-			this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
-			this.stats.update();
-			if (this.balancing !== null && this.balancing !== undefined) {
-				this.balancing.update();
-			}
-			this.removeNewExpense();
-		});
+		//this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
+      //this.$('#empty-history').remove();
+			//this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
+			//this.stats.update();
+			//if (this.balancing !== null && this.balancing !== undefined) {
+				//this.balancing.update();
+			//}
+			//this.removeNewExpense();
+		//});
 	},
 
 
