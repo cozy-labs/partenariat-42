@@ -11,22 +11,34 @@ var MenuView = BaseView.extend({
 		'click #menu-archives'		: 'goToArchives',
 	},
 
+  /*
+   * Render the list of count in the menu
+   */
 	renderCounts: function () {
 		this.countCollectionView = new CountListView(window.countCollection);
 		this.countCollectionView.render();
 	},
 
 
+  /*
+   * Redirect to the mainBoard
+   */
 	goHomeView: function () {
 		app.router.navigate('', {trigger: true});
 	},
 
 
+  /*
+   * Redirect to the count creation
+   */
 	createNewCount: function () {
 		app.router.navigate('count/create', {trigger: true});
 	},
 
 
+  /*
+   * Redirect to the archive list
+   */
 	goToArchives: function () {
 		app.router.navigate('archive', {trigger: true});
 	},
