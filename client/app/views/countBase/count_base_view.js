@@ -6,11 +6,13 @@ var SquareView = require('./square_view');
 
 
 var CountBaseView = BaseView.extend({
-	templateExpense : require('./templates/expense_elem'),
+  templateExpense : require('./templates/expense_elem'),
+  template: require('./templates/count'),
 
 	initialize: function () {
 		if (this.count == undefined || this.count == null) {
 			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
 		}
 
 		BaseView.prototype.initialize.call(this);
@@ -19,28 +21,31 @@ var CountBaseView = BaseView.extend({
 
 	getRenderData: function () {
 		if (this.count !== null && this.count !== undefined) {
-			return ({count: this.count.toJSON()});
+      var expensePerUser = +(Math.round(this.count.get('allExpenses') /
+            this.count.get('users').length * 100) / 100).toFixed(2);
+
+			return ({
+        count: this.count.toJSON(),
+        expensePerUser: expensePerUser
+      });
 		}
-		return ({count: null});
 	},
 
 
-	render: function () {
-		BaseView.prototype.render.call(this);
+	afterRender: function () {
+    //var expenseList = this.count.get('expenses');
+    //var self = this;
 
-		var expenseList = this.count.get('expenses');
-		var self = this;
+    //if (expenseList.length == 0) {
+      //this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    //} else {
+      //expenseList.forEach(function (expense) {
+        //self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+      //});
+    //}
 
-    if (expenseList.length == 0) {
-      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-    } else {
-      expenseList.forEach(function (expense) {
-        self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
-      });
-    }
-
-		this.stats = new StatsView({count: this.count});
-		this.stats.render();
+    this.stats = new StatsView({count: this.count});
+    this.stats.render();
 
 	},
 

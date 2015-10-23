@@ -17,6 +17,7 @@ var Router = Backbone.Router.extend({
 	currentButton: null,
 
 	initialize: function () {
+    console.log('intit router')
 		if (window.countCollection == null || window.countCollection == undefined) {
 			this.initializeCollections();
 		}

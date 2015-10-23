@@ -3,7 +3,6 @@ var app = require('../../application');
 
 var ArchiveView = CountBaseView.extend({
 	id: 'archive-screen',
-	template: require('./templates/archive'),
 
 	count: null,
 	dataResume: {

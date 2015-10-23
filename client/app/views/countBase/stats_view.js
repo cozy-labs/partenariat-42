@@ -1,11 +1,8 @@
 
 var BaseView = require('../../lib/base_view');
-var template = require('./templates/stats');
 
-var colorSet = require('../../helper/color_set');
 
 var StatsView = BaseView.extend({
-	template: template,
 	el: '#stats-module',
 
 
@@ -16,18 +13,8 @@ var StatsView = BaseView.extend({
 	},
 
 
-	getRenderData: function () {
-		var expensePerUser = +(Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
 
-		return {
-			count: this.count.toJSON(),
-			colorSet: colorSet,
-			expensePerUser: expensePerUser
-		};
-	},
-
-
-	afterRender: function () {
+	render: function () {
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
 		var data = this.computeDataCount();
 		this.pieChart = new Chart(chartCtx).Pie(data);

@@ -400,6 +400,7 @@ var Router = Backbone.Router.extend({
 	currentButton: null,
 
 	initialize: function () {
+    console.log('intit router')
 		if (window.countCollection == null || window.countCollection == undefined) {
 			this.initializeCollections();
 		}
@@ -661,6 +662,7 @@ var AllCountView = BaseView.extend({
 
 
 	initialize: function (attributes) {
+    console.log('plop')
 		this.collection = window.countCollection;
 		BaseView.prototype.initialize.call(this);
 	},
@@ -805,7 +807,6 @@ var app = require('../../application');
 
 var ArchiveView = CountBaseView.extend({
 	id: 'archive-screen',
-	template: require('./templates/archive'),
 
 	count: null,
 	dataResume: {
@@ -835,19 +836,6 @@ var ArchiveView = CountBaseView.extend({
 
 module.exports = ArchiveView;
 
-});
-
-require.register("views/archive/templates/archive", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading">Balancing</div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">Expense</div><div id="expense-list-view" class="panel-body"></div></div></div></div>');
-}
-return buf.join("");
-};
 });
 
 require.register("views/count-editor/count_editor_view", function(exports, require, module) {
@@ -1388,7 +1376,6 @@ var colorSet = require('../../helper/color_set');
 
 var CountView = CountBaseView.extend({
 	id: 'count-screen',
-	template: require('./templates/count'),
 
 	count: null,
 	dataResume: {
@@ -1510,8 +1497,6 @@ var CountView = CountBaseView.extend({
 			}
 			self.$(event.target).parent().parent().remove();
 		});
-    console.log('length: ', this.expenses)
-    console.log('length: ', this.expenses.length)
     if (this.expenses.length == 0) {
       this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
     }
@@ -1524,19 +1509,6 @@ module.exports = CountView;
 
 });
 
-require.register("views/count/templates/count", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div id="stats-module"></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view"></div></div></div></div></div>');
-}
-return buf.join("");
-};
-});
-
 require.register("views/countBase/count_base_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
@@ -1546,11 +1518,13 @@ var SquareView = require('./square_view');
 
 
 var CountBaseView = BaseView.extend({
-	templateExpense : require('./templates/expense_elem'),
+  templateExpense : require('./templates/expense_elem'),
+  template: require('./templates/count'),
 
 	initialize: function () {
 		if (this.count == undefined || this.count == null) {
 			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
 		}
 
 		BaseView.prototype.initialize.call(this);
@@ -1559,28 +1533,31 @@ var CountBaseView = BaseView.extend({
 
 	getRenderData: function () {
 		if (this.count !== null && this.count !== undefined) {
-			return ({count: this.count.toJSON()});
+      var expensePerUser = +(Math.round(this.count.get('allExpenses') /
+            this.count.get('users').length * 100) / 100).toFixed(2);
+
+			return ({
+        count: this.count.toJSON(),
+        expensePerUser: expensePerUser
+      });
 		}
-		return ({count: null});
 	},
 
 
-	render: function () {
-		BaseView.prototype.render.call(this);
+	afterRender: function () {
+    //var expenseList = this.count.get('expenses');
+    //var self = this;
 
-		var expenseList = this.count.get('expenses');
-		var self = this;
+    //if (expenseList.length == 0) {
+      //this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+    //} else {
+      //expenseList.forEach(function (expense) {
+        //self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
+      //});
+    //}
 
-    if (expenseList.length == 0) {
-      this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-    } else {
-      expenseList.forEach(function (expense) {
-        self.$('#expense-list-view').prepend(self.templateExpense({expense: expense}));
-      });
-    }
-
-		this.stats = new StatsView({count: this.count});
-		this.stats.render();
+    this.stats = new StatsView({count: this.count});
+    this.stats.render();
 
 	},
 
@@ -1745,12 +1722,9 @@ module.exports = SquareView;
 require.register("views/countBase/stats_view", function(exports, require, module) {
 
 var BaseView = require('../../lib/base_view');
-var template = require('./templates/stats');
 
-var colorSet = require('../../helper/color_set');
 
 var StatsView = BaseView.extend({
-	template: template,
 	el: '#stats-module',
 
 
@@ -1761,18 +1735,8 @@ var StatsView = BaseView.extend({
 	},
 
 
-	getRenderData: function () {
-		var expensePerUser = +(Math.round(this.count.get('allExpenses') / this.count.get('users').length * 100) / 100).toFixed(2);
 
-		return {
-			count: this.count.toJSON(),
-			colorSet: colorSet,
-			expensePerUser: expensePerUser
-		};
-	},
-
-
-	afterRender: function () {
+	render: function () {
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
 		var data = this.computeDataCount();
 		this.pieChart = new Chart(chartCtx).Pie(data);
@@ -1834,6 +1798,76 @@ module.exports = StatsView;
 
 });
 
+require.register("views/countBase/templates/count", function(exports, require, module) {
+module.exports = function anonymous(locals, attrs, escape, rethrow, merge
+/**/) {
+attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var buf = [];
+with (locals || {}) {
+var interp;
+buf.push('<div class="panel panel-default"><div class="panel-body"><div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div id="stats-module" class="col-md-4"><div id="user-list" class="col-md-12">');
+// iterate count.users
+;(function(){
+  if ('number' == typeof count.users.length) {
+    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
+      var user = count.users[$index];
+
+buf.push('<div class="row"><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
+    }
+  } else {
+    for (var $index in count.users) {
+      var user = count.users[$index];
+
+buf.push('<div class="row"><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
+   }
+  }
+}).call(this);
+
+buf.push('</div>');
+if ( count.status == 'active')
+{
+buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
+}
+buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div>');
+if ( (count.status == 'active'))
+{
+buf.push('<button class="btn btn-primary btn-block">Add Event</button>');
+}
+buf.push('</div></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
+if ( count.expenses.length == 0)
+{
+buf.push('<span id="empty-history">Your history is empty</span>');
+}
+else
+{
+// iterate count.expenses
+;(function(){
+  if ('number' == typeof count.expenses.length) {
+    for (var $index = 0, $$l = count.expenses.length; $index < $$l; $index++) {
+      var expense = count.expenses[$index];
+
+buf.push('');
+    }
+  } else {
+    for (var $index in count.expenses) {
+      var expense = count.expenses[$index];
+
+buf.push('');
+   }
+  }
+}).call(this);
+
+}
+buf.push('</div></div></div></div></div>');
+}
+return buf.join("");
+};
+});
+
 require.register("views/countBase/templates/expense_elem", function(exports, require, module) {
 module.exports = function anonymous(locals, attrs, escape, rethrow, merge
 /**/) {
@@ -1841,27 +1875,59 @@ attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow |
 var buf = [];
 with (locals || {}) {
 var interp;
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span class="caret"></span><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
-buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
-buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who contribute ?</label><div id="leecher-list" class="form-group">');
-// iterate expense.leecher
+buf.push('<div class="panel panel-default"><div class="panel-body"><div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div id="stats-module" class="col-md-4"><div id="user-list" class="col-md-12">');
+// iterate count.users
 ;(function(){
-  if ('number' == typeof expense.leecher.length) {
-    for (var $index = 0, $$l = expense.leecher.length; $index < $$l; $index++) {
-      var leecher = expense.leecher[$index];
+  if ('number' == typeof count.users.length) {
+    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
+      var user = count.users[$index];
 
-buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+buf.push('<div class="row"><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
     }
   } else {
-    for (var $index in expense.leecher) {
-      var leecher = expense.leecher[$index];
+    for (var $index in count.users) {
+      var user = count.users[$index];
 
-buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+buf.push('<div class="row"><button');
+buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
+buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
    }
   }
 }).call(this);
 
-buf.push('</div></div><button class="btn btn-default btn-block delete-expense-elem">Delete</button></div></div>');
+buf.push('</div>');
+if ( count.status == 'active')
+{
+buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
+}
+buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
+if ( count.expenses.length == 0)
+{
+buf.push('<span id="empty-history">Your history is empty</span>');
+}
+else
+{
+// iterate count.expenses
+;(function(){
+  if ('number' == typeof count.expenses.length) {
+    for (var $index = 0, $$l = count.expenses.length; $index < $$l; $index++) {
+      var expense = count.expenses[$index];
+
+buf.push('');
+    }
+  } else {
+    for (var $index in count.expenses) {
+      var expense = count.expenses[$index];
+
+buf.push('');
+   }
+  }
+}).call(this);
+
+}
+buf.push('</div></div></div></div></div>');
 }
 return buf.join("");
 };
@@ -1941,41 +2007,6 @@ buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave 
 }).call(this);
 
 buf.push('</ul><button id="archive-count" class="btn btn-primary btn-block">Close and archive</button></div>');
-}
-return buf.join("");
-};
-});
-
-require.register("views/countBase/templates/stats", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div class="col-md-4"><div id="user-list" class="col-md-12">');
-// iterate count.users
-;(function(){
-  if ('number' == typeof count.users.length) {
-    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
-      var user = count.users[$index];
-
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-    }
-  } else {
-    for (var $index in count.users) {
-      var user = count.users[$index];
-
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-   }
-  }
-}).call(this);
-
-buf.push('</div><div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div></div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div></div>');
 }
 return buf.join("");
 };

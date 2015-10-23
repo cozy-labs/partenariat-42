@@ -9,7 +9,6 @@ var colorSet = require('../../helper/color_set');
 
 var CountView = CountBaseView.extend({
 	id: 'count-screen',
-	template: require('./templates/count'),
 
 	count: null,
 	dataResume: {
@@ -131,8 +130,6 @@ var CountView = CountBaseView.extend({
 			}
 			self.$(event.target).parent().parent().remove();
 		});
-    console.log('length: ', this.expenses)
-    console.log('length: ', this.expenses.length)
     if (this.expenses.length == 0) {
       this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
     }
