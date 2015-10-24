@@ -1,7 +1,11 @@
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
-
+/*
+ * Specific view Wiche manage the balancing module.
+ *
+ * TODO: Separate with a model
+ */
 var SquareView = BaseView.extend({
 	id: 'square-view',
 	template: require('./templates/square'),

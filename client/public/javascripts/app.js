@@ -853,6 +853,10 @@ require.register("views/count/archive_view", function(exports, require, module) 
 var CountBaseView = require('./count_base_view');
 var app = require('../../application');
 
+/*
+ * View for all the archived count, based on the countBaseView (as count).
+ * Shorter because an archive can't be modified
+ */
 var ArchiveView = CountBaseView.extend({
 	id: 'archive-screen',
 
@@ -969,6 +973,9 @@ var colorSet = require('../../helper/color_set');
 
 
 
+/*
+ * The base view for the ACTIVE count, based on the countBaseView class
+ */
 var CountView = CountBaseView.extend({
 	id: 'count-screen',
 
@@ -989,6 +996,9 @@ var CountView = CountBaseView.extend({
 	},
 
 
+  /*
+   * Get the name of the class and check in the collection if he can find it
+   */
 	initialize: function (attributes) {
 		this.count = window.countCollection.models.find(function (count) {
 			if (count.get('name') == attributes.countName) {
@@ -1001,12 +1011,18 @@ var CountView = CountBaseView.extend({
 	},
 
 
+  /*
+   * All the process for add a user in the count
+   */
 	addUser: function () {
 		var userList = this.count.get('users');
 		var newUser = this.$('#count-input-add-user').val();
 		var color = colorSet[userList.length % colorSet.length];
 
+    // Remove precedent alert
 		this.$('#alert-name').remove();
+
+    // Check if the name is taker
 		var nameIsTaken = userList.find(function (elem) {
 			if (elem.name === newUser) {
 				return true;
@@ -1014,58 +1030,56 @@ var CountView = CountBaseView.extend({
 			return false;
 		});
 
+    // Print an alert and quit if the name is taken
 		if (nameIsTaken !== undefined) {
 			this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
 			return;
 		}
 
+    // Add the name to the userlist if not taken
 		userList.push({name: newUser, seed: 0, leech: 0, color: color});
+    // Add the user button to  userlist
 		this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
-		if (this.newExpense !== null) {
-			this.newExpense.addUserToCount(newUser);
-		}
+    // Save the new list of user
 		this.count.save({users: userList});
+
+    // Empty the user input
 		this.$('#count-input-add-user').val('');
+
+    // Update the stats
 		if (this.balancing !== null && this.balancing !== undefined) {
 			this.balancing.update();
 		}
 	},
 
 
+  /*
+   * The new expense editor is manage in a new page in order to make this page
+   * lighter in code and informations. It's also easier we re-render the count
+   * with the new data so we haven't to handle this manually.
+   */
 	lauchNewExpense: function (event) {
-    console.log('plop3');
     app.router.navigate('count/' + this.count.get('name') + '/new-expense', {trigger: true});
-		//if (this.newExpense == null) {
-			//this.newExpense = new AddExpenseView({count: this.count});
-		//}
-
-		//this.$('#add-new-expense').remove();
-		//this.newExpense.render();
-
-		//this.listenToOnce(this.newExpense, 'remove-new-expense', this.removeNewExpense);
-
-		//this.listenToOnce(this.newExpense, 'add-new-expense', function (data) {
-      //this.$('#empty-history').remove();
-			//this.$('#expense-list-view').prepend(this.templateExpense({expense: data}));
-			//this.stats.update();
-			//if (this.balancing !== null && this.balancing !== undefined) {
-				//this.balancing.update();
-			//}
-			//this.removeNewExpense();
-		//});
 	},
 
 
+  /*
+   * Remove an expense
+   */
 	removeNewExpense: function () {
 		this.newExpense.remove();
-		delete this.newExpense
-			this.newExpense= null;
+		delete this.newExpense;
+    this.newExpense= null;
 
+    // Remove the div
 		this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
 	},
 
 
+  /*
+   * Print expand or remove data body of an element of the history
+   */
 	printTransferBody: function (event) {
 		var elem =  $(event.target);
 		if (elem.is('span')) {
@@ -1084,6 +1098,9 @@ var CountView = CountBaseView.extend({
 	},
 
 
+  /*
+   * Remove a history element and update the stats
+   */
 	deleteExpense: function (event) {
 		var id = Number(this.$(event.target).parent().attr('id'));
 		var self = this;
@@ -1110,7 +1127,11 @@ require.register("views/count/square_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
-
+/*
+ * Specific view Wiche manage the balancing module.
+ *
+ * TODO: Separate with a model
+ */
 var SquareView = BaseView.extend({
 	id: 'square-view',
 	template: require('./templates/square'),
