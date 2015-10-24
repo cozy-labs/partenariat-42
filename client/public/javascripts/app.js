@@ -1159,6 +1159,9 @@ var SquareView = BaseView.extend({
 	},
 
 
+  /*
+   * Print or remove the body of the balancing module
+   */
 	clickDisplayer: function () {
 		var displayer = this.$('#square-displayer');
 
@@ -1172,6 +1175,11 @@ var SquareView = BaseView.extend({
 	},
 
 
+  /*
+   * Update and rerender the balancing
+   * TODO: make a manual update to changing directly the values not a
+   * remove/rerender because that trigger a slide up/slide down and it's visible
+   */
 	update: function () {
 		this.setUsersBalancing();
 		this.setSquareMoves();
@@ -1180,6 +1188,9 @@ var SquareView = BaseView.extend({
 	},
 
 
+  /*
+   * Create an array with the name, color and balancing of each user
+   */
 	setUsersBalancing: function () {
 		var allExpenses = this.count.get('allExpenses');
 		var users = this.count.get('users');
@@ -1196,17 +1207,31 @@ var SquareView = BaseView.extend({
 	},
 
 
+  /*
+   * Calcule each moves to balancing the count
+   */
 	setSquareMoves: function () {
 		this.squareMoves = [];
 
+    // copy the userBalancing array
 		var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
 
 		var i = 0;
 
+    /*
+     * The main loop: in each loop we find the biggest leecher and the biggest
+     * seeder and we equalise between their. If one of them have is balancing to
+     * 0 I remove it.
+     *
+     * Repeate the loop while it stay 1 or less user. If one user stay it's the
+     * a "lost", I can't redistribute to any user. The goal it's to make this
+     * lost tinier possible. For now it's max "0.01 * (nb or user -1)"
+     */
 		while (tmpUsers.length > 1 && i++ < 50) {
 			var leecher = null;
 			var indexLeecher = 0;
 
+      // Find the biggest leecher
 			for (index in tmpUsers) {
 				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
 					leecher = {
@@ -1220,6 +1245,7 @@ var SquareView = BaseView.extend({
 			var seeder = null;
 			var indexSeeder = 0;
 
+      // Find the biggest seeder
 			for (index in tmpUsers) {
 				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
 					seeder = {
@@ -1230,15 +1256,19 @@ var SquareView = BaseView.extend({
 				}
 			}
 
+      // Set the amount I can send from the leecher to the seeder to equalize a
+      // max
 			if (leecher.balancing * -1 > seeder.balancing) {
 				exchange = seeder.balancing;
 			} else {
 				exchange = - leecher.balancing;
 			}
 
+      // Set the new balancin
 			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
 			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
 
+      // Add the exchange to the list of exchanges
 			if (exchange !== 0 && exchange !== 'NaN') {
 				this.squareMoves.push({
 					from: leecher.name,
@@ -1247,6 +1277,7 @@ var SquareView = BaseView.extend({
 				});
 			}
 
+      // Remove the leecher of the seeder if their balancing is equal to 0
 			if (leecher.balancing == 0) {
 				tmpUsers.splice(indexLeecher, 1);
 			}
@@ -1257,6 +1288,9 @@ var SquareView = BaseView.extend({
 	},
 
 
+  /*
+   * Archive a count
+   */
 	archive: function (event) {
 		this.count.archive();
 	},
@@ -1276,6 +1310,9 @@ require.register("views/count/stats_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 
 
+/*
+ * Manage all stats in stats module
+ */
 var StatsView = BaseView.extend({
 	el: '#stats-module',
 
@@ -1288,6 +1325,9 @@ var StatsView = BaseView.extend({
 
 
 
+  /*
+   * Create the pie chart and reder it
+   */
 	render: function () {
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
 		var data = this.computeDataCount();
@@ -1295,6 +1335,10 @@ var StatsView = BaseView.extend({
 	},
 
 
+  /*
+   * Compute data needed for the pie chart. We don't add the user with 0 seed
+   * because the update don't work from 0 to X value.
+   */
 	computeDataCount: function () {
     var data = [];
 		this.count.get('users').forEach(function (elem) {
@@ -1306,20 +1350,28 @@ var StatsView = BaseView.extend({
 	},
 
 
+  /*
+   * Update the value of the pie chart
+   */
 	update: function () {
 		var allExpenses = Number(this.count.get('allExpenses'));
 		var nbUsers = Number(this.count.get('users').length);
 
 		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
+    // Update the numbers of the general state (to the right of the pie chart)
 		this.$('#nb-expenses').text(this.count.get('expenses').length);
 		this.$('#all-expenses').text(allExpenses);
 		this.$('#perUser-expenses').text(perUserExpenses);
 
 		var self = this;
 
+    /*
+     * Main loop wiche I update/ create data to the pie chart
+     */
 		this.count.get('users').forEach(function (user, indexUser) {
 			var indexPie = null;
+      // For each user we looking him in the data of the pie chart
 			self.pieChart.segments.find(function (pieSegment, index) {
 				if (pieSegment.label === user.name) {
 					indexPie = index;
@@ -1327,6 +1379,7 @@ var StatsView = BaseView.extend({
 				}
 				return false;
 			})
+      // If we find it we update the chart with the new data in the segment
 			if (indexPie !== undefined && indexPie !== null) {
 				if (user.seed == 0) {
 					self.pieChart.removeData(indexPie);
@@ -1334,6 +1387,7 @@ var StatsView = BaseView.extend({
 					self.pieChart.segments[indexPie].value = user.seed;
 					self.pieChart.update();
 				}
+        // If not we create a new segment
 			} else {
 				self.pieChart.addData({
 					value: user.seed,

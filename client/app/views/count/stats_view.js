@@ -2,6 +2,9 @@
 var BaseView = require('../../lib/base_view');
 
 
+/*
+ * Manage all stats in stats module
+ */
 var StatsView = BaseView.extend({
 	el: '#stats-module',
 
@@ -14,6 +17,9 @@ var StatsView = BaseView.extend({
 
 
 
+  /*
+   * Create the pie chart and reder it
+   */
 	render: function () {
 		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
 		var data = this.computeDataCount();
@@ -21,6 +27,10 @@ var StatsView = BaseView.extend({
 	},
 
 
+  /*
+   * Compute data needed for the pie chart. We don't add the user with 0 seed
+   * because the update don't work from 0 to X value.
+   */
 	computeDataCount: function () {
     var data = [];
 		this.count.get('users').forEach(function (elem) {
@@ -32,20 +42,28 @@ var StatsView = BaseView.extend({
 	},
 
 
+  /*
+   * Update the value of the pie chart
+   */
 	update: function () {
 		var allExpenses = Number(this.count.get('allExpenses'));
 		var nbUsers = Number(this.count.get('users').length);
 
 		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
+    // Update the numbers of the general state (to the right of the pie chart)
 		this.$('#nb-expenses').text(this.count.get('expenses').length);
 		this.$('#all-expenses').text(allExpenses);
 		this.$('#perUser-expenses').text(perUserExpenses);
 
 		var self = this;
 
+    /*
+     * Main loop wiche I update/ create data to the pie chart
+     */
 		this.count.get('users').forEach(function (user, indexUser) {
 			var indexPie = null;
+      // For each user we looking him in the data of the pie chart
 			self.pieChart.segments.find(function (pieSegment, index) {
 				if (pieSegment.label === user.name) {
 					indexPie = index;
@@ -53,6 +71,7 @@ var StatsView = BaseView.extend({
 				}
 				return false;
 			})
+      // If we find it we update the chart with the new data in the segment
 			if (indexPie !== undefined && indexPie !== null) {
 				if (user.seed == 0) {
 					self.pieChart.removeData(indexPie);
@@ -60,6 +79,7 @@ var StatsView = BaseView.extend({
 					self.pieChart.segments[indexPie].value = user.seed;
 					self.pieChart.update();
 				}
+        // If not we create a new segment
 			} else {
 				self.pieChart.addData({
 					value: user.seed,
