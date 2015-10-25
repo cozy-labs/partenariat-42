@@ -6,7 +6,7 @@
   "homepage": "",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git@github.com:Peltoche/SharedCount.git"
   },
   "engines": {
     "node": "~4.1.0"
@@ -15,15 +15,15 @@
     "start": "brunch watch --server"
   },
   "dependencies": {
-    "javascript-brunch": ">= 1.0 < 1.4",
-    "stylus-brunch": ">= 1.0 < 1.4",
+    "javascript-brunch": "~1.8.0",
+    "stylus-brunch": "~1.8.1",
 
-    "css-brunch": ">= 1.0 < 1.4",
+    "css-brunch": "~1.7.0",
 
-    "jade-brunch": ">= 1.0 < 1.4",
+    "jade-brunch": "~1.8.1",
 
-    "uglify-js-brunch": ">= 1.0 < 1.4",
-    "clean-css-brunch": ">= 1.0 < 1.4"
+    "uglify-js-brunch": "~1.7.8",
+    "clean-css-brunch": "~1.7.2"
   },
   "devDependencies": {
     "mocha": "0.14.0",
