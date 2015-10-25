@@ -2,6 +2,9 @@ var BaseView = require('../../../lib/base_view');
 var app = require('../../../application');
 
 
+/*
+ * View for adding an expense to the count
+ */
 var AddExpenseView = BaseView.extend({
 	template: require('./templates/new_expense'),
   id: 'new-expense',

@@ -1753,7 +1753,11 @@ var CountEditorView = BaseView.extend({
 	},
 
 
+  /*
+   *
+   */
 	setCurrency: function (event) {
+    console.log('plop')
 		var selectedCurrency = event.target.value;
 		var currencyIndex = null;
 
