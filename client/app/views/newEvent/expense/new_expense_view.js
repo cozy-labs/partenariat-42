@@ -3,7 +3,8 @@ var app = require('../../../application');
 
 
 /*
- * View for adding an expense to the count
+ * View for adding an expense to the count. That's manage in a new view to make
+ * more easy the history rendering if we add a new expense.
  */
 var AddExpenseView = BaseView.extend({
 	template: require('./templates/new_expense'),
@@ -21,7 +22,13 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
+  /*
+   * Find the correct count with the name in attribute. It can be some conflic
+   * in the url if two count have the same name, so be carefule.
+   */
 	initialize: function (attributes) {
+
+    // Find the count
 		this.count = window.countCollection.models.find(function (count) {
 			if (count.get('name') == attributes.countName) {
 				return true;
@@ -29,6 +36,7 @@ var AddExpenseView = BaseView.extend({
 			return false;
 		});
 
+    // If there is no count, it's a bed url so I redirect to the main page
 		if (this.count == undefined || this.count == null) {
 			console.error('invalide route');
       app.router.navigate('', {trigger: true});
@@ -54,6 +62,9 @@ var AddExpenseView = BaseView.extend({
     };
   },
 
+  /*
+   * Add all the listener to dynamically check if the inputs are correct
+   */
   afterRender: function () {
     this.$('#input-amount')[0].addEventListener('change', (function(_this) {
       return function (event) {_this.data.amount = event.target.value;};
@@ -69,6 +80,9 @@ var AddExpenseView = BaseView.extend({
   },
 
 
+  /*
+   * Set the seeder of the expense or "who paid"
+   */
 	setSeeder: function (event) {
 		var target = this.$(event.target).children().get(0).value;
 		if (this.data.seeder === target) {
@@ -79,6 +93,9 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
+  /*
+   * Set the leechers of the expense or "who take part"
+   */
 	setLeecher: function (event) {
 		var target = this.$(event.target).children().get(0).value;
 		var listLeecher = this.data.leecher;
@@ -101,19 +118,19 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
-	addUserToCount: function (newUser) {
-		this.$('#seeder-list').append('<label class="btn btn-primary seeder"><input type="radio", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
-		this.$('#leecher-list').append('<label class="active btn btn-primary seeder"><input type="checkbox", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
-		this.data.leecher.push({name: newUser});
-	},
-
-
+  /*
+   * Set the currency of the expense
+   */
 	setCurrency: function (event) {
 		this.data.currency = event.target.text;
 		this.$('#choose-currency').text(this.data.currency);
 	},
 
 
+    /*
+     * Check if all inputs are correct and print an alert if it's not, else call
+     * sendNewExpense()
+     */
 	lauchSaveExpense: function () {
 		var data = this.data;
 		var error = false;
@@ -145,11 +162,23 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
+  /*
+   * Generique function to trigger an alert.
+   */
 	errorMessage: function (msg) {
 		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
 	},
 
 
+  /*
+   * Make all cacules to create the set of data to create the bunch of data
+   * needer to each expense. I had lost of issues with the number wiche a some
+   * time manage as string so I cast everything as Number to be sure.
+   *
+   * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
+   * round.
+   * TODO: create a generique function to manage round.
+   */
 	sendNewExpense: function () {
 		var self = this;
 		var newExpensesList = this.count.get('expenses');

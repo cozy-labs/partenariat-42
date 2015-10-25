@@ -2,6 +2,10 @@ var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 var app = require('../../application');
 
+/*
+ * Main view for the sidemenu. Contain the viewCollection count_list_view to
+ * dynamically create a list of the count name  and redirect to the good url.
+ */
 var MenuView = BaseView.extend({
 	el: '#sidebar',
 
