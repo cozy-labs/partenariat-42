@@ -11,7 +11,6 @@ var AllCountView = BaseView.extend({
 
 
 	initialize: function (attributes) {
-    console.log('plop')
 		this.collection = window.countCollection;
 		BaseView.prototype.initialize.call(this);
 	},

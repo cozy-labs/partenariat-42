@@ -158,10 +158,11 @@ var CountEditorView = BaseView.extend({
 
 
   /*
-   *
+   * Set the currencies available of the count
+   * TODO: Move to check input like the users in the add expense to avoid the
+   * manual managing of the overlighting
    */
 	setCurrency: function (event) {
-    console.log('plop')
 		var selectedCurrency = event.target.value;
 		var currencyIndex = null;
 
@@ -190,6 +191,11 @@ var CountEditorView = BaseView.extend({
 	},
 
 
+  /*
+   * Check all inputs to verifies if their are correct. If their wrong an alert
+   * div is trigger. If all inputs are good I save the new count in the
+   * collection server side
+   */
 	lauchCountCreation: function () {
 		var countDescription = this.$('#input-description').val();
 		var countName = this.countName;
@@ -236,12 +242,19 @@ var CountEditorView = BaseView.extend({
 	},
 
 
+    /*
+     * Trigger an alert
+     */
 	errorMessage: function (msg) {
 		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>'+msg+'</div>');
 	},
 
 
 
+    /*
+     * Lauche an update server side
+     * TODO: improve it and ckeck if name is already taken
+     */
 	lauchCountUpdate: function () {
 		var model = window.countCollection.get(this.count);
 		if (model == null || model == undefined) {
