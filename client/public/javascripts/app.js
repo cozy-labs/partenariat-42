@@ -710,7 +710,6 @@ var AllCountView = BaseView.extend({
 
 
 	initialize: function (attributes) {
-    console.log('plop')
 		this.collection = window.countCollection;
 		BaseView.prototype.initialize.call(this);
 	},
@@ -1754,10 +1753,11 @@ var CountEditorView = BaseView.extend({
 
 
   /*
-   *
+   * Set the currencies available of the count
+   * TODO: Move to check input like the users in the add expense to avoid the
+   * manual managing of the overlighting
    */
 	setCurrency: function (event) {
-    console.log('plop')
 		var selectedCurrency = event.target.value;
 		var currencyIndex = null;
 
@@ -1786,6 +1786,11 @@ var CountEditorView = BaseView.extend({
 	},
 
 
+  /*
+   * Check all inputs to verifies if their are correct. If their wrong an alert
+   * div is trigger. If all inputs are good I save the new count in the
+   * collection server side
+   */
 	lauchCountCreation: function () {
 		var countDescription = this.$('#input-description').val();
 		var countName = this.countName;
@@ -1832,12 +1837,19 @@ var CountEditorView = BaseView.extend({
 	},
 
 
+    /*
+     * Trigger an alert
+     */
 	errorMessage: function (msg) {
 		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>'+msg+'</div>');
 	},
 
 
 
+    /*
+     * Lauche an update server side
+     * TODO: improve it and ckeck if name is already taken
+     */
 	lauchCountUpdate: function () {
 		var model = window.countCollection.get(this.count);
 		if (model == null || model == undefined) {
@@ -1902,11 +1914,19 @@ require.register("views/menu/count_list_view", function(exports, require, module
 var ViewCollection = require('../../lib/view_collection');
 var MenuCountRowView = require('./count_row_view');
 
+/*
+ * Manage the name of the count in the menu. That's work as a ViewCollection
+ * linked to a collection. If you add a model to the collection it will be
+ * automatically add to the viewcollection
+ */
 var MenuCountListView = ViewCollection.extend({
 	el: '#menu-list-count',
 
 	itemView: MenuCountRowView,
 
+  /*
+   * Link the viewCollection to the collection
+   */
 	initialize: function (collection) {
 		this.collection = collection;
 		ViewCollection.prototype.initialize.call(this);
@@ -1921,11 +1941,17 @@ require.register("views/menu/count_row_view", function(exports, require, module)
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
+/*
+ * This view represente an element of the viewCollection countListView
+ */
 var MenuCountRowView = BaseView.extend({
 	template: require('./templates/count_row'),
 
 	tagName: 'li',
 
+  /*
+   * Lauch the click listener to render the count
+   */
 	initialize: function () {
 		var self = this;
 		this.$el.click(function () {
@@ -1939,6 +1965,9 @@ var MenuCountRowView = BaseView.extend({
 	},
 
 
+  /*
+   * Reroute  to the count url -> show the view main page
+   */
 	printCount: function () {
 		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
 	},
@@ -1953,6 +1982,10 @@ var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 var app = require('../../application');
 
+/*
+ * Main view for the sidemenu. Contain the viewCollection count_list_view to
+ * dynamically create a list of the count name  and redirect to the good url.
+ */
 var MenuView = BaseView.extend({
 	el: '#sidebar',
 
@@ -2020,6 +2053,10 @@ var BaseView = require('../../../lib/base_view');
 var app = require('../../../application');
 
 
+/*
+ * View for adding an expense to the count. That's manage in a new view to make
+ * more easy the history rendering if we add a new expense.
+ */
 var AddExpenseView = BaseView.extend({
 	template: require('./templates/new_expense'),
   id: 'new-expense',
@@ -2036,7 +2073,13 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
+  /*
+   * Find the correct count with the name in attribute. It can be some conflic
+   * in the url if two count have the same name, so be carefule.
+   */
 	initialize: function (attributes) {
+
+    // Find the count
 		this.count = window.countCollection.models.find(function (count) {
 			if (count.get('name') == attributes.countName) {
 				return true;
@@ -2044,6 +2087,7 @@ var AddExpenseView = BaseView.extend({
 			return false;
 		});
 
+    // If there is no count, it's a bed url so I redirect to the main page
 		if (this.count == undefined || this.count == null) {
 			console.error('invalide route');
       app.router.navigate('', {trigger: true});
@@ -2069,6 +2113,9 @@ var AddExpenseView = BaseView.extend({
     };
   },
 
+  /*
+   * Add all the listener to dynamically check if the inputs are correct
+   */
   afterRender: function () {
     this.$('#input-amount')[0].addEventListener('change', (function(_this) {
       return function (event) {_this.data.amount = event.target.value;};
@@ -2084,6 +2131,9 @@ var AddExpenseView = BaseView.extend({
   },
 
 
+  /*
+   * Set the seeder of the expense or "who paid"
+   */
 	setSeeder: function (event) {
 		var target = this.$(event.target).children().get(0).value;
 		if (this.data.seeder === target) {
@@ -2094,6 +2144,9 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
+  /*
+   * Set the leechers of the expense or "who take part"
+   */
 	setLeecher: function (event) {
 		var target = this.$(event.target).children().get(0).value;
 		var listLeecher = this.data.leecher;
@@ -2116,19 +2169,19 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
-	addUserToCount: function (newUser) {
-		this.$('#seeder-list').append('<label class="btn btn-primary seeder"><input type="radio", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
-		this.$('#leecher-list').append('<label class="active btn btn-primary seeder"><input type="checkbox", autocomplete="off", value="'+newUser+'">' + newUser+'</label>');
-		this.data.leecher.push({name: newUser});
-	},
-
-
+  /*
+   * Set the currency of the expense
+   */
 	setCurrency: function (event) {
 		this.data.currency = event.target.text;
 		this.$('#choose-currency').text(this.data.currency);
 	},
 
 
+    /*
+     * Check if all inputs are correct and print an alert if it's not, else call
+     * sendNewExpense()
+     */
 	lauchSaveExpense: function () {
 		var data = this.data;
 		var error = false;
@@ -2160,11 +2213,23 @@ var AddExpenseView = BaseView.extend({
 	},
 
 
+  /*
+   * Generique function to trigger an alert.
+   */
 	errorMessage: function (msg) {
 		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
 	},
 
 
+  /*
+   * Make all cacules to create the set of data to create the bunch of data
+   * needer to each expense. I had lost of issues with the number wiche a some
+   * time manage as string so I cast everything as Number to be sure.
+   *
+   * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
+   * round.
+   * TODO: create a generique function to manage round.
+   */
 	sendNewExpense: function () {
 		var self = this;
 		var newExpensesList = this.count.get('expenses');
@@ -2200,13 +2265,13 @@ var AddExpenseView = BaseView.extend({
 		}, {
 			wait: true,
 			success: function (data) {
-        app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
+        app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
 			},
 		});
 	},
 
 	resetNewExpense: function () {
-    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
+    app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
 	},
 });
 
