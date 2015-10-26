@@ -31,8 +31,16 @@
           label(for='nb-expenses') Expenses per user:
           p#perUser-expenses #{expensePerUser}
 
-        if (count.status == 'active')
-          button#add-new-expense.btn.btn-primary.btn-block Add Event
+      if (count.status == 'active')
+        .btn-group.btn-block
+          button#add-new-event.btn.btn-lg.btn-success.btn-block(type='button'
+          data-toggle='dropdown')
+            span.caret
+            span &nbsp;Add Event&nbsp;
+            span.caret
+          ul.dropdown-menu.btn-block(aria-labelledby='add-new-event')
+            li#add-new-expense
+              a Add an expense
 
     .panel.panel-primary
       .panel-heading#header-balancing

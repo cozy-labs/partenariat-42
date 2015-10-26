@@ -1437,12 +1437,12 @@ if ( count.status == 'active')
 {
 buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
 }
-buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div>');
+buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div>');
 if ( (count.status == 'active'))
 {
-buf.push('<button id="add-new-expense" class="btn btn-primary btn-block">Add Event</button>');
+buf.push('<div class="btn-group btn-block"><button id="add-new-event" type="button" data-toggle="dropdown" class="btn btn-lg btn-success btn-block"><span class="caret"></span><span>&nbsp;Add Event&nbsp;</span><span class="caret"></span></button><ul aria-labelledby="add-new-event" class="dropdown-menu btn-block"><li id="add-new-expense"><a>Add an expense</a></li></ul></div>');
 }
-buf.push('</div></div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
+buf.push('</div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
 if ( count.expenses.length == 0)
 {
 buf.push('<span id="empty-history">Your history is empty</span>');
@@ -2271,7 +2271,7 @@ var AddExpenseView = BaseView.extend({
 	},
 
 	resetNewExpense: function () {
-    app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
 	},
 });
 

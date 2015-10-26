@@ -220,7 +220,7 @@ var AddExpenseView = BaseView.extend({
 	},
 
 	resetNewExpense: function () {
-    app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
 	},
 });
 
