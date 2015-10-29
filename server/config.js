@@ -10,7 +10,7 @@ var viewStatic = function (req, res, next) {
 	assetsMatched = detectAssets.exec(req.url);
 
 	if (assetsMatched !== null && assetsMatched !== undefined) {
-		req.url = assetMatched[0];
+		req.url = assetsMatched[0];
 	}
 
 	staticMiddleware(req, res, function (err) {

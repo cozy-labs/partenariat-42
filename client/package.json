@@ -1,7 +1,7 @@
 {
-  "author": "Your Name",
-  "name": "package-name",
-  "description": "Package description",
+  "author": "Peltoche",
+  "name": "SharedCount",
+  "description": "A count manager betwen friends",
   "version": "0.0.1",
   "homepage": "",
   "repository": {
@@ -9,24 +9,21 @@
     "url": "git@github.com:Peltoche/SharedCount.git"
   },
   "engines": {
-    "node": "~4.1.0"
+    "node": "~4.2.x"
   },
   "scripts": {
     "start": "brunch watch --server"
   },
   "dependencies": {
-    "javascript-brunch": "~1.8.0",
-    "stylus-brunch": "~1.8.1",
-
+    "javascript-brunch": "~1.7.1",
+    "stylus-brunch": "~1.8.0",
     "css-brunch": "~1.7.0",
-
     "jade-brunch": "~1.8.1",
-
     "uglify-js-brunch": "~1.7.8",
     "clean-css-brunch": "~1.7.2"
   },
   "devDependencies": {
-    "mocha": "0.14.0",
+    "mocha": "1.20.1",
     "expect.js": "0.1.2"
   }
 }

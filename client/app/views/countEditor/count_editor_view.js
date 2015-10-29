@@ -50,7 +50,7 @@ var CountEditorView = BaseView.extend({
    * find the counts by the name). For now we check the archive.
    * TODO: move the archive finding and url management to id
    */
-	checkCountName(event) {
+  checkCountName: function (event) {
 		var countName = event.target.value;
 
     // Check the count collection

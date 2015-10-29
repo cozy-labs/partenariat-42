@@ -16,6 +16,11 @@ module.exports = {
   'count/:id': {
 	delete: count.destroy,
 	put: count.update
+  },
+
+  'public/count/:id': {
+    get: index.public
   }
+
 };
 

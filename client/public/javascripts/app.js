@@ -6,19 +6,19 @@
 
   var modules = {};
   var cache = {};
-  var has = ({}).hasOwnProperty;
-
   var aliases = {};
+  var has = ({}).hasOwnProperty;
 
   var endsWith = function(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
   };
 
+  var _cmp = 'components/';
   var unalias = function(alias, loaderPath) {
     var start = 0;
     if (loaderPath) {
-      if (loaderPath.indexOf('components/' === 0)) {
-        start = 'components/'.length;
+      if (loaderPath.indexOf(_cmp) === 0) {
+        start = _cmp.length;
       }
       if (loaderPath.indexOf('/', start) > 0) {
         loaderPath = loaderPath.substring(start, loaderPath.indexOf('/', start));
@@ -26,33 +26,32 @@
     }
     var result = aliases[alias + '/index.js'] || aliases[loaderPath + '/deps/' + alias + '/index.js'];
     if (result) {
-      return 'components/' + result.substring(0, result.length - '.js'.length);
+      return _cmp + result.substring(0, result.length - '.js'.length);
     }
     return alias;
   };
 
-  var expand = (function() {
-    var reg = /^\.\.?(\/|$)/;
-    return function(root, name) {
-      var results = [], parts, part;
-      parts = (reg.test(name) ? root + '/' + name : name).split('/');
-      for (var i = 0, length = parts.length; i < length; i++) {
-        part = parts[i];
-        if (part === '..') {
-          results.pop();
-        } else if (part !== '.' && part !== '') {
-          results.push(part);
-        }
+  var _reg = /^\.\.?(\/|$)/;
+  var expand = function(root, name) {
+    var results = [], part;
+    var parts = (_reg.test(name) ? root + '/' + name : name).split('/');
+    for (var i = 0, length = parts.length; i < length; i++) {
+      part = parts[i];
+      if (part === '..') {
+        results.pop();
+      } else if (part !== '.' && part !== '') {
+        results.push(part);
       }
-      return results.join('/');
-    };
-  })();
+    }
+    return results.join('/');
+  };
+
   var dirname = function(path) {
     return path.split('/').slice(0, -1).join('/');
   };
 
   var localRequire = function(path) {
-    return function(name) {
+    return function expanded(name) {
       var absolute = expand(dirname(path), name);
       return globals.require(absolute, path);
     };
@@ -107,6 +106,7 @@
   };
 
   require.brunch = true;
+  require._cache = cache;
   globals.require = require;
 })();
 require.register("application", function(exports, require, module) {
@@ -640,63 +640,76 @@ module.exports = ArchiveRowView;
 });
 
 require.register("views/allArchives/templates/all_archive", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body">');
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),numberArchives = locals_.numberArchives;
+buf.push("<div class=\"panel panel-default\"><div class=\"panel-body\">");
 if ( numberArchives > 0)
 {
-buf.push('<ul id="list-view" class="nav nav-sidebar"></ul>');
+buf.push("<ul id=\"list-view\" class=\"nav nav-sidebar\"></ul>");
 }
 else
 {
-buf.push('<div class="page-header"><h1>No archive yet</h1><p>When you archieve some account you can find it here :)</p></div>');
+buf.push("<div class=\"page-header\"><h1>No archive yet</h1><p>When you archieve some account you can find it here :)</p></div>");
 }
-buf.push('</div></div>');
-}
-return buf.join("");
+buf.push("</div></div>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/allArchives/templates/archive_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+;require.register("views/allArchives/templates/archive_row", function(exports, require, module) {
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-primary"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body"><label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div><label for="user-list">Users</label><div id="user-list" class="form-group">');
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),model = locals_.model;
+buf.push("<div class=\"panel panel-primary\"><div class=\"panel-heading\">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</div><div class=\"panel-body\"><label for=\"description\">Description</label><div id=\"description\" class=\"form-group\"><p>" + (jade.escape((jade_interp = model.description) == null ? '' : jade_interp)) + "</p></div><label for=\"user-list\">Users</label><div id=\"user-list\" class=\"form-group\">");
 // iterate model.users
 ;(function(){
-  if ('number' == typeof model.users.length) {
-    for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
-      var user = model.users[$index];
+  var $$obj = model.users;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var user = $$obj[$index];
+
+buf.push("<button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</button>");
     }
-  } else {
-    for (var $index in model.users) {
-      var user = model.users[$index];
 
-buf.push('<button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var user = $$obj[$index];
+
+buf.push("<button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</button>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="archive-see-count btn btn-primary btn-block">See</button></div></div></div>');
-}
-return buf.join("");
+buf.push("</div><div class=\"form-group\"><button class=\"archive-see-count btn btn-primary btn-block\">See</button></div></div></div>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/allCount/all_count_view", function(exports, require, module) {
+;require.register("views/allCount/all_count_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 
@@ -796,59 +809,72 @@ module.exports = CountRowView;
 });
 
 require.register("views/allCount/templates/all_count", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><ul id="list-view" class="nav nav-sidebar"><button id="create-new-count" class="btn btn-default">Create New Count</button></ul></div></div>');
-}
-return buf.join("");
+var jade_mixins = {};
+var jade_interp;
+
+buf.push("<div class=\"panel panel-default\"><div class=\"panel-body\"><ul id=\"list-view\" class=\"nav nav-sidebar\"><button id=\"create-new-count\" class=\"btn btn-default\">Create New Count</button></ul></div></div>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/allCount/templates/count_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+;require.register("views/allCount/templates/count_row", function(exports, require, module) {
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-primary"><div class="panel-heading">' + escape((interp = model.name) == null ? '' : interp) + '</div><div class="panel-body">');
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),model = locals_.model;
+buf.push("<div class=\"panel panel-primary\"><div class=\"panel-heading\">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</div><div class=\"panel-body\">");
 if ( model.description)
 {
-buf.push('<label for="description">Description</label><div id="description" class="form-group"><p>' + escape((interp = model.description) == null ? '' : interp) + '</p></div>');
+buf.push("<label for=\"description\">Description</label><div id=\"description\" class=\"form-group\"><p>" + (jade.escape((jade_interp = model.description) == null ? '' : jade_interp)) + "</p></div>");
 }
-buf.push('<label for="user-list">Users</label><div id="user-list" class="form-group">');
+buf.push("<label for=\"user-list\">Users</label><div id=\"user-list\" class=\"form-group\">");
 // iterate model.users
 ;(function(){
-  if ('number' == typeof model.users.length) {
-    for (var $index = 0, $$l = model.users.length; $index < $$l; $index++) {
-      var user = model.users[$index];
+  var $$obj = model.users;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var user = $$obj[$index];
+
+buf.push("<button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</button>");
     }
-  } else {
-    for (var $index in model.users) {
-      var user = model.users[$index];
 
-buf.push('<button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var user = $$obj[$index];
+
+buf.push("<button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</button>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div><div class="form-group"><button class="count-see btn btn-default btn-block">See</button><button class="count-modify btn btn-default btn-block">Modify</button><button class="count-delete btn btn-default btn-block">Delete</button></div></div></div>');
-}
-return buf.join("");
+buf.push("</div><div class=\"form-group\"><button class=\"count-see btn btn-default btn-block\">See</button><button class=\"count-modify btn btn-default btn-block\">Modify</button><button class=\"count-delete btn btn-default btn-block\">Delete</button></div></div></div>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/count/archive_view", function(exports, require, module) {
+;require.register("views/count/archive_view", function(exports, require, module) {
 var CountBaseView = require('./count_base_view');
 var app = require('../../application');
 
@@ -1404,195 +1430,225 @@ module.exports = StatsView;
 });
 
 require.register("views/count/templates/count", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div class="panel panel-default"><div class="panel-body"><div class="panel panel-primary"><div class="panel-heading">Users</div><div class="panel-body"><div id="stats-module"><div class="col-md-4"><div id="user-list" class="col-md-12">');
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),count = locals_.count,expensePerUser = locals_.expensePerUser;
+buf.push("<div class=\"panel panel-default\"><div class=\"panel-body\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">Users</div><div class=\"panel-body\"><div id=\"stats-module\"><div class=\"col-md-4\"><div id=\"user-list\" class=\"col-md-12\">");
 // iterate count.users
 ;(function(){
-  if ('number' == typeof count.users.length) {
-    for (var $index = 0, $$l = count.users.length; $index < $$l; $index++) {
-      var user = count.users[$index];
+  var $$obj = count.users;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var user = $$obj[$index];
+
+buf.push("<div class=\"row\"><button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</button></div>");
     }
-  } else {
-    for (var $index in count.users) {
-      var user = count.users[$index];
 
-buf.push('<div class="row"><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + '</button></div>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var user = $$obj[$index];
+
+buf.push("<div class=\"row\"><button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</button></div>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div>');
+buf.push("</div>");
 if ( count.status == 'active')
 {
-buf.push('<div id="name-alert" class="row col-md-12"><div class="input-group"><form><input id="count-input-add-user" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="count-lauch-add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div>');
+buf.push("<div id=\"name-alert\" class=\"row col-md-12\"><div class=\"input-group\"><form><input id=\"count-input-add-user\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"count-lauch-add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div>");
 }
-buf.push('</div><div id="canvas-block" class="col-md-4 col-xs-6"><h4>Expenses per users</h4><canvas id="chart-users" width="150" height="150"></canvas></div></div><div class="col-md-4 col-xs-6"><label for="all-expenses">All Expenses:</label><p id="all-expenses">' + escape((interp = count.allExpenses) == null ? '' : interp) + '</p><label for="nb-expenses">Number Expenses:</label><p id="nb-expenses">' + escape((interp = count.expenses.length) == null ? '' : interp) + '</p><label for="nb-expenses">Expenses per user:</label><p id="perUser-expenses">' + escape((interp = expensePerUser) == null ? '' : interp) + '</p></div></div>');
+buf.push("</div><div id=\"canvas-block\" class=\"col-md-4 col-xs-6\"><h4>Expenses per users</h4><canvas id=\"chart-users\" width=\"150\" height=\"150\"></canvas></div></div><div class=\"col-md-4 col-xs-6\"><label for=\"all-expenses\">All Expenses:</label><p id=\"all-expenses\">" + (jade.escape((jade_interp = count.allExpenses) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Number Expenses:</label><p id=\"nb-expenses\">" + (jade.escape((jade_interp = count.expenses.length) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Expenses per user:</label><p id=\"perUser-expenses\">" + (jade.escape((jade_interp = expensePerUser) == null ? '' : jade_interp)) + "</p></div></div>");
 if ( (count.status == 'active'))
 {
-buf.push('<div class="btn-group btn-block"><button id="add-new-event" type="button" data-toggle="dropdown" class="btn btn-lg btn-success btn-block"><span class="caret"></span><span>&nbsp;Add Event&nbsp;</span><span class="caret"></span></button><ul aria-labelledby="add-new-event" class="dropdown-menu btn-block"><li id="add-new-expense"><a>Add an expense</a></li></ul></div>');
+buf.push("<div class=\"btn-group btn-block\"><button id=\"add-new-event\" type=\"button\" data-toggle=\"dropdown\" class=\"btn btn-lg btn-success btn-block\"><span class=\"caret\"></span><span>&nbsp;Add Event&nbsp;</span><span class=\"caret\"></span></button><ul aria-labelledby=\"add-new-event\" class=\"dropdown-menu btn-block\"><li id=\"add-new-expense\"><a>Add an expense</a></li></ul></div>");
 }
-buf.push('</div><div class="panel panel-primary"><div id="header-balancing" class="panel-heading"><span class="caret"></span><span>&nbsp;Balancing</span></div><div id="module-balancing"></div></div><div class="panel panel-primary"><div class="panel-heading">History</div><div class="panel-body"><div id="expense-list-view">');
+buf.push("</div><div class=\"panel panel-primary\"><div id=\"header-balancing\" class=\"panel-heading\"><span class=\"caret\"></span><span>&nbsp;Balancing</span></div><div id=\"module-balancing\"></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\">History</div><div class=\"panel-body\"><div id=\"expense-list-view\">");
 if ( count.expenses.length == 0)
 {
-buf.push('<span id="empty-history">Your history is empty</span>');
+buf.push("<span id=\"empty-history\">Your history is empty</span>");
 }
 else
 {
 // iterate count.expenses
 ;(function(){
-  if ('number' == typeof count.expenses.length) {
-    for (var $index = 0, $$l = count.expenses.length; $index < $$l; $index++) {
-      var expense = count.expenses[$index];
+  var $$obj = count.expenses;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span class="caret"></span><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
-buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
-buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who contribute ?</label><div id="leecher-list" class="form-group">');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var expense = $$obj[$index];
+
+buf.push("<div class=\"panel panel-default\"><div class=\"panel-heading header-expense-elem\"><span class=\"caret\"></span><span> " + (jade.escape((jade_interp = expense.name) == null ? '' : jade_interp)) + "</span><span style=\"float: right\">" + (jade.escape((jade_interp = expense.amount) == null ? '' : jade_interp)) + " " + (jade.escape((jade_interp = expense.currency.name) == null ? '' : jade_interp)) + "</span></div><div style=\"display: none\"" + (jade.attr("id", "" + (expense.id) + "", true, false)) + " class=\"panel-body\"><label for=\"seeder\">Who have paid ?</label><div id=\"seeder\"></div><button class=\"btn\">" + (jade.escape((jade_interp = expense.seeder) == null ? '' : jade_interp)) + "</button><div class=\"form-group\"><label for=\"leecher-list\">Who contribute ?</label><div id=\"leecher-list\" class=\"form-group\">");
 // iterate expense.leecher
 ;(function(){
-  if ('number' == typeof expense.leecher.length) {
-    for (var $index = 0, $$l = expense.leecher.length; $index < $$l; $index++) {
-      var leecher = expense.leecher[$index];
+  var $$obj = expense.leecher;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var leecher = $$obj[$index];
+
+buf.push("<button class=\"btn\">" + (jade.escape((jade_interp = leecher.name) == null ? '' : jade_interp)) + "</button>");
     }
-  } else {
-    for (var $index in expense.leecher) {
-      var leecher = expense.leecher[$index];
 
-buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var leecher = $$obj[$index];
+
+buf.push("<button class=\"btn\">" + (jade.escape((jade_interp = leecher.name) == null ? '' : jade_interp)) + "</button>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div></div><button class="btn btn-default btn-block delete-expense-elem">Delete</button></div></div>');
+buf.push("</div></div><button class=\"btn btn-default btn-block delete-expense-elem\">Delete</button></div></div>");
     }
-  } else {
-    for (var $index in count.expenses) {
-      var expense = count.expenses[$index];
 
-buf.push('<div class="panel panel-default"><div class="panel-heading header-expense-elem"><span class="caret"></span><span> ' + escape((interp = expense.name) == null ? '' : interp) + '</span><span style="float: right">' + escape((interp = expense.amount) == null ? '' : interp) + ' ' + escape((interp = expense.currency.name) == null ? '' : interp) + '</span></div><div');
-buf.push(attrs({ 'style':('display: none'), 'id':("" + (expense.id) + ""), "class": ('panel-body') }, {"style":true,"id":true}));
-buf.push('><label for="seeder">Who have paid ?</label><div id="seeder"></div><button class="btn">' + escape((interp = expense.seeder) == null ? '' : interp) + '</button><div class="form-group"><label for="leecher-list">Who contribute ?</label><div id="leecher-list" class="form-group">');
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var expense = $$obj[$index];
+
+buf.push("<div class=\"panel panel-default\"><div class=\"panel-heading header-expense-elem\"><span class=\"caret\"></span><span> " + (jade.escape((jade_interp = expense.name) == null ? '' : jade_interp)) + "</span><span style=\"float: right\">" + (jade.escape((jade_interp = expense.amount) == null ? '' : jade_interp)) + " " + (jade.escape((jade_interp = expense.currency.name) == null ? '' : jade_interp)) + "</span></div><div style=\"display: none\"" + (jade.attr("id", "" + (expense.id) + "", true, false)) + " class=\"panel-body\"><label for=\"seeder\">Who have paid ?</label><div id=\"seeder\"></div><button class=\"btn\">" + (jade.escape((jade_interp = expense.seeder) == null ? '' : jade_interp)) + "</button><div class=\"form-group\"><label for=\"leecher-list\">Who contribute ?</label><div id=\"leecher-list\" class=\"form-group\">");
 // iterate expense.leecher
 ;(function(){
-  if ('number' == typeof expense.leecher.length) {
-    for (var $index = 0, $$l = expense.leecher.length; $index < $$l; $index++) {
-      var leecher = expense.leecher[$index];
+  var $$obj = expense.leecher;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var leecher = $$obj[$index];
+
+buf.push("<button class=\"btn\">" + (jade.escape((jade_interp = leecher.name) == null ? '' : jade_interp)) + "</button>");
     }
-  } else {
-    for (var $index in expense.leecher) {
-      var leecher = expense.leecher[$index];
 
-buf.push('<button class="btn">' + escape((interp = leecher.name) == null ? '' : interp) + '</button>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var leecher = $$obj[$index];
+
+buf.push("<button class=\"btn\">" + (jade.escape((jade_interp = leecher.name) == null ? '' : jade_interp)) + "</button>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div></div><button class="btn btn-default btn-block delete-expense-elem">Delete</button></div></div>');
-   }
+buf.push("</div></div><button class=\"btn btn-default btn-block delete-expense-elem\">Delete</button></div></div>");
+    }
+
   }
 }).call(this);
 
 }
-buf.push('</div></div></div></div></div>');
-}
-return buf.join("");
+buf.push("</div></div></div></div></div>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/count/templates/square", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+;require.register("views/count/templates/square", function(exports, require, module) {
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<div id="square-displayer" style="display: none" class="panel-body"><label for="balancing">Balancing:</label><ul id="balancing">');
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),users = locals_.users,squareMoves = locals_.squareMoves;
+buf.push("<div id=\"square-displayer\" style=\"display: none\" class=\"panel-body\"><label for=\"balancing\">Balancing:</label><ul id=\"balancing\">");
 // iterate users
 ;(function(){
-  if ('number' == typeof users.length) {
-    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
-      var user = users[$index];
+  var $$obj = users;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<li><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var user = $$obj[$index];
+
+buf.push("<li><button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + ":</button>");
 if ( user.balancing == 0)
 {
-buf.push('<span style="color: blue">&nbsp;ok</span>');
+buf.push("<span style=\"color: blue\">&nbsp;ok</span>");
 }
 if ( user.balancing > 0)
 {
-buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push("<span style=\"color: green\">&nbsp;+" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
 }
 if ( user.balancing < 0)
 {
-buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push("<span style=\"color: red\">&nbsp;" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
 }
-buf.push('</li>');
+buf.push("</li>");
     }
-  } else {
-    for (var $index in users) {
-      var user = users[$index];
 
-buf.push('<li><button');
-buf.push(attrs({ 'style':("background-color: #" + (user.color) + ""), "class": ('btn') }, {"style":true}));
-buf.push('>' + escape((interp = user.name) == null ? '' : interp) + ':</button>');
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var user = $$obj[$index];
+
+buf.push("<li><button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + ":</button>");
 if ( user.balancing == 0)
 {
-buf.push('<span style="color: blue">&nbsp;ok</span>');
+buf.push("<span style=\"color: blue\">&nbsp;ok</span>");
 }
 if ( user.balancing > 0)
 {
-buf.push('<span style="color: green">&nbsp;+' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push("<span style=\"color: green\">&nbsp;+" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
 }
 if ( user.balancing < 0)
 {
-buf.push('<span style="color: red">&nbsp;' + escape((interp = user.balancing) == null ? '' : interp) + '</span>');
+buf.push("<span style=\"color: red\">&nbsp;" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
 }
-buf.push('</li>');
-   }
+buf.push("</li>");
+    }
+
   }
 }).call(this);
 
-buf.push('</ul><label for="balancing">How to be square:</label><ul id="square">');
+buf.push("</ul><label for=\"balancing\">How to be square:</label><ul id=\"square\">");
 // iterate squareMoves
 ;(function(){
-  if ('number' == typeof squareMoves.length) {
-    for (var $index = 0, $$l = squareMoves.length; $index < $$l; $index++) {
-      var move = squareMoves[$index];
+  var $$obj = squareMoves;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var move = $$obj[$index];
+
+buf.push("<li>[" + (jade.escape((jade_interp = move.from) == null ? '' : jade_interp)) + "] gave [" + (jade.escape((jade_interp = move.exchange) == null ? '' : jade_interp)) + "] to [" + (jade.escape((jade_interp = move.to) == null ? '' : jade_interp)) + "]</li>");
     }
-  } else {
-    for (var $index in squareMoves) {
-      var move = squareMoves[$index];
 
-buf.push('<li>[' + escape((interp = move.from) == null ? '' : interp) + '] gave [' + escape((interp = move.exchange) == null ? '' : interp) + '] to [' + escape((interp = move.to) == null ? '' : interp) + ']</li>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var move = $$obj[$index];
+
+buf.push("<li>[" + (jade.escape((jade_interp = move.from) == null ? '' : jade_interp)) + "] gave [" + (jade.escape((jade_interp = move.exchange) == null ? '' : jade_interp)) + "] to [" + (jade.escape((jade_interp = move.to) == null ? '' : jade_interp)) + "]</li>");
+    }
+
   }
 }).call(this);
 
-buf.push('</ul><button id="archive-count" class="btn btn-primary btn-block">Close and archive</button></div>');
-}
-return buf.join("");
+buf.push("</ul><button id=\"archive-count\" class=\"btn btn-primary btn-block\">Close and archive</button></div>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/countEditor/count_editor_view", function(exports, require, module) {
+;require.register("views/countEditor/count_editor_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
@@ -1645,7 +1701,7 @@ var CountEditorView = BaseView.extend({
    * find the counts by the name). For now we check the archive.
    * TODO: move the archive finding and url management to id
    */
-	checkCountName(event) {
+  checkCountName: function (event) {
 		var countName = event.target.value;
 
     // Check the count collection
@@ -1886,30 +1942,32 @@ module.exports = CountEditorView;
 });
 
 require.register("views/countEditor/templates/count_editor", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),model = locals_.model;
 if ( model)
 {
-buf.push('<h1>' + escape((interp = model.name) == null ? '' : interp) + '</h1><form><div class="form-group"><label for="input-name">Count Name</label><input');
-buf.push(attrs({ 'id':('input-name'), 'type':('text'), 'placeholder':('Name'), 'value':("" + (model.name) + ""), "class": ('form-control') }, {"type":true,"placeholder":true,"value":true}));
-buf.push('/></div><div class="form-group"><label for="input-description">Count Description</label><input');
-buf.push(attrs({ 'id':('input-description'), 'type':('text'), 'placeholder':('Description'), 'value':("" + (model.description) + ""), "class": ('form-control') }, {"type":true,"placeholder":true,"value":true}));
-buf.push('/></div><button id="submit-editor" class="btn btn-default">Submit</button></form>');
+buf.push("<h1>" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</h1><form><div class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\"" + (jade.attr("value", "" + (model.name) + "", true, false)) + " class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\"" + (jade.attr("value", "" + (model.description) + "", true, false)) + " class=\"form-control\"/></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></form>");
 }
 else
 {
-buf.push('<div class="page-header"><h1>New count</h1><small>A new count is juste a folder where you can put some friends and</small>create a fictional history of who paid what and who owe who. Each count is\ntotaly separate to other count so each user create in this one is not linked\n(yet) with the others count. If you don\'t understand just try, you will see !</div><div id="formular"><div id="input-name-grp" class="form-group"><label for="input-name">Count Name</label><input id="input-name" type="text" placeholder="Name" class="form-control"/></div><div class="form-group"><label for="input-description">Count Description</label><input id="input-description" type="text" placeholder="Description" class="form-control"/></div><label for="currency">Count Currencies</label><div id="currency" class="form-group"><button type="button" value="€" class="btn btn-default currency">€</button><button type="button" value="$" class="btn btn-default currency">$</button></div><div class="form-group"><div id="list-users" class="btn-group"></div></div><label for="input-user-grp">Count Users</label><div id="input-user-grp" class="form-group"><div class="input-group"><form><input id="input-users" type="text" placeholder="My name" class="form-control"/><span class="input-group-btn"><input id="add-user" type="submit" value="Add user" class="btn btn-default"/></span></form></div></div><div id="name-alert"></div><button id="submit-editor" class="btn btn-default">Submit</button></div>');
-}
-}
-return buf.join("");
+buf.push("<div class=\"page-header\"><h1>New count</h1><small>A new count is juste a folder where you can put some friends and</small>create a fictional history of who paid what and who owe who. Each count is\ntotaly separate to other count so each user create in this one is not linked\n(yet) with the others count. If you don't understand just try, you will see !</div><div id=\"formular\"><div id=\"input-name-grp\" class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\" class=\"form-control\"/></div><label for=\"currency\">Count Currencies</label><div id=\"currency\" class=\"form-group\"><button type=\"button\" value=\"€\" class=\"btn btn-default currency\">€</button><button type=\"button\" value=\"$\" class=\"btn btn-default currency\">$</button></div><div class=\"form-group\"><div id=\"list-users\" class=\"btn-group\"></div></div><label for=\"input-user-grp\">Count Users</label><div id=\"input-user-grp\" class=\"form-group\"><div class=\"input-group\"><form><input id=\"input-users\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div><div id=\"name-alert\"></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></div>");
+};return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/menu/count_list_view", function(exports, require, module) {
+;require.register("views/menu/count_list_view", function(exports, require, module) {
 
 var ViewCollection = require('../../lib/view_collection');
 var MenuCountRowView = require('./count_row_view');
@@ -2034,21 +2092,25 @@ module.exports = MenuView;
 });
 
 require.register("views/menu/templates/count_row", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<a');
-buf.push(attrs({ 'id':('count-' + (model.name) + '') }, {"id":true}));
-buf.push('>' + escape((interp = model.name) == null ? '' : interp) + '</a>');
-}
-return buf.join("");
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),model = locals_.model;
+buf.push("<a" + (jade.attr("id", 'count-' + (model.name) + '', true, false)) + ">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</a>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-require.register("views/newEvent/expense/new_expense_view", function(exports, require, module) {
+;require.register("views/newEvent/expense/new_expense_view", function(exports, require, module) {
 var BaseView = require('../../../lib/base_view');
 var app = require('../../../application');
 
@@ -2280,71 +2342,92 @@ module.exports = AddExpenseView;
 });
 
 require.register("views/newEvent/expense/templates/new_expense", function(exports, require, module) {
-module.exports = function anonymous(locals, attrs, escape, rethrow, merge
-/**/) {
-attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
+var __templateData = function template(locals) {
 var buf = [];
-with (locals || {}) {
-var interp;
-buf.push('<form id="add-expense-displayer" class="form-group"><div id="alert-zone"></div><label for="input-name">Expense Name</label><input id="input-name" type="text" placeholder="Shopping..." maxlength="40" required="required" autofocus="autofocus" class="form-control"/><div class="form-group"><label for="input-description">Expense Description</label><textarea id="input-description" rows="5" class="form-control"></textarea></div><div class="form-group"><label for="input-amount">Amount</label><div class="input-group"><input id="input-amount" type="number" placeholder="42.21" aria-label="..." required="required" class="form-control"/><div class="input-group-btn"><button id="choose-currency" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-default dropdown-toggle">' + escape((interp = currencies[0].name) == null ? '' : interp) + '</button><ul class="dropdown-menu dropdown-menu-right">');
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),currencies = locals_.currencies,users = locals_.users;
+buf.push("<form id=\"add-expense-displayer\" class=\"form-group\"><div id=\"alert-zone\"></div><label for=\"input-name\">Expense Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Shopping...\" maxlength=\"40\" required=\"required\" autofocus=\"autofocus\" class=\"form-control\"/><div class=\"form-group\"><label for=\"input-description\">Expense Description</label><textarea id=\"input-description\" rows=\"5\" class=\"form-control\"></textarea></div><div class=\"form-group\"><label for=\"input-amount\">Amount</label><div class=\"input-group\"><input id=\"input-amount\" type=\"number\" placeholder=\"42.21\" aria-label=\"...\" required=\"required\" class=\"form-control\"/><div class=\"input-group-btn\"><button id=\"choose-currency\" type=\"button\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"btn btn-default dropdown-toggle\">" + (jade.escape((jade_interp = currencies[0].name) == null ? '' : jade_interp)) + "</button><ul class=\"dropdown-menu dropdown-menu-right\">");
 // iterate currencies
 ;(function(){
-  if ('number' == typeof currencies.length) {
-    for (var $index = 0, $$l = currencies.length; $index < $$l; $index++) {
-      var currency = currencies[$index];
+  var $$obj = currencies;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<li class="currency"><a>' + escape((interp = currency.name) == null ? '' : interp) + '</a></li>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var currency = $$obj[$index];
+
+buf.push("<li class=\"currency\"><a>" + (jade.escape((jade_interp = currency.name) == null ? '' : jade_interp)) + "</a></li>");
     }
-  } else {
-    for (var $index in currencies) {
-      var currency = currencies[$index];
 
-buf.push('<li class="currency"><a>' + escape((interp = currency.name) == null ? '' : interp) + '</a></li>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var currency = $$obj[$index];
+
+buf.push("<li class=\"currency\"><a>" + (jade.escape((jade_interp = currency.name) == null ? '' : jade_interp)) + "</a></li>");
+    }
+
   }
 }).call(this);
 
-buf.push('</ul></div></div></div><label for="seeder-list">Who Paid ?</label><div class="form-group"><div id="seeder-list" data-toggle="buttons" class="btn-group">');
+buf.push("</ul></div></div></div><label for=\"seeder-list\">Who Paid ?</label><div class=\"form-group\"><div id=\"seeder-list\" data-toggle=\"buttons\" class=\"btn-group\">");
 // iterate users
 ;(function(){
-  if ('number' == typeof users.length) {
-    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
-      var user = users[$index];
+  var $$obj = users;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var user = $$obj[$index];
+
+buf.push("<label class=\"btn btn-primary seeder\"><input type='radio', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
     }
-  } else {
-    for (var $index in users) {
-      var user = users[$index];
 
-buf.push('<label class="btn btn-primary seeder"><input type=\'radio\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var user = $$obj[$index];
+
+buf.push("<label class=\"btn btn-primary seeder\"><input type='radio', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div></div><label for="leecher-list">Who take Part ?</label><div class="form-group"><div id="leecher-list" data-toggle="buttons" class="btn-group">');
+buf.push("</div></div><label for=\"leecher-list\">Who take Part ?</label><div class=\"form-group\"><div id=\"leecher-list\" data-toggle=\"buttons\" class=\"btn-group\">");
 // iterate users
 ;(function(){
-  if ('number' == typeof users.length) {
-    for (var $index = 0, $$l = users.length; $index < $$l; $index++) {
-      var user = users[$index];
+  var $$obj = users;
+  if ('number' == typeof $$obj.length) {
 
-buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
+    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
+      var user = $$obj[$index];
+
+buf.push("<label class=\"btn btn-primary leecher active\"><input type='checkbox', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
     }
-  } else {
-    for (var $index in users) {
-      var user = users[$index];
 
-buf.push('<label class="btn btn-primary leecher active"><input type=\'checkbox\', autocomplete=\'off\', value="' + escape((interp = user.name) == null ? '' : interp) + '"> ' + escape((interp = user.name) == null ? '' : interp) + '</label>');
-   }
+  } else {
+    var $$l = 0;
+    for (var $index in $$obj) {
+      $$l++;      var user = $$obj[$index];
+
+buf.push("<label class=\"btn btn-primary leecher active\"><input type='checkbox', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
+    }
+
   }
 }).call(this);
 
-buf.push('</div></div><div class="form-group"><button id="add-expense-save" type="submit" class="btn btn-primary btn-block">Save</button><button id="add-expense-cancel" class="btn btn-primary btn-block">Cancel</button></div></form>');
-}
-return buf.join("");
+buf.push("</div></div><div class=\"form-group\"><button id=\"add-expense-save\" type=\"submit\" class=\"btn btn-primary btn-block\">Save</button><button id=\"add-expense-cancel\" class=\"btn btn-primary btn-block\">Cancel</button></div></form>");;return buf.join("");
 };
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
 });
 
-
+;
 //# sourceMappingURL=app.js.map
