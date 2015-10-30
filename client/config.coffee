@@ -13,6 +13,7 @@ exports.config =
       # * map of ('outputFilePath': /regExp that matches input path/)
       # * map of ('outputFilePath': function that takes input path)
       joinTo:
+        'javascripts/app_public.js': /^client_public/
         'javascripts/app.js': /^app/
         'javascripts/vendor.js': /^vendor/
       # Defines compilation order.

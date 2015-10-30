@@ -9,7 +9,6 @@ module.exports.index = function (req, res, next) {
 };
 
 module.exports.public = function (req, res, next) {
-  console.log('params: ', req.params.id);
   Count.find(req.params.id, function (err, count) {
     if (err !== null && err !== undefined) {
       console.error('Finding public url error');
@@ -18,6 +17,10 @@ module.exports.public = function (req, res, next) {
     if (count === null) {
       console.log('Bad public url recieve');
       res.render('404.jade');
+      return;
     }
+
+    res.render('index_public.jade',
+        {imports: 'window.count = ' + JSON.stringify(count) + ''});
   });
 };

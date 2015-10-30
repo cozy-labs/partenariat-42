@@ -16,9 +16,9 @@ var Count = require('models/count');
 
 var Router = Backbone.Router.extend({
 
-	mainScreen: null,
-	mainMenu: null,
-	currentButton: null,
+  mainScreen: null,
+  mainMenu: null,
+  currentButton: null,
 
   /*
    * I Fetch all the data from the server in during the router initialization
@@ -26,25 +26,25 @@ var Router = Backbone.Router.extend({
    *
    * The main HTML is already render server side, be remain the count list
    */
-	initialize: function () {
+  initialize: function () {
     this.initializeCollections();
 
-		this.mainMenu = new MenuView();
-		this.mainMenu.renderCounts();
+    this.mainMenu = new MenuView();
+    this.mainMenu.renderCounts();
 
-		Backbone.Router.prototype.initialize.call(this);
-	},
+    Backbone.Router.prototype.initialize.call(this);
+  },
 
 
-	routes: {
-		''									    	: 'mainBoard',
-		'count/create'			     	: 'countEditor',
-		'count/update/:id'     		: 'countEditor',
-		'count/:name'				  	  : 'printCount',
+  routes: {
+    ''									    	: 'mainBoard',
+    'count/create'			     	: 'countEditor',
+    'count/update/:id'     		: 'countEditor',
+    'count/:name'				  	  : 'printCount',
     'count/:name/new-expense' : 'newExpense',
-		'archive'							    : 'printAllArchive',
-		'archive/:name'			    	: 'printArchive',
-	},
+    'archive'							    : 'printAllArchive',
+    'archive/:name'			    	: 'printArchive',
+  },
 
 
   /*
@@ -52,102 +52,102 @@ var Router = Backbone.Router.extend({
    *
    * If the is not count I redirect to the count creation
    */
-	mainBoard: function () {
-		if (window.countCollection.length === 0) {
-			this.navigate('count/create', {trigger: true});
-		} else {
-			this.selectInMenu($('#menu-all-count').parent());
-			view = new AllCountView();
+  mainBoard: function () {
+    if (window.countCollection.length === 0) {
+      this.navigate('count/create', {trigger: true});
+    } else {
+      this.selectInMenu($('#menu-all-count').parent());
+      view = new AllCountView();
 
-			this.displayView(view);
-		}
-	},
+      this.displayView(view);
+    }
+  },
 
 
   /*
    * This view is used for count creation and count modifiation too.
    * If the count id is defined there is an udpade otherwise it's a creation
    */
-	countEditor: function (countId) {
-		this.selectInMenu($('#menu-add-count').parent());
-		view = new CountEditorView({countId: countId});
+  countEditor: function (countId) {
+    this.selectInMenu($('#menu-add-count').parent());
+    view = new CountEditorView({countId: countId});
 
-		this.displayView(view);
-	},
+    this.displayView(view);
+  },
 
 
   /*
    * Screen for create a new expense
    */
   newExpense: function (countName) {
-		this.selectInMenu($('#count-'+countName).parent());
+    this.selectInMenu($('#count-'+countName).parent());
 
-		view = new NewExpense({countName: countName});
+    view = new NewExpense({countName: countName});
 
-		this.displayView(view);
+    this.displayView(view);
   },
 
 
   /*
    * Count printer
    */
-	printCount: function (countName) {
-		this.selectInMenu($('#count-'+countName).parent());
+  printCount: function (countName) {
+    this.selectInMenu($('#count-'+countName).parent());
 
-		view = new CountView({countName: countName});
+    view = new CountView({countName: countName});
 
-		this.displayView(view);
-	},
+    this.displayView(view);
+  },
 
 
   /*
    * Print all archives
    */
-	printAllArchive: function () {
-		this.selectInMenu($('#menu-archives').parent());
-		view = new AllArchiveView();
+    printAllArchive: function () {
+      this.selectInMenu($('#menu-archives').parent());
+      view = new AllArchiveView();
 
-		this.displayView(view);
-	},
+      this.displayView(view);
+    },
 
 
-  /*
-   * Print specifique archive
-   * TODO: Check if we select with archive id or name, need to be with archive
-   * to avoid url conflic with count
-   */
-	printArchive: function (archiveName) {
-		this.selectInMenu($('#menu-archives').parent());
-		view = new ArchiveView({countName: archiveName});
+    /*
+     * Print specifique archive
+     * TODO: Check if we select with archive id or name, need to be with archive
+     * to avoid url conflic with count
+     */
+  printArchive: function (archiveName) {
+    this.selectInMenu($('#menu-archives').parent());
+    view = new ArchiveView({countName: archiveName});
 
-		this.displayView(view);
-	},
+    this.displayView(view);
+  },
 
 
   /*
    * Manage menu overlight, must be call in all path
    */
-	selectInMenu: function (button) {
-		if (this.currentButton !== null) {
-			this.currentButton.removeClass('active');
-		}
-		this.currentButton = button;
-		this.currentButton.addClass('active');
-	},
+      selectInMenu: function (button) {
+        if (this.currentButton !== null) {
+          this.currentButton.removeClass('active');
+        }
+        this.currentButton = button;
+        this.currentButton.addClass('active');
+      },
 
 
-  /*
-   * Generique function to manage view printing, must be call if you want print
-   * a screen
-   */
-	displayView: function (view) {
-		if (this.mainView !== null && this.mainView !== undefined) {
-			this.mainView.remove();
-		}
-		this.mainView = view;
-		$('#content-screen').append(view.$el);
-		view.render();
-	},
+      /*
+       * Generique function to manage view printing, must be call if you want print
+       * a screen
+       */
+    displayView: function (view) {
+      if (this.mainView !== null && this.mainView !== undefined) {
+        this.mainView.remove();
+      }
+      this.mainView = view;
+      $('#content-screen').append(view.$el);
+      view.render();
+    },
 
 
   /*
@@ -156,27 +156,27 @@ var Router = Backbone.Router.extend({
    * - countCollection
    * - archiveCollection
    */
-	initializeCollections: function () {
-		window.countCollection = new CountList();
-		window.archiveCollection = new CountList();
+    initializeCollections: function () {
+      window.countCollection = new CountList();
+      window.archiveCollection = new CountList();
 
-		if (window.listCount == null || window.listCount == undefined || window.listCount == "") {
-			console.log('listCount empty');
-			return;
-		}
+      if (window.listCount == null || window.listCount == undefined || window.listCount == "") {
+        console.log('listCount empty');
+        return;
+      }
 
-		for (index in window.listCount) {
-			var count = window.listCount[index];
-			if (count.status === 'active') {
-				var newCount = new Count(count);
-				window.countCollection.add(newCount);
-			}
-			else if (count.status === 'archive') {
-				var newCount = new Count(count);
-				window.archiveCollection.add(newCount);
-			}
-		}
-	},
+      for (index in window.listCount) {
+        var count = window.listCount[index];
+        if (count.status === 'active') {
+          var newCount = new Count(count);
+          window.countCollection.add(newCount);
+        }
+        else if (count.status === 'archive') {
+          var newCount = new Count(count);
+          window.archiveCollection.add(newCount);
+        }
+      }
+    },
 });
 
 module.exports = Router;

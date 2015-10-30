@@ -1,4 +1,3 @@
-
 // Application bootstrapper.
 var Application = {
   initialize: function () {

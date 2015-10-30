@@ -273,7 +273,7 @@ var CountEditorView = BaseView.extend({
 			error: function (xhr) {
 				console.error (xhr);
 			},
-			success: function () {
+			success: function (data) {
 				view = _.find(app.router.mainMenu.countCollectionView.views, function (view) {
 					if (view.model.cid == model.cid) {
 						return (view.model);
