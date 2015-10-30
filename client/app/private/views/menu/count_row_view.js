@@ -1,5 +1,5 @@
-var BaseView = require('../../lib/base_view');
-var app = require('../../application');
+var BaseView = require('../../../lib/base_view');
+var app = require('../../../application');
 
 /*
  * This view represente an element of the viewCollection countListView

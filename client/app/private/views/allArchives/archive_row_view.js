@@ -1,6 +1,6 @@
-var BaseView = require('../../lib/base_view');
+var BaseView = require('../../../lib/base_view');
 
-var app = require('../../application');
+var app = require('../../../application');
 
 var ArchiveRowView = BaseView.extend({
 	template: require('./templates/archive_row'),

@@ -1,5 +1,5 @@
 
-var ViewCollection = require('../../lib/view_collection');
+var ViewCollection = require('../../../lib/view_collection');
 var CountRowView = require('./count_row_view');
 
 var CountListView = ViewCollection.extend({

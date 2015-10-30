@@ -1,4 +1,4 @@
-var BaseView = require('../../lib/base_view');
+var BaseView = require('../../../lib/base_view');
 var ArchiveListView = require('./archive_list_view');
 
 var AllArchiveView = BaseView.extend({

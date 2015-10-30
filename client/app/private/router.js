@@ -1,18 +1,19 @@
 
+console.log('router private')
 // View list
-var AllCountView = require('views/allCount/all_count_view');
-var AllArchiveView = require('views/allArchives/all_archive_view');
+var AllCountView = require('./views/allCount/all_count_view');
+var AllArchiveView = require('./views/allArchives/all_archive_view');
 
 // View screen
-var CountView = require('views/count/count_view');
-var MenuView = require('views/menu/menu_view');
-var CountEditorView = require('views/countEditor/count_editor_view');
-var ArchiveView = require('views/count/archive_view');
-var NewExpense = require('views/newEvent/expense/new_expense_view');
+var CountView = require('../views/count/count_view');
+var MenuView = require('./views/menu/menu_view');
+var CountEditorView = require('./views/countEditor/count_editor_view');
+var ArchiveView = require('../views/count/archive_view');
+var NewExpense = require('../views/newEvent/expense/new_expense_view');
 
 // Models
-var CountList = require('collections/count_list');
-var Count = require('models/count');
+var CountList = require('./collections/count_list');
+var Count = require('../models/count');
 
 var Router = Backbone.Router.extend({
 

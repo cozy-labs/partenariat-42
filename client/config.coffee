@@ -13,8 +13,8 @@ exports.config =
       # * map of ('outputFilePath': /regExp that matches input path/)
       # * map of ('outputFilePath': function that takes input path)
       joinTo:
-        'javascripts/app_public.js': /^client_public/
-        'javascripts/app.js': /^app/
+        'javascripts/app_public.js': (url) -> url.indexOf('/private/') == -1
+        'javascripts/app.js': (url) -> url.indexOf('/public/') == -1
         'javascripts/vendor.js': /^vendor/
       # Defines compilation order.
       # `vendor` files will be compiled before other ones
@@ -36,17 +36,6 @@ exports.config =
         after: []
     templates:
       defaultExtension: 'jade'
-      joinTo: 'javascripts/app.js'
-
-  # Change this if you're using something other than backbone (e.g. 'ember').
-  # Content of files, generated with `brunch generate` depends on the setting.
-  # framework: 'backbone'
-
-  # Settings of web server that will run with `brunch watch [--server]`.
-  # server:
-  #   # Path to your server node.js module.
-  #   # If it's commented-out, brunch will use built-in express.js server.
-  #   path: 'server.coffee'
-  #   port: 3333
-  #   # Run even without `--server` option?
-  #   run: yes
+      joinTo:
+        'javascripts/app_public.js': (url) -> url.indexOf('/private/') == -1
+        'javascripts/app.js': (url) -> url.indexOf('/public/') == -1
