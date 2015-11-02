@@ -1,4 +1,3 @@
-require('./view_helper');
 
 // Base class for all views.
 var BaseView = Backbone.View.extend({

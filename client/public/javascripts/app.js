@@ -173,7 +173,6 @@ $(function () {
 
   Backbone.history.start();
 
-
   // Lauche listenert for responsive menu
   $('[data-toggle=offcanvas]').click(function() {
     $('.row-offcanvas').toggleClass('active');
@@ -183,7 +182,6 @@ $(function () {
 });
 
 require.register("private/lib/base_view", function(exports, require, module) {
-require('./view_helper');
 
 // Base class for all views.
 var BaseView = Backbone.View.extend({
@@ -375,7 +373,6 @@ module.exports = Count;
 
 require.register("private/router", function(exports, require, module) {
 
-console.log('router private')
 // View list
 var AllCountView = require('./views/allCount/all_count_view');
 var AllArchiveView = require('./views/allArchives/all_archive_view');
@@ -383,7 +380,8 @@ var AllArchiveView = require('./views/allArchives/all_archive_view');
 // View screen
 var CountView = require('./views/count/count_view');
 var MenuView = require('./views/menu/menu_view');
-var CountEditorView = require('./views/countEditor/count_editor_view');
+var CountUpdateView = require('./views/countEditor/count_update_view');
+var CountCreationView = require('./views/countEditor/count_creation_view');
 var ArchiveView = require('./views/count/archive_view');
 var NewExpense = require('./views/newEvent/expense/new_expense_view');
 
@@ -414,13 +412,13 @@ var Router = Backbone.Router.extend({
 
 
   routes: {
-    ''									    	: 'mainBoard',
-    'count/create'			     	: 'countEditor',
-    'count/update/:id'     		: 'countEditor',
-    'count/:name'				  	  : 'printCount',
-    'count/:name/new-expense' : 'newExpense',
-    'archive'							    : 'printAllArchive',
-    'archive/:name'			    	: 'printArchive',
+    ''				         	: 'mainBoard',
+    'count/create'	        	: 'countCreation',
+    'count/update/:id' 	    	: 'countUpdate',
+    'count/:id'                 : 'printCount',
+    'count/:name/new-expense'   : 'newExpense',
+    'archive'				    : 'printAllArchive',
+    'archive/:name'		    	: 'printArchive',
   },
 
 
@@ -442,12 +440,23 @@ var Router = Backbone.Router.extend({
 
 
   /*
-   * This view is used for count creation and count modifiation too.
-   * If the count id is defined there is an udpade otherwise it's a creation
+   * This view is used for count modification
    */
-  countEditor: function (countId) {
+  countUpdate: function (countId) {
+    count = window.countCollection.get(countId);
+    this.selectInMenu($('#count-'+ count.get('name')).parent());
+    view = new CountUpdateView({count: count});
+
+    this.displayView(view);
+  },
+
+
+  /*
+   * This view is used for count creation
+   */
+  countCreation: function () {
     this.selectInMenu($('#menu-add-count').parent());
-    view = new CountEditorView({countId: countId});
+    view = new CountCreationView();
 
     this.displayView(view);
   },
@@ -1647,7 +1656,8 @@ if (typeof define === 'function' && define.amd) {
 }
 });
 
-;require.register("private/views/countEditor/count_editor_view", function(exports, require, module) {
+;require.register("private/views/countEditor/count_creation_view", function(exports, require, module) {
+var CountEditionBase = require('./count_edition_base');
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
@@ -1661,37 +1671,202 @@ var colorSet = require('../../helper/color_set');
  * It's an update when this.count is defined, so we update this count else if we
  * find no count it's a creation.
  */
-var CountEditorView = BaseView.extend({
-	id: 'count-editor-screen',
-	template: require('./templates/count_editor'),
+var CountCreationView = CountEditionBase.extend({
+  template: require('./templates/count_creation'),
+  templateUrl: require('./templates/url'),
 
-	events: {
-		'click #submit-editor':	'submitEditor',
-		'click #add-user'			: 'addUser',
-		'click .currency'			: 'setCurrency',
-	},
+  events: {
+    'click #submit-editor'  : 'submitEditor',
+    'click #add-user'		: 'addUser',
+    'click .currency'		: 'setCurrency',
+    'click #input-public'   : 'setPublic'
+  },
 
 
-	initialize: function (params) {
+  initialize: function (params) {
 
     this.userList = [];
     this.currencies = [];
     this.countName = '';
     this.nameIsUsed = false;
+    this.isPublic = false;
 
-		this.count = params.countId;
-		BaseView.prototype.initialize.call(this);
-	},
+    BaseView.prototype.initialize.call(this);
+  },
 
 
   /*
    * Add a listener in the changes of the input of name
    */
-	afterRender: function () {
-		this.$('#input-name')[0].addEventListener('change', (function(_this) {
-			return function (event) {_this.checkCountName(event);};
-		})(this));
-	},
+  afterRender: function () {
+    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.checkCountName(event);};
+    })(this));
+  },
+
+
+  /*
+   * Check if the name is already taken is the count. If it taken it put an
+   * alert else he add a button with the name.
+   */
+  addUser: function (event) {
+    var color = colorSet[this.userList.length % colorSet.length];
+    var newUser = this.$('#input-users').val();
+
+    this.$('#alert-name').remove();
+
+    // Check if the name is already in the userList
+    var nameIsTaken = this.userList.find(function (user) {
+      if (user.name === newUser) {
+        return true;
+      }
+      return false;
+    });
+
+    // If there is a name we put the alert
+    if (nameIsTaken !== undefined) {
+      this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      return;
+    }
+
+    // Else we create a user
+    if (newUser.length > 0) {
+      this.userList.push({
+        name: newUser,
+        seed: 0,
+        leech: 0,
+        color: color
+      });
+
+      // Add the button
+      this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
+      // Add empty the input
+      this.$('#input-users').val('');
+    }
+  },
+
+
+  /*
+   * Set the currencies available of the count
+   * TODO: Move to check input like the users in the add expense to avoid the
+   * manual managing of the overlighting
+   */
+    setCurrency: function (event) {
+      var selectedCurrency = event.target.value;
+      var currencyIndex = null;
+
+      this.currencies.find(function (elem, index) {
+        if (elem.name == selectedCurrency) {
+          currencyIndex = index;
+          return true;
+        }
+        return false;
+      });
+
+      var btnTarget = this.$(event.target);
+
+      if (currencyIndex == null) {
+        btnTarget.removeClass('btn-default');
+        btnTarget.addClass('btn-info');
+        this.currencies.push({
+          name: selectedCurrency,
+          taux: 1,
+        });
+      } else {
+        btnTarget.removeClass('btn-info');
+        btnTarget.addClass('btn-default');
+        this.currencies.splice(currencyIndex, 1);
+      }
+    },
+
+
+    /*
+     * Check all inputs to verifies if their are correct. If their wrong an alert
+     * div is trigger. If all inputs are good I save the new count in the
+     * collection server side
+     */
+    lauchCountCreation: function () {
+      var countDescription = this.$('#input-description').val();
+      var countName = this.countName;
+
+      var error = false;
+
+      this.$('#alert-zone').remove();
+      this.$('#formular').prepend('<div id="alert-zone"></div>');
+
+      if (this.nameIsUsed == true) {
+        this.errorMessage('Your namee is already use');
+        error = true;
+      }
+      if (this.countName.length <= 0) {
+        this.errorMessage('Your count need a name');
+        error = true;
+      }
+      if (this.userList.length <= 0) {
+        this.errorMessage('Your count need almost one user');
+        error = true;
+      }
+      if (this.currencies.length <= 0) {
+        this.errorMessage('Your count need almost one currency');
+        error = true;
+      }
+
+      if (error === false) {
+        window.countCollection.create({
+          name: this.countName,
+          description: countDescription,
+          users: this.userList,
+          currencies: this.currencies,
+          isPublic: this.isPublic,
+          status: 'active',
+        },{
+          wait: true,
+          success: function () {
+            app.router.navigate('count/' + countName, {trigger: true});
+          },
+          error: function (xhr) {
+            console.error(xhr);
+            app.router.navigate('', {trigger: true});
+          }});
+      }
+    },
+});
+
+module.exports = CountCreationView;
+
+});
+
+require.register("private/views/countEditor/count_edition_base", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+var colorSet = require('../../helper/color_set');
+
+/*
+ * View wiche manage the editing for an update or a creation of a view
+ * I make the both in the same class because it's exactly the same data to
+ * manage.
+ *
+ * It's an update when this.count is defined, so we update this count else if we
+ * find no count it's a creation.
+ */
+var CountEditorBase = BaseView.extend({
+  id: 'count-editor-screen',
+
+
+  /*
+   * Add a listener in the changes of the input of name
+   */
+  afterRender: function () {
+    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.checkCountName(event);};
+    })(this));
+    if (this.count !== null && this.count.get('isPublic') == true) {
+      this.setPublic();
+      this.$('#input-public').attr('checked');
+    }
+  },
+
 
 
   /*
@@ -1701,15 +1876,15 @@ var CountEditorView = BaseView.extend({
    * TODO: move the archive finding and url management to id
    */
   checkCountName: function (event) {
-		var countName = event.target.value;
+    var countName = event.target.value;
 
     // Check the count collection
-		var nameIsTaken = window.countCollection.find(function (elem) {
-			if (elem.get('name')== countName) {
-				return true;
-			}
-			return false;
-		});
+    var nameIsTaken = window.countCollection.find(function (elem) {
+      if (elem.get('name')== countName) {
+        return true;
+      }
+      return false;
+    });
 
     // Check the archive collection
     if (nameIsTaken === undefined || nameIsTaken === null) {
@@ -1721,239 +1896,206 @@ var CountEditorView = BaseView.extend({
       });
     }
 
-		var inputGrp = this.$('#input-name-grp');
+    var inputGrp = this.$('#input-name-grp');
     // If name is tacken I add an alert
-		if (nameIsTaken !== null && nameIsTaken !== undefined) {
-			if (this.nameIsUsed === false) {
-				inputGrp.addClass('has-error');
-				inputGrp.append('<div id="name-used" class="alert alert-danger" role="alert">Name already use</div>');
-				this.nameIsUsed = true;
-			}
-		} else {
+    if (nameIsTaken !== null && nameIsTaken !== undefined) {
+      if (this.nameIsUsed === false) {
+        inputGrp.addClass('has-error');
+        inputGrp.append('<div id="name-used" class="alert alert-danger" role="alert">Name already use</div>');
+        this.nameIsUsed = true;
+      }
+    } else {
       // Else we set the count name
-				if (this.nameIsUsed === true) {
-					this.$('#name-used').remove();
-					inputGrp.removeClass('has-error');
-					this.nameIsUsed = false;
-				}
-				this.countName = countName;
-		}
-	},
+      if (this.nameIsUsed === true) {
+        this.$('#name-used').remove();
+        inputGrp.removeClass('has-error');
+        this.nameIsUsed = false;
+      }
+      return countName;
+    }
+  },
 
 
-  /*
-   * TODO: explain that...
-   */
-	getRenderData: function () {
-		if (this.count != null && this.count != undefined) {
-			var model = window.countCollection.get(this.count);
-			return ({model: model.toJSON()});
-		}
-		return ({model: null});
-	},
-
-
-  /*
-   * Manage if there is an update or a creation and send to the good methode
-   */
-	submitEditor: function () {
-		if (this.count == null || this.count == undefined) {
-			this.lauchCountCreation();
-			return;
-		}
-
-		this.lauchCountUpdate();
-	},
-
-
-  /*
-   * Check if the name is already taken is the count. If it taken it put an
-   * alert else he add a button with the name.
-   */
-	addUser: function (event) {
-		var color = colorSet[this.userList.length % colorSet.length];
-		var newUser = this.$('#input-users').val();
-
-		this.$('#alert-name').remove();
-
-    // Check if the name is already in the userList
-		var nameIsTaken = this.userList.find(function (user) {
-			if (user.name === newUser) {
-				return true;
-			}
-			return false;
-		});
-
-    // If there is a name we put the alert
-		if (nameIsTaken !== undefined) {
-			this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
-			return;
-		}
-
-    // Else we create a user
-		if (newUser.length > 0) {
-			this.userList.push({
-				name: newUser,
-				seed: 0,
-				leech: 0,
-				color: color
-			});
-
-      // Add the button
-			this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
-      // Add empty the input
-      this.$('#input-users').val('');
-		}
-	},
-
-
-  /*
-   * Set the currencies available of the count
-   * TODO: Move to check input like the users in the add expense to avoid the
-   * manual managing of the overlighting
-   */
-	setCurrency: function (event) {
-		var selectedCurrency = event.target.value;
-		var currencyIndex = null;
-
-		this.currencies.find(function (elem, index) {
-			if (elem.name == selectedCurrency) {
-				currencyIndex = index;
-				return true;
-			}
-			return false;
-		});
-
-		var btnTarget = this.$(event.target);
-
-		if (currencyIndex == null) {
-			btnTarget.removeClass('btn-default');
-			btnTarget.addClass('btn-info');
-			this.currencies.push({
-				name: selectedCurrency,
-				taux: 1,
-			});
-		} else {
-			btnTarget.removeClass('btn-info');
-			btnTarget.addClass('btn-default');
-			this.currencies.splice(currencyIndex, 1);
-		}
-	},
-
-
-  /*
-   * Check all inputs to verifies if their are correct. If their wrong an alert
-   * div is trigger. If all inputs are good I save the new count in the
-   * collection server side
-   */
-	lauchCountCreation: function () {
-		var countDescription = this.$('#input-description').val();
-		var countName = this.countName;
-
-		var error = false;
-
-		this.$('#alert-zone').remove();
-		this.$('#formular').prepend('<div id="alert-zone"></div>');
-
-		if (this.nameIsUsed == true) {
-			this.errorMessage('Your namee is already use');
-			error = true;
-		}
-		if (this.countName.length <= 0) {
-			this.errorMessage('Your count need a name');
-			error = true;
-		}
-		if (this.userList.length <= 0) {
-			this.errorMessage('Your count need almost one user');
-			error = true;
-		}
-		if (this.currencies.length <= 0) {
-			this.errorMessage('Your count need almost one currency');
-			error = true;
-		}
-
-		if (error === false) {
-			window.countCollection.create({
-				name: this.countName,
-				description: countDescription,
-				users: this.userList,
-				currencies: this.currencies,
-				status: 'active',
-			},{
-				wait: true,
-				success: function () {
-					app.router.navigate('count/' + countName, {trigger: true});
-				},
-				error: function (xhr) {
-					console.error(xhr);
-					app.router.navigate('', {trigger: true});
-				}});
-		}
-	},
-
-
-    /*
-     * Trigger an alert
-     */
-	errorMessage: function (msg) {
-		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>'+msg+'</div>');
-	},
-
-
-
-    /*
-     * Lauche an update server side
-     * TODO: improve it and ckeck if name is already taken
-     */
-	lauchCountUpdate: function () {
-		var model = window.countCollection.get(this.count);
-		if (model == null || model == undefined) {
-			console.error('Can\'t retrieve model');
-			app.router.navigate('', {trigger: true});
-			return;
-		}
-
-		var change = {
-			name: this.$('#input-name').val(),
-			description: this.$('#input-description').val(),
-		};
-		model.set(change);
-
-		model.sync('update', model, {
-			error: function (xhr) {
-				console.error (xhr);
-			},
-			success: function (data) {
-				view = _.find(app.router.mainMenu.countCollectionView.views, function (view) {
-					if (view.model.cid == model.cid) {
-						return (view.model);
-					}
-					return (null);
-				});
-				view.render();
-				app.router.navigate('', {trigger: true});
-			}});
-	},
+    errorMessage: function (msg) {
+      this.$('#alert-zone').append('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>'+msg+'</div>');
+    },
 });
 
-module.exports = CountEditorView;
+module.exports = CountEditorBase;
 
 });
 
-require.register("private/views/countEditor/templates/count_editor", function(exports, require, module) {
+require.register("private/views/countEditor/count_update_view", function(exports, require, module) {
+var CountEditionBase = require('./count_edition_base');
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+var colorSet = require('../../helper/color_set');
+
+/*
+ * View wiche manage the editing for an update or a creation of a view
+ * I make the both in the same class because it's exactly the same data to
+ * manage.
+ *
+ * It's an update when this.count is defined, so we update this count else if we
+ * find no count it's a creation.
+ */
+var CountUpdateView = CountEditionBase.extend({
+  id: 'count-editor-screen',
+  template: require('./templates/count_update'),
+  templateUrl: require('./templates/url'),
+
+  events: {
+    'click #submit-editor'  : 'lauchCountUpdate',
+    'click #input-public'   : 'setPublic'
+  },
+
+
+  initialize: function (params) {
+
+    this.count = params.count;
+
+    if (this.count == null || this.count == undefined) {
+      console.error("Error: retrieve count update");
+    }
+
+    BaseView.prototype.initialize.call(this);
+  },
+
+
+  /*
+   * Add a listener in the changes on the input of name. That permit a dynamique
+   * warning.
+   */
+  afterRender: function () {
+    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      return function (event) {
+        var res = _this.checkCountName(event);
+        if (res != null) {
+          _this.count.set('name', res);
+        }
+      };
+    })(this));
+
+    if (this.count !== null && this.count.get('isPublic') == true) {
+      this.setPublic();
+    }
+  },
+
+
+  /*
+   * Set the variable <this.isPublic> which will set the credential to the futur
+   * access from the public area.
+   */
+  setPublic: function () {
+    if (this.count.get('isPublic') == false) {
+      this.count.set('isPublic', true);
+      this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
+    } else {
+      this.count.set('isPublic', false);
+      this.$('#public-section-body').remove();
+    }
+  },
+
+  /*
+   *
+   */
+  createPublicUrl: function () {
+
+    if (window.domain == false || window.domain == undefined || window.domain == null) {
+      return (window.location.origin + '/public/count/' + this.count.id);
+    } else {
+      return (window.domain + '/public/count/' + this.count.id);
+    }
+  },
+
+
+
+  getRenderData: function () {
+    if (this.count != null) {
+      return ({model: this.count.toJSON()});
+    }
+    return ({model: null});
+  },
+
+
+  /*
+   * Lauche an update server side
+   * TODO: improve it and ckeck if name is already taken
+   */
+    lauchCountUpdate: function () {
+      this.count.set('description', this.$('#input-description').val());
+
+      this.count.save(this.count.attributes, {
+        wait: true,
+        error: function (xhr) {
+          console.error (xhr);
+        },
+        success: function (data) {
+          app.router.navigate('/count/' + data.get('name'), {trigger: true});
+        }
+      });
+    },
+});
+
+module.exports = CountUpdateView;
+
+});
+
+require.register("private/views/countEditor/templates/count_creation", function(exports, require, module) {
+var __templateData = function template(locals) {
+var buf = [];
+var jade_mixins = {};
+var jade_interp;
+
+buf.push("<div class=\"page-header\"><h1>New count</h1><small>A new count is juste a folder where you can put some friends and</small>create a fictional history of who paid what and who owe who. Each count is\ntotaly separate to other count so each user create in this one is not linked\n(yet) with the others count. If you don't understand just try, you will see !</div><div id=\"formular\"><div id=\"input-name-grp\" class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\" class=\"form-control\"/></div><label for=\"currency\">Count Currencies</label><div id=\"currency\" class=\"form-group\"><button type=\"button\" value=\"€\" class=\"btn btn-default currency\">€</button><button type=\"button\" value=\"$\" class=\"btn btn-default currency\">$</button></div><div class=\"form-group\"><div id=\"list-users\" class=\"btn-group\"></div></div><label for=\"input-user-grp\">Count Users</label><div id=\"input-user-grp\" class=\"form-group\"><div class=\"input-group\"><form><input id=\"input-users\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div><div id=\"name-alert\"></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></div>");;return buf.join("");
+};
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
+});
+
+;require.register("private/views/countEditor/templates/count_update", function(exports, require, module) {
 var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
 var locals_ = (locals || {}),model = locals_.model;
-if ( model)
+buf.push("<h1>" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</h1><form><div class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\"" + (jade.attr("value", "" + (model.name) + "", true, false)) + " class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\"" + (jade.attr("value", "" + (model.description) + "", true, false)) + " class=\"form-control\"/></div><div class=\"panel panel-primary\"><div class=\"panel-heading\">Public</div><div class=\"panel-body\"><div id=\"public-section\" class=\"col-md-6\"><div class=\"form-group\"><div data-toggle=\"buttons\" class=\"btn-group\"><label id=\"input-public\" class=\"btn btn-primary leecher\">");
+if ( model.isPublic)
 {
-buf.push("<h1>" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</h1><form><div class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\"" + (jade.attr("value", "" + (model.name) + "", true, false)) + " class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\"" + (jade.attr("value", "" + (model.description) + "", true, false)) + " class=\"form-control\"/></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></form>");
+buf.push("<input type='checkbox' autocomplete=\"off\"><Make>this count private</Make>");
 }
 else
 {
-buf.push("<div class=\"page-header\"><h1>New count</h1><small>A new count is juste a folder where you can put some friends and</small>create a fictional history of who paid what and who owe who. Each count is\ntotaly separate to other count so each user create in this one is not linked\n(yet) with the others count. If you don't understand just try, you will see !</div><div id=\"formular\"><div id=\"input-name-grp\" class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\" class=\"form-control\"/></div><label for=\"currency\">Count Currencies</label><div id=\"currency\" class=\"form-group\"><button type=\"button\" value=\"€\" class=\"btn btn-default currency\">€</button><button type=\"button\" value=\"$\" class=\"btn btn-default currency\">$</button></div><div class=\"form-group\"><div id=\"list-users\" class=\"btn-group\"></div></div><label for=\"input-user-grp\">Count Users</label><div id=\"input-user-grp\" class=\"form-group\"><div class=\"input-group\"><form><input id=\"input-users\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div><div id=\"name-alert\"></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></div>");
-};return buf.join("");
+buf.push("<input id=\"input-public\" type='checkbox' autocomplete=\"off\"> Make this count public");
+}
+buf.push("</label></div></div></div><div class=\"col-md-6\"><p>You can make this count public, which mean that everyone who try to</p><access>the address below will see the count and will have the</access><possibility>to modify it.</possibility></div></div></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></form>");;return buf.join("");
+};
+if (typeof define === 'function' && define.amd) {
+  define([], function() {
+    return __templateData;
+  });
+} else if (typeof module === 'object' && module && module.exports) {
+  module.exports = __templateData;
+} else {
+  __templateData;
+}
+});
+
+;require.register("private/views/countEditor/templates/url", function(exports, require, module) {
+var __templateData = function template(locals) {
+var buf = [];
+var jade_mixins = {};
+var jade_interp;
+var locals_ = (locals || {}),url = locals_.url;
+buf.push("<div id=\"public-section-body\"><label for=\"public-url\">Url to share:</label><p id=\"public-url\"> " + (jade.escape((jade_interp = url) == null ? '' : jade_interp)) + "</p></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

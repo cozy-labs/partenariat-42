@@ -34,16 +34,7 @@ var CountView = CountBaseView.extend({
    * navigation there must be juste one count available, set in the router
    */
   initialize: function (attributes) {
-    if (app.isPublic == false) {
-      this.count = window.countCollection.models.find(function (count) {
-        if (count.get('name') == attributes.countName) {
-          return true;
-        }
-        return false;
-      });
-    } else {
-      this.count = app.router.count;
-    }
+    this.count = app.router.count;
 
     console.log('id: ', this.count.id);
     CountBaseView.prototype.initialize.call(this);
@@ -99,7 +90,7 @@ var CountView = CountBaseView.extend({
    * with the new data so we haven't to handle this manually.
    */
   lauchNewExpense: function (event) {
-    app.router.navigate('count/' + this.count.get('name') + '/new-expense', {trigger: true});
+    app.router.navigate('/new-expense', {trigger: true});
   },
 
 

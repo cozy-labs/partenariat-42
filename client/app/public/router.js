@@ -24,8 +24,8 @@ var Router = Backbone.Router.extend({
 
 
   routes: {
-    ''                        : 'printCount',
-    'count/new-expense'       : 'newExpense',
+    ''                  : 'printCount',
+    'new-expense'       : 'newExpense',
   },
 
 

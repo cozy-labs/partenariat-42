@@ -1,5 +1,4 @@
 
-console.log('router private')
 // View list
 var AllCountView = require('./views/allCount/all_count_view');
 var AllArchiveView = require('./views/allArchives/all_archive_view');
@@ -7,7 +6,8 @@ var AllArchiveView = require('./views/allArchives/all_archive_view');
 // View screen
 var CountView = require('./views/count/count_view');
 var MenuView = require('./views/menu/menu_view');
-var CountEditorView = require('./views/countEditor/count_editor_view');
+var CountUpdateView = require('./views/countEditor/count_update_view');
+var CountCreationView = require('./views/countEditor/count_creation_view');
 var ArchiveView = require('./views/count/archive_view');
 var NewExpense = require('./views/newEvent/expense/new_expense_view');
 
@@ -38,13 +38,13 @@ var Router = Backbone.Router.extend({
 
 
   routes: {
-    ''									    	: 'mainBoard',
-    'count/create'			     	: 'countEditor',
-    'count/update/:id'     		: 'countEditor',
-    'count/:name'				  	  : 'printCount',
-    'count/:name/new-expense' : 'newExpense',
-    'archive'							    : 'printAllArchive',
-    'archive/:name'			    	: 'printArchive',
+    ''				         	: 'mainBoard',
+    'count/create'	        	: 'countCreation',
+    'count/update/:id' 	    	: 'countUpdate',
+    'count/:id'                 : 'printCount',
+    'count/:name/new-expense'   : 'newExpense',
+    'archive'				    : 'printAllArchive',
+    'archive/:name'		    	: 'printArchive',
   },
 
 
@@ -66,12 +66,23 @@ var Router = Backbone.Router.extend({
 
 
   /*
-   * This view is used for count creation and count modifiation too.
-   * If the count id is defined there is an udpade otherwise it's a creation
+   * This view is used for count modification
    */
-  countEditor: function (countId) {
+  countUpdate: function (countId) {
+    count = window.countCollection.get(countId);
+    this.selectInMenu($('#count-'+ count.get('name')).parent());
+    view = new CountUpdateView({count: count});
+
+    this.displayView(view);
+  },
+
+
+  /*
+   * This view is used for count creation
+   */
+  countCreation: function () {
     this.selectInMenu($('#menu-add-count').parent());
-    view = new CountEditorView({countId: countId});
+    view = new CountCreationView();
 
     this.displayView(view);
   },

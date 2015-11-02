@@ -1,0 +1,29 @@
+h1 #{model.name}
+form
+
+  .form-group
+    label(for='input-name') Count Name
+    input#input-name.form-control(type='text', placeholder='Name', value="#{model.name}")
+
+  .form-group
+    label(for='input-description') Count Description
+    input#input-description.form-control(type='text', placeholder='Description', value="#{model.description}")
+
+  .panel.panel-primary
+    .panel-heading Public
+    .panel-body
+      #public-section.col-md-6
+        .form-group
+          .btn-group(data-toggle='buttons')
+            label#input-public.btn.btn-primary.leecher
+              if model.isPublic
+                <input type='checkbox' autocomplete="off">
+                Make this count private
+              else
+                <input id="input-public" type='checkbox' autocomplete="off"> Make this count public
+      .col-md-6
+        p You can make this count public, which mean that everyone who try to
+        access the address below will see the count and will have the
+        possibility to modify it.
+
+  button#submit-editor.btn.btn-default Submit

@@ -2,6 +2,7 @@
 var app = require('../application');
 
 var Count = Backbone.Model.extend({
+	url: 'count',
 
 	removeExpense: function (id, callback) {
 		var index = this.get('expenses').findIndex(function (elem) {

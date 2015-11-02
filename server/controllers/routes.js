@@ -2,6 +2,7 @@
 
 var index = require('./index');
 var count = require('./count');
+var public_auth = require('../middleware/public_auth');
 
 module.exports = {
 
@@ -19,7 +20,8 @@ module.exports = {
   },
 
   'public/count/:id': {
-    get: index.public
+    get: [/*public_auth.checkClearance, */index.public],
+	put: [/*public_auth.checkClearance, */count.update]
   }
 
 };
