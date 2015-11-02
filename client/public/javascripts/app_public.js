@@ -161,12 +161,6 @@ $(function () {
   console.log('cassou')
 
   Backbone.history.start();
-
-
-  // Lauche listenert for responsive menu
-  $('[data-toggle=offcanvas]').click(function() {
-    $('.row-offcanvas').toggleClass('active');
-  });
 });
 
 });
@@ -196,12 +190,7 @@ module.exports = BaseView;
 
 });
 
-require.register("public/lib/view_helper", function(exports, require, module) {
-// Put your handlebars.js helpers here.
-
-});
-
-;require.register("public/models/count", function(exports, require, module) {
+require.register("public/models/count", function(exports, require, module) {
 
 var app = require('../application');
 
@@ -257,22 +246,6 @@ var Count = Backbone.Model.extend({
 	},
 
 
-	archive: function () {
-		var self = this;
-		this.save({
-			status: 'archive'
-		}, {
-			wait: true,
-			success: function () {
-				window.countCollection.remove(self);
-        window.archiveCollection.push(self);
-				app.router.navigate('', {trigger: true});
-			},
-			error: function (xhr) {
-				console.error(xhr);
-			}
-		});
-	},
 });
 
 module.exports = Count;

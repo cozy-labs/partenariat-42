@@ -53,22 +53,6 @@ var Count = Backbone.Model.extend({
 	},
 
 
-	archive: function () {
-		var self = this;
-		this.save({
-			status: 'archive'
-		}, {
-			wait: true,
-			success: function () {
-				window.countCollection.remove(self);
-        window.archiveCollection.push(self);
-				app.router.navigate('', {trigger: true});
-			},
-			error: function (xhr) {
-				console.error(xhr);
-			}
-		});
-	},
 });
 
 module.exports = Count;

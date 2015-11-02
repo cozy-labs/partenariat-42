@@ -295,12 +295,7 @@ module.exports = ViewCollection;
 
 });
 
-require.register("private/lib/view_helper", function(exports, require, module) {
-// Put your handlebars.js helpers here.
-
-});
-
-;require.register("private/models/count", function(exports, require, module) {
+require.register("private/models/count", function(exports, require, module) {
 
 var app = require('../application');
 
