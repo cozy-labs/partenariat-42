@@ -562,5 +562,1064 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
   return Backbone;
 
 });
+require.register("application", function(exports, require, module) {
+// Application bootstrapper.
+var Application = {
+  initialize: function () {
 
-//# sourceMappingURL=vendor.js.map
+    this.isPublic = false;
+    if (window.location.pathname.indexOf('/public/') == 0) {
+      this.isPublic = true;
+      console.log('public');
+      var Router = require('./public/router');
+    } else {
+      console.log('private');
+      var Router = require('./private/router');
+    }
+
+    // Router initialization
+    this.router = new Router();
+
+
+    if (typeof Object.freeze === 'function') {
+      Object.freeze(this);
+    }
+  }
+};
+
+module.exports = Application;
+
+});
+
+require.register("helper/color_set", function(exports, require, module) {
+module.exports = [
+    '2979FF',
+    'B3C51D',
+    '00D5B8',
+    'FF5700',
+    'F819AA',
+    '7190AB',
+    '00B0FF',
+    'E70505',
+    'FF7900',
+    '51658D',
+    '304FFE',
+    '00DCE9',
+    'FF2828',
+    '6200EA',
+    '64DD17',
+    '00C853',
+    'FFA300',
+]
+
+});
+
+;require.register("initialize", function(exports, require, module) {
+var application = require('./application');
+
+$(function () {
+  application.initialize();
+  console.log('cassou')
+
+  Backbone.history.start();
+
+
+  // Lauche listenert for responsive menu
+  $('[data-toggle=offcanvas]').click(function() {
+    $('.row-offcanvas').toggleClass('active');
+  });
+});
+
+});
+
+require.register("lib/base_view", function(exports, require, module) {
+require('lib/view_helper');
+
+// Base class for all views.
+var BaseView = Backbone.View.extend({
+  initialize: function () {
+    this.render = _.bind(this.render, this);
+  },
+
+  template: function () { return null; },
+  getRenderData: function () { return null; },
+
+  render: function () {
+    this.$el.html(this.template(this.getRenderData()));
+    this.afterRender();
+    return this;
+  },
+
+  afterRender: function () { return null; }
+});
+
+module.exports = BaseView;
+
+});
+
+require.register("lib/view_collection", function(exports, require, module) {
+
+var BaseView = require('./base_view');
+
+/*
+   View that display a collection of subitems
+   used to DRY views
+   Usage : new ViewCollection(collection:collection)
+   Automatically populate itself by creating a itemView for each item
+   in its collection
+
+   can use a template that will be displayed alongside the itemViews
+
+   itemView       : the Backbone.View to be used for items
+   itemViewOptions : the options that will be passed to itemViews
+   collectionEl : the DOM element's selector where the itemViews will
+   be displayed. Automatically falls back to el if null
+   */
+
+var ViewCollection = BaseView.extend({
+  itemView: null,
+  views: {},
+  collectionEl: null,
+
+  appendView: function (view) {
+    this.$collectionEl.append(view.el);
+  },
+
+  initialize: function () {
+    BaseView.prototype.initialize.call(this);
+    this.views = {};
+    this.listenTo(this.collection, 'reset', this.onReset);
+    this.listenTo(this.collection, 'add', this.addItem);
+    this.listenTo(this.collection, 'remove', this.removeItem);
+
+    if (this.collectionEl === null || this.collectionEl == undefined) {
+      this.collectionEl = this.el;
+    }
+  },
+
+  render: function () {
+    for (id in this.views) {
+      this.views[id].$el.detach();
+    }
+    BaseView.prototype.render.call(this);
+    return this;
+  },
+
+  afterRender: function () {
+    this.$collectionEl = $(this.collectionEl);
+    for (id in this.views) {
+      this.appendView(this.views[id]);
+    }
+    this.onReset(this.collection);
+  },
+
+  remove: function () {
+    this.onReset();
+    BaseView.prototype.remove.call(this);
+  },
+
+  onReset: function (newCollection) {
+    for (id in this.views) {
+      view.remove();
+    }
+		var self = this;
+		newCollection.forEach(function (elem) {
+				self.addItem(elem);
+		});
+  },
+
+  addItem: function (model) {
+    view = new this.itemView({model: model});
+    this.views[model.cid] = view.render();
+    this.appendView(view);
+  },
+
+
+  removeItem: function (model) {
+    this.views[model.cid].remove();
+    delete this.views[model.cid];
+  }
+})
+
+module.exports = ViewCollection;
+
+});
+
+require.register("lib/view_helper", function(exports, require, module) {
+// Put your handlebars.js helpers here.
+
+});
+
+;require.register("models/count", function(exports, require, module) {
+
+var app = require('../application');
+
+var Count = Backbone.Model.extend({
+
+	removeExpense: function (id, callback) {
+		var index = this.get('expenses').findIndex(function (elem) {
+			if (elem.id === id) {
+				return true;
+			}
+			return false;
+		});
+
+		var newExpenses = this.get('expenses');
+		var expenseRemove = newExpenses.splice(index, 1)[0];
+
+		var currentExpenses = this.get('allExpenses');
+		var currentUsers = this.get('users');
+		var leecherList = expenseRemove.leecher;
+		var seeder = expenseRemove.seeder;
+
+		var newUsersList = this.get('users').map(function (user) {
+			leecherList.every(function (expenseUser) {
+				if (user.name === expenseUser.name) {
+					var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
+					user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
+					return false;
+				}
+				return true;
+			});
+
+			if (user.name == seeder) {
+					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+			}
+			return user;
+		});
+
+		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+
+		this.save({
+			expenses: newExpenses,
+			allExpenses: newAllExpenses,
+			users: newUsersList
+		}, {
+			wait: true,
+			success: function () {
+				callback();
+			},
+			error: function (xht) {
+				console.error(xhr);
+			}
+		});
+	},
+
+
+	archive: function () {
+		var self = this;
+		this.save({
+			status: 'archive'
+		}, {
+			wait: true,
+			success: function () {
+				window.countCollection.remove(self);
+        window.archiveCollection.push(self);
+				app.router.navigate('', {trigger: true});
+			},
+			error: function (xhr) {
+				console.error(xhr);
+			}
+		});
+	},
+});
+
+module.exports = Count;
+
+});
+
+require.register("views/count/archive_view", function(exports, require, module) {
+var CountBaseView = require('./count_base_view');
+var app = require('../../application');
+
+/*
+ * View for all the archived count, based on the countBaseView (as count).
+ * Shorter because an archive can't be modified
+ */
+var ArchiveView = CountBaseView.extend({
+	id: 'archive-screen',
+
+	count: null,
+	dataResume: {
+		allExpense: 0,
+	},
+
+	newExpense: null,
+	balancing: null,
+
+	events: {
+		'click #header-balancing'			: 'printBalancing',
+	},
+
+	initialize: function (attributes) {
+		this.count = window.archiveCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return false;
+		});
+
+		CountBaseView.prototype.initialize.call(this);
+	},
+
+
+});
+
+module.exports = ArchiveView;
+
+});
+
+require.register("views/count/count_base_view", function(exports, require, module) {
+// Requirements
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+// Modules
+var StatsView = require('./stats_view');
+var SquareView = require('./square_view');
+
+
+/*
+ * CountBaseView is a generique class wiche is call in count and archive. There
+ * are both exactly the same stucture but just more or less actions
+ */
+var CountBaseView = BaseView.extend({
+  template: require('./templates/count'),
+
+
+  /*
+   * If count is undefined that mean I haven't find it in the collection so it's
+   * a bad url. I redirect to the mainBoard
+   */
+	initialize: function () {
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+		}
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+  /*
+   * Call in render in BaseView class. Render the data to the template
+   */
+	getRenderData: function () {
+		if (this.count !== null && this.count !== undefined) {
+      var expensePerUser = +(Math.round(this.count.get('allExpenses') /
+            this.count.get('users').length * 100) / 100).toFixed(2);
+
+			return ({
+        count: this.count.toJSON(),
+        expensePerUser: expensePerUser
+      });
+		}
+	},
+
+
+  /*
+   * Render stats module
+   */
+	afterRender: function () {
+    this.stats = new StatsView({count: this.count});
+    this.stats.render();
+
+	},
+
+
+  /*
+   * The balancing is by default not printed so I don't create it unless it's
+   * required.
+   */
+	printBalancing: function () {
+		if (this.balancing === null || this.balancing === undefined) {
+			this.balancing = new SquareView({count: this.count});
+			this.balancing.render();
+		}
+		this.balancing.clickDisplayer()
+	},
+});
+
+module.exports = CountBaseView;
+
+});
+
+require.register("views/count/count_view", function(exports, require, module) {
+var CountBaseView = require('./count_base_view');
+var app = require('../../application');
+
+var colorSet = require('../../helper/color_set');
+
+
+
+/*
+ * The base view for the ACTIVE count, based on the countBaseView class
+ */
+var CountView = CountBaseView.extend({
+  id: 'count-screen',
+
+  count: null,
+  dataResume: {
+    allExpense: 0,
+  },
+
+  newExpense: null,
+  balancing: null,
+
+  events: {
+    'click #count-lauch-add-user'	:	'addUser',
+    'click #add-new-expense'			: 'lauchNewExpense',
+    'click .header-expense-elem'	: 'printTransferBody',
+    'click .delete-expense-elem'	: 'deleteExpense',
+    'click #header-balancing'			: 'printBalancing',
+  },
+
+
+  /*
+   * If we are in 'cozy navigation' we get the name of the class and
+   * check in the collection if he can find it. Else if we are in public
+   * navigation there must be juste one count available, set in the router
+   */
+  initialize: function (attributes) {
+    if (app.isPublic == false) {
+      this.count = window.countCollection.models.find(function (count) {
+        if (count.get('name') == attributes.countName) {
+          return true;
+        }
+        return false;
+      });
+    } else {
+      this.count = app.router.count;
+    }
+
+    console.log('id: ', this.count.id);
+    CountBaseView.prototype.initialize.call(this);
+  },
+
+
+  /*
+   * All the process for add a user in the count
+   */
+  addUser: function () {
+    var userList = this.count.get('users');
+    var newUser = this.$('#count-input-add-user').val();
+    var color = colorSet[userList.length % colorSet.length];
+
+    // Remove precedent alert
+    this.$('#alert-name').remove();
+
+    // Check if the name is taker
+    var nameIsTaken = userList.find(function (elem) {
+      if (elem.name === newUser) {
+        return true;
+      }
+      return false;
+    });
+
+    // Print an alert and quit if the name is taken
+    if (nameIsTaken !== undefined) {
+      this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      return;
+    }
+
+    // Add the name to the userlist if not taken
+    userList.push({name: newUser, seed: 0, leech: 0, color: color});
+    // Add the user button to  userlist
+    this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+
+    // Save the new list of user
+    this.count.save({users: userList});
+
+    // Empty the user input
+    this.$('#count-input-add-user').val('');
+
+    // Update the stats
+    if (this.balancing !== null && this.balancing !== undefined) {
+      this.balancing.update();
+    }
+  },
+
+
+  /*
+   * The new expense editor is manage in a new page in order to make this page
+   * lighter in code and informations. It's also easier we re-render the count
+   * with the new data so we haven't to handle this manually.
+   */
+  lauchNewExpense: function (event) {
+    app.router.navigate('count/' + this.count.get('name') + '/new-expense', {trigger: true});
+  },
+
+
+  /*
+   * Remove an expense
+   */
+  removeNewExpense: function () {
+    this.newExpense.remove();
+    delete this.newExpense;
+    this.newExpense= null;
+
+    // Remove the div
+    this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
+  },
+
+
+  /*
+   * Print expand or remove data body of an element of the history
+   */
+  printTransferBody: function (event) {
+    var elem =  $(event.target);
+    if (elem.is('span')) {
+      var expenseBody =  $(event.target).parent().next('div');
+    } else {
+      var expenseBody =  $(event.target).next('div');
+    }
+
+    if (expenseBody.is('.printed')) {
+      expenseBody.slideUp('slow');
+      expenseBody.removeClass('printed');
+    } else {
+      expenseBody.slideDown('slow');
+      expenseBody.addClass('printed');
+    }
+  },
+
+
+  /*
+   * Remove a history element and update the stats
+   */
+    deleteExpense: function (event) {
+      var id = Number(this.$(event.target).parent().attr('id'));
+      var self = this;
+      this.count.removeExpense(id, function () {
+        self.stats.update();
+        if (self.balancing !== null && self.balancing !== undefined) {
+          self.balancing.update();
+        }
+        self.$(event.target).parent().parent().remove();
+      });
+      if (this.expenses.length == 0) {
+        this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+      }
+    },
+
+
+});
+
+module.exports = CountView;
+
+});
+
+require.register("views/count/square_view", function(exports, require, module) {
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
+
+/*
+ * Specific view Wiche manage the balancing module.
+ *
+ * TODO: Separate with a model
+ */
+var SquareView = BaseView.extend({
+	id: 'square-view',
+	template: require('./templates/square'),
+
+
+	events: {
+		'click #archive-count': 'archive',
+	},
+
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+
+		this.setUsersBalancing();
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+	render: function () {
+		$('#module-balancing').prepend(this.$el);
+		this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
+		this.$('#square-displayer').slideDown('slow');
+
+	},
+
+
+  /*
+   * Print or remove the body of the balancing module
+   */
+	clickDisplayer: function () {
+		var displayer = this.$('#square-displayer');
+
+		if (displayer.is('.printed')) {
+			displayer.slideUp('slow');
+			displayer.removeClass('printed');
+		} else {
+			displayer.slideDown('slow');
+			displayer.addClass('printed');
+		}
+	},
+
+
+  /*
+   * Update and rerender the balancing
+   * TODO: make a manual update to changing directly the values not a
+   * remove/rerender because that trigger a slide up/slide down and it's visible
+   */
+	update: function () {
+		this.setUsersBalancing();
+		this.setSquareMoves();
+		this.remove();
+		this.render();
+	},
+
+
+  /*
+   * Create an array with the name, color and balancing of each user
+   */
+	setUsersBalancing: function () {
+		var allExpenses = this.count.get('allExpenses');
+		var users = this.count.get('users');
+
+		this.usersBalancing = users.map(function (user) {
+			return {
+				name: user.name,
+				color: user.color,
+				balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
+			}
+		});
+
+		this.setSquareMoves();
+	},
+
+
+  /*
+   * Calcule each moves to balancing the count
+   */
+	setSquareMoves: function () {
+		this.squareMoves = [];
+
+    // copy the userBalancing array
+		var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
+
+		var i = 0;
+
+    /*
+     * The main loop: in each loop we find the biggest leecher and the biggest
+     * seeder and we equalise between their. If one of them have is balancing to
+     * 0 I remove it.
+     *
+     * Repeate the loop while it stay 1 or less user. If one user stay it's the
+     * a "lost", I can't redistribute to any user. The goal it's to make this
+     * lost tinier possible. For now it's max "0.01 * (nb or user -1)"
+     */
+		while (tmpUsers.length > 1 && i++ < 50) {
+			var leecher = null;
+			var indexLeecher = 0;
+
+      // Find the biggest leecher
+			for (index in tmpUsers) {
+				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
+					leecher = {
+						name: tmpUsers[index].name,
+						balancing: Number(tmpUsers[index].balancing)
+					}
+					indexLeecher = index;
+				}
+			}
+
+			var seeder = null;
+			var indexSeeder = 0;
+
+      // Find the biggest seeder
+			for (index in tmpUsers) {
+				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
+					seeder = {
+						name: tmpUsers[index].name,
+						balancing: Number(tmpUsers[index].balancing)
+					}
+					indexSeeder = index;
+				}
+			}
+
+      // Set the amount I can send from the leecher to the seeder to equalize a
+      // max
+			if (leecher.balancing * -1 > seeder.balancing) {
+				exchange = seeder.balancing;
+			} else {
+				exchange = - leecher.balancing;
+			}
+
+      // Set the new balancin
+			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
+			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
+
+      // Add the exchange to the list of exchanges
+			if (exchange !== 0 && exchange !== 'NaN') {
+				this.squareMoves.push({
+					from: leecher.name,
+					to: seeder.name,
+					exchange: exchange
+				});
+			}
+
+      // Remove the leecher of the seeder if their balancing is equal to 0
+			if (leecher.balancing == 0) {
+				tmpUsers.splice(indexLeecher, 1);
+			}
+			if (seeder.balancing == 0) {
+				tmpUsers.splice(indexSeeder, 1);
+			}
+		}
+	},
+
+
+  /*
+   * Archive a count
+   */
+	archive: function (event) {
+		this.count.archive();
+	},
+
+
+	resetSquare: function () {
+		this.trigger('remove-module');
+	},
+});
+
+module.exports = SquareView;
+
+});
+
+require.register("views/count/stats_view", function(exports, require, module) {
+
+var BaseView = require('../../lib/base_view');
+
+
+/*
+ * Manage all stats in stats module
+ */
+var StatsView = BaseView.extend({
+	el: '#stats-module',
+
+
+	initialize: function (attributes) {
+		this.count = attributes.count;
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+
+  /*
+   * Create the pie chart and reder it
+   */
+	render: function () {
+		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
+		var data = this.computeDataCount();
+		this.pieChart = new Chart(chartCtx).Pie(data);
+	},
+
+
+  /*
+   * Compute data needed for the pie chart. We don't add the user with 0 seed
+   * because the update don't work from 0 to X value.
+   */
+	computeDataCount: function () {
+    var data = [];
+		this.count.get('users').forEach(function (elem) {
+      if (Number(elem.seed) !== 0) {
+        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
+      }
+		});
+    return data;
+	},
+
+
+  /*
+   * Update the value of the pie chart
+   */
+	update: function () {
+		var allExpenses = Number(this.count.get('allExpenses'));
+		var nbUsers = Number(this.count.get('users').length);
+
+		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+
+    // Update the numbers of the general state (to the right of the pie chart)
+		this.$('#nb-expenses').text(this.count.get('expenses').length);
+		this.$('#all-expenses').text(allExpenses);
+		this.$('#perUser-expenses').text(perUserExpenses);
+
+		var self = this;
+
+    /*
+     * Main loop wiche I update/ create data to the pie chart
+     */
+		this.count.get('users').forEach(function (user, indexUser) {
+			var indexPie = null;
+      // For each user we looking him in the data of the pie chart
+			self.pieChart.segments.find(function (pieSegment, index) {
+				if (pieSegment.label === user.name) {
+					indexPie = index;
+					return true;
+				}
+				return false;
+			})
+      // If we find it we update the chart with the new data in the segment
+			if (indexPie !== undefined && indexPie !== null) {
+				if (user.seed == 0) {
+					self.pieChart.removeData(indexPie);
+				} else {
+					self.pieChart.segments[indexPie].value = user.seed;
+					self.pieChart.update();
+				}
+        // If not we create a new segment
+			} else {
+				self.pieChart.addData({
+					value: user.seed,
+					color: '#' + user.color,
+					label: user.name
+				});
+			}
+		});
+	},
+
+});
+
+module.exports = StatsView;
+
+});
+
+require.register("views/newEvent/expense/new_expense_view", function(exports, require, module) {
+var BaseView = require('../../../lib/base_view');
+var app = require('../../../application');
+
+
+/*
+ * View for adding an expense to the count. That's manage in a new view to make
+ * more easy the history rendering if we add a new expense.
+ */
+var AddExpenseView = BaseView.extend({
+	template: require('./templates/new_expense'),
+  id: 'new-expense',
+
+	count: null,
+
+
+	events: {
+		'click .seeder'							: 'setSeeder',
+		'click .leecher'						: 'setLeecher',
+		'click #add-expense-save'		: 'lauchSaveExpense',
+		'click #add-expense-cancel'	: 'resetNewExpense',
+		'click .currency'						:	'setCurrency',
+	},
+
+
+  /*
+   * Find the correct count with the name in attribute. It can be some conflic
+   * in the url if two count have the same name, so be carefule.
+   */
+	initialize: function (attributes) {
+
+    // Find the count
+		this.count = window.countCollection.models.find(function (count) {
+			if (count.get('name') == attributes.countName) {
+				return true;
+			}
+			return false;
+		});
+
+    // If there is no count, it's a bed url so I redirect to the main page
+		if (this.count == undefined || this.count == null) {
+			console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+		}
+
+		var leecher = this.count.get('users').map(function (elem) {
+			return {name: elem.name};
+		});
+
+		this.data = {
+			leecher: leecher,
+			currency: this.count.get('currencies')[0],
+		};
+
+		BaseView.prototype.initialize.call(this);
+	},
+
+
+  getRenderData: function () {
+    return {
+      currencies: this.count.get('currencies'),
+      users: this.count.get('users'),
+    };
+  },
+
+  /*
+   * Add all the listener to dynamically check if the inputs are correct
+   */
+  afterRender: function () {
+    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.amount = event.target.value;};
+    })(this));
+
+    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.name = event.target.value;};
+    })(this));
+
+    this.$('#input-description')[0].addEventListener('change', (function(_this) {
+      return function (event) {_this.data.description = event.target.value;};
+    })(this));
+  },
+
+
+  /*
+   * Set the seeder of the expense or "who paid"
+   */
+	setSeeder: function (event) {
+		var target = this.$(event.target).children().get(0).value;
+		if (this.data.seeder === target) {
+			this.data.seeder = null;
+		} else {
+			this.data.seeder = target;
+		}
+	},
+
+
+  /*
+   * Set the leechers of the expense or "who take part"
+   */
+	setLeecher: function (event) {
+		var target = this.$(event.target).children().get(0).value;
+		var listLeecher = this.data.leecher;
+		var leecherIndex = null;;
+
+		listLeecher.find(function (element, index) {
+			if (element.name == target) {
+				leecherIndex = index;
+				return true;
+			}
+			return false;
+		});
+
+		if (leecherIndex === null) {
+			listLeecher.push({name: target});
+		}
+		else {
+			listLeecher.splice(leecherIndex, 1);
+		}
+	},
+
+
+  /*
+   * Set the currency of the expense
+   */
+	setCurrency: function (event) {
+		this.data.currency = event.target.text;
+		this.$('#choose-currency').text(this.data.currency);
+	},
+
+
+    /*
+     * Check if all inputs are correct and print an alert if it's not, else call
+     * sendNewExpense()
+     */
+	lauchSaveExpense: function () {
+		var data = this.data;
+		var error = false;
+
+		this.$('#alert-zone').remove();
+		this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
+		if (data.name === null || data.name == undefined) {
+			this.errorMessage('Your expense need a name');
+			error = true;
+		}
+		if (data.seeder === null || data.seeder == undefined) {
+			this.errorMessage('One person must paid');
+			error = true;
+		}
+		if (data.amount == undefined) {
+			this.errorMessage('You haven\'t set a amount');
+			error = true;
+		} else if (data.amount <= 0) {
+			this.errorMessage('The amount must be positive');
+			error = true;
+		}
+		if (data.leecher.length === 0) {
+			this.errorMessage('You must choose almost one persone who get benefice');
+			error = true;
+		}
+		if (error === false) {
+			this.sendNewExpense();
+		}
+	},
+
+
+  /*
+   * Generique function to trigger an alert.
+   */
+	errorMessage: function (msg) {
+		this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+	},
+
+
+  /*
+   * Make all cacules to create the set of data to create the bunch of data
+   * needer to each expense. I had lost of issues with the number wiche a some
+   * time manage as string so I cast everything as Number to be sure.
+   *
+   * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
+   * round.
+   * TODO: create a generique function to manage round.
+   */
+	sendNewExpense: function () {
+		var self = this;
+		var newExpensesList = this.count.get('expenses');
+		newExpensesList.push(this.data);
+
+		this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+		var allUsers = this.count.get('users');
+		allUsers.every(function (user) {
+			if (self.data.seeder === user.name) {
+				user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
+				return false;
+			}
+			return true;
+		});
+
+		var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
+		this.data.leecher.forEach(function (elem) {
+			allUsers.every(function (user) {
+				if (elem.name === user.name) {
+					user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
+					return false;
+				}
+				return true;
+			});
+		});
+
+		var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
+		this.count.save({
+			allExpenses: newAllExpenses,
+			expenses: newExpensesList,
+			users: allUsers,
+		}, {
+			wait: true,
+			success: function (data) {
+        app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
+			},
+		});
+	},
+
+	resetNewExpense: function () {
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
+	},
+});
+
+module.exports = AddExpenseView;
+
+});
+
+
+//# sourceMappingURL=common.js.map

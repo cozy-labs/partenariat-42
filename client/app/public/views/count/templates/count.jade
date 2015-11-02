@@ -1,0 +1,70 @@
+.panel.panel-default
+  .panel-body
+    .panel.panel-primary
+      .panel-heading Users
+      .panel-body
+
+        #stats-module
+          .col-md-4
+            #user-list.col-md-12
+              each user in count.users
+                .row
+                  button.btn(style="background-color: ##{user.color}") #{user.name}
+            if count.status == 'active'
+              #name-alert.row.col-md-12
+                .input-group
+                  form
+                    input#count-input-add-user.form-control(type='text', placeholder='My name')
+                    span.input-group-btn
+                      input#count-lauch-add-user.btn.btn-default(type='submit'
+                      value='Add user')
+
+          #canvas-block.col-md-4.col-xs-6
+            h4 Expenses per users
+            <canvas id="chart-users" width="150" height="150"></canvas>
+
+        .col-md-4.col-xs-6
+          label(for='all-expenses') All Expenses:
+          p#all-expenses #{count.allExpenses}
+          label(for='nb-expenses') Number Expenses:
+          p#nb-expenses #{count.expenses.length}
+          label(for='nb-expenses') Expenses per user:
+          p#perUser-expenses #{expensePerUser}
+
+      if (count.status == 'active')
+        .btn-group.btn-block
+          button#add-new-expense.btn.btn-lg.btn-success.btn-block(type='button'
+          data-toggle='dropdown')
+            span &nbsp;Add an expense&nbsp;
+
+    .panel.panel-primary
+      .panel-heading#header-balancing
+        span.caret
+        span &nbsp;Balancing
+      #module-balancing
+
+    .panel.panel-primary
+      .panel-heading History
+      .panel-body
+        #expense-list-view
+          if count.expenses.length == 0
+            span#empty-history Your history is empty
+          else
+            for expense in count.expenses
+              .panel.panel-default
+                .panel-heading.header-expense-elem
+                  span.caret
+                  span  #{expense.name}
+                  span(style='float: right') #{expense.amount} #{expense.currency.name}
+
+                .panel-body(style='display: none', id="#{expense.id}")
+                  label(for='seeder') Who have paid ?
+                  #seeder
+                  button.btn #{expense.seeder}
+
+                  .form-group
+                    label(for='leecher-list') Who contribute ?
+                    #leecher-list.form-group
+                      for leecher in expense.leecher
+                        button.btn #{leecher.name}
+                  button.btn.btn-default.btn-block.delete-expense-elem Delete

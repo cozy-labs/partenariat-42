@@ -1,4 +1,4 @@
-var ViewCollection = require('../../../lib/view_collection');
+var ViewCollection = require('../../lib/view_collection');
 var ArchiveRowView = require('./archive_row_view');
 
 var ArchiveListView = ViewCollection.extend({

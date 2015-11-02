@@ -1,4 +1,4 @@
-var BaseView = require('../../../lib/base_view');
+var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
 
 var AllCountView = BaseView.extend({

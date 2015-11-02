@@ -1,0 +1,17 @@
+#square-displayer.panel-body(style='display: none')
+  label(for='balancing') Balancing:
+  ul#balancing
+    for user in users
+      li
+        button.btn(style="background-color: ##{user.color}") #{user.name}:
+        if user.balancing == 0
+          span(style='color: blue') &nbsp;ok
+        if user.balancing > 0
+          span(style='color: green') &nbsp;+#{user.balancing}
+        if user.balancing < 0
+          span(style='color: red') &nbsp;#{user.balancing}
+  label(for='balancing') How to be square:
+  ul#square
+    for move in squareMoves
+      li [#{move.from}] gave [#{move.exchange}] to [#{move.to}]
+  button#archive-count.btn.btn-primary.btn-block Close and archive

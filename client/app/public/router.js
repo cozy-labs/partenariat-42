@@ -1,11 +1,10 @@
 
-console.log('artichau router public')
 // View screen
-var CountView = require('views/count/count_view');
-var NewExpense = require('../views/newEvent/expense/new_expense_view');
+var CountView = require('./views/count/count_view');
+var NewExpense = require('./views/newEvent/expense/new_expense_view');
 
 // Models
-var Count = require('../models/count');
+var Count = require('./models/count');
 
 var Router = Backbone.Router.extend({
 

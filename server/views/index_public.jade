@@ -10,9 +10,8 @@ html
     link(rel="stylesheet", href="/fonts/fonts.css")
     link(rel="stylesheet", href="stylesheets/app.css")
 
-  body.application.page-container
-    #content-screen.col-xs-12.col-sm-9
+  body#content-screen.application.page-container
 
     script!= imports
     script(src="javascripts/vendor.js")
-    script(src="javascripts/app_public.js", onload="require('initialize');")
+    script(src="javascripts/app_public.js", onload="require('public/initialize');")

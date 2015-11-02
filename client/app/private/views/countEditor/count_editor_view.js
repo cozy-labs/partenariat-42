@@ -1,7 +1,7 @@
-var BaseView = require('../../../lib/base_view');
-var app = require('../../../application');
+var BaseView = require('../../lib/base_view');
+var app = require('../../application');
 
-var colorSet = require('../../../helper/color_set');
+var colorSet = require('../../helper/color_set');
 
 /*
  * View wiche manage the editing for an update or a creation of a view

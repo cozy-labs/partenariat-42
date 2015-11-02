@@ -1,0 +1,40 @@
+form#add-expense-displayer.form-group
+	#alert-zone
+	label(for='input-name') Expense Name
+	input#input-name.form-control(type='text', placeholder='Shopping...',
+	maxlength='40', required, autofocus)
+
+	.form-group
+		label(for='input-description') Expense Description
+		textarea#input-description.form-control(rows='5')
+
+	.form-group
+		label(for='input-amount') Amount
+		.input-group
+			input#input-amount.form-control(type='number', placeholder='42.21',
+			aria-label='...', required)
+			div.input-group-btn
+				button#choose-currency.btn.btn-default.dropdown-toggle(type='button',
+				data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') #{currencies[0].name}
+				ul.dropdown-menu.dropdown-menu-right
+					for currency in currencies
+						li.currency
+							a #{currency.name}
+
+	label(for='seeder-list') Who Paid ?
+	.form-group
+		#seeder-list.btn-group(data-toggle='buttons')
+			each user in users
+				label.btn.btn-primary.seeder
+					<input type='radio', autocomplete='off', value="#{user.name}"> #{user.name}
+
+	label(for='leecher-list') Who take Part ?
+	.form-group
+		#leecher-list.btn-group(data-toggle='buttons')
+			each user in users
+				label.btn.btn-primary.leecher.active
+					<input type='checkbox', autocomplete='off', value="#{user.name}"> #{user.name}
+
+	.form-group
+		button#add-expense-save.btn.btn-primary.btn-block(type='submit') Save
+		button#add-expense-cancel.btn.btn-primary.btn-block Cancel
