@@ -4,9 +4,7 @@ var Count = require('../models/count');
 module.exports.create = function (req, res, next) {
   Count.create(req.body, function (err, newCount) {
 	if (err !== null && err !== undefined) {
-	  console.error(err);
-	  res.status(500).send({error: "Count creation fail"});
-	  return;
+      return next({status: 500, msg: 'Count creation fail'});
 	}
 	res.status(200).send(newCount);
   });
@@ -15,16 +13,12 @@ module.exports.create = function (req, res, next) {
 module.exports.destroy = function (req, res, next) {
   Count.find(req.params.id, function (err, count) {
 	if (err !== null && err !== undefined) {
-	  console.error(err);
-	  res.status(500).send({error: "Count not exist"});
-	  return;
+      return next({status: 500, msg: 'Count not exist'});
 	}
 
 	count.destroy(function (err) {
 	  if (err !== null && err !== undefined) {
-		console.error(err);
-		res.status(500).send({error: 'Count destroy fail'});
-		return;
+        return next({status: 500, msg: 'Count destroy fail'});
 	  }
 	  res.status(200).send({});
 	});
@@ -34,19 +28,15 @@ module.exports.destroy = function (req, res, next) {
 module.exports.update = function (req, res, next) {
   Count.find(req.params.id, function (err, count) {
 	if (err !== null && err !== undefined) {
-      console.error(err);
-	  res.status(500).send({error: 'Count find fail'});
-	  return;
+        return next({status: 500, msg: 'Count find fail'});
 	}
     if (count == null) {
-      console.error('Can\'t find the count');
-	  res.status(500).send({error: 'Count find fail'});
-      return;
+        return next({status: 500, msg: 'Count find fail'});
     }
 
 	count.updateAttributes(req.body, function (err, countUpdate) {
 	  if (err !== null && err !== undefined) {
-		res.status(500).send({error: 'Count update fail'});
+        return next({status: 500, msg: 'Count update fail'});
 	  }
 	  res.status(200).send(countUpdate);
 	});

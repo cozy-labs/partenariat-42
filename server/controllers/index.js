@@ -12,12 +12,11 @@ module.exports.public = function (req, res, next) {
   Count.find(req.params.id, function (err, count) {
     if (err !== null && err !== undefined) {
       console.error('Finding public url error');
-      res.render('404.jade');
+      return next({status: 404});
     }
     if (count === null) {
       console.error('Bad public url recieve');
-      res.render('404.jade');
-      return;
+      return next({status: 404});
     }
 
     res.render('index_public.jade',

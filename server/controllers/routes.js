@@ -20,8 +20,8 @@ module.exports = {
   },
 
   'public/count/:id': {
-    get: [/*public_auth.checkClearance, */index.public],
-	put: [/*public_auth.checkClearance, */count.update]
+    get: [public_auth.checkClearance(), index.public],
+    put: [public_auth.checkClearance(), count.update]
   }
 
 };

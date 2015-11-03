@@ -1,5 +1,6 @@
 var americano = require('americano');
 var path = require('path');
+var error_handler = require('./middleware/error_handler');
 
 
 var staticMiddleware = americano.static(path.resolve(__dirname, '../client/public'), {maxAge: 86400000});
@@ -28,7 +29,7 @@ var config = {
 			americano.bodyParser({keepExtensions: true}),
 		],
 		afterStart: function (app, server) {
-			app.use(americano.errorHandler({dumpExceptions: true, showStack: true}));
+          app.use(error_handler)
 		},
 		set: {
 			views: path.resolve(__dirname, 'views/')
