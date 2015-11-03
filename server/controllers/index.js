@@ -15,7 +15,7 @@ module.exports.public = function (req, res, next) {
       res.render('404.jade');
     }
     if (count === null) {
-      console.log('Bad public url recieve');
+      console.error('Bad public url recieve');
       res.render('404.jade');
       return;
     }

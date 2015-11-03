@@ -32,7 +32,6 @@ module.exports.destroy = function (req, res, next) {
 }
 
 module.exports.update = function (req, res, next) {
-  console.log('id: ', req.params.id)
   Count.find(req.params.id, function (err, count) {
 	if (err !== null && err !== undefined) {
       console.error(err);
@@ -49,7 +48,6 @@ module.exports.update = function (req, res, next) {
 	  if (err !== null && err !== undefined) {
 		res.status(500).send({error: 'Count update fail'});
 	  }
-      console.log('count: ', countUpdate)
 	  res.status(200).send(countUpdate);
 	});
   });

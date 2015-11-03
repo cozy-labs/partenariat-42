@@ -41,7 +41,6 @@ var CountView = CountBaseView.extend({
         return false;
       });
 
-    console.log('id: ', this.count.id);
     CountBaseView.prototype.initialize.call(this);
   },
 
