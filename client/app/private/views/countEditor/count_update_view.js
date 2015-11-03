@@ -62,9 +62,11 @@ var CountUpdateView = CountEditionBase.extend({
   setPublic: function () {
     if (this.count.get('isPublic') == false) {
       this.count.set('isPublic', true);
+      this.$('#input-public').text('Make this count private');
       this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
     } else {
       this.count.set('isPublic', false);
+      this.$('#input-public').text('Make this count public');
       this.$('#public-section-body').remove();
     }
   },
@@ -99,7 +101,6 @@ var CountUpdateView = CountEditionBase.extend({
       this.count.set('description', this.$('#input-description').val());
 
       this.count.save(this.count.attributes, {
-        wait: true,
         error: function (xhr) {
           console.error (xhr);
         },

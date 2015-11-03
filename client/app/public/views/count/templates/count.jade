@@ -13,11 +13,10 @@
             if count.status == 'active'
               #name-alert.row.col-md-12
                 .input-group
-                  form
+                  form(action='#')
                     input#count-input-add-user.form-control(type='text', placeholder='My name')
                     span.input-group-btn
-                      input#count-lauch-add-user.btn.btn-default(type='submit'
-                      value='Add user')
+                      input#count-lauch-add-user.btn.btn-default(type='submit', value='Add user')
 
           #canvas-block.col-md-4.col-xs-6
             h4 Expenses per users

@@ -1,9 +1,7 @@
 .page-header
   h1 New count
-  small A new count is juste a folder where you can put some friends and
-  | create a fictional history of who paid what and who owe who. Each count is
-  | totaly separate to other count so each user create in this one is not linked
-  | (yet) with the others count. If you don't understand just try, you will see !
+  p A new count is juste a folder where you can put some friends and
+  | create a fictional history of who paid what and who owe who.
 #formular
   #input-name-grp.form-group
     label(for='input-name') Count Name
@@ -15,8 +13,11 @@
 
   label(for='currency') Count Currencies
   #currency.form-group
-    button.btn.btn-default.currency(type='button', value='€') €
-    button.btn.btn-default.currency(type='button', value='$') $
+    #currencies-list.btn-group(data-toggle='buttons')
+      label.btn.btn-primary.currency
+        <input type="checkbox", autocomplete="off", value="€"> €
+      label.btn.btn-primary.currency
+        <input type="checkbox", autocomplete="off", value="$"> $
 
 
   .form-group

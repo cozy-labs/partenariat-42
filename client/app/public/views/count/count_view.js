@@ -21,10 +21,10 @@ var CountView = CountBaseView.extend({
 
   events: {
     'click #count-lauch-add-user'	:	'addUser',
-    'click #add-new-expense'			: 'lauchNewExpense',
+    'click #add-new-expense'		: 'lauchNewExpense',
     'click .header-expense-elem'	: 'printTransferBody',
     'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'			: 'printBalancing',
+    'click #header-balancing'		: 'printBalancing',
   },
 
 
@@ -72,12 +72,14 @@ var CountView = CountBaseView.extend({
     this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
     // Save the new list of user
-    this.count.save({users: userList});
+    this.count.save({users: userList}, {
+      url: '/public/count/' + this.count.id,
+    });
 
     // Empty the user input
     this.$('#count-input-add-user').val('');
 
-    // Update the stats
+    // Update the is it printe
     if (this.balancing !== null && this.balancing !== undefined) {
       this.balancing.update();
     }
@@ -141,7 +143,7 @@ var CountView = CountBaseView.extend({
         }
         self.$(event.target).parent().parent().remove();
       });
-      if (this.expenses.length == 0) {
+      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
         this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
       }
     },

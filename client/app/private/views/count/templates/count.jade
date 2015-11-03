@@ -11,7 +11,7 @@
                 .row
                   button.btn(style="background-color: ##{user.color}") #{user.name}
             if count.status == 'active'
-              #name-alert.row.col-md-12
+              #name-alert.row.col-md-8
                 .input-group
                   form
                     input#count-input-add-user.form-control(type='text', placeholder='My name')
@@ -19,9 +19,10 @@
                       input#count-lauch-add-user.btn.btn-default(type='submit'
                       value='Add user')
 
-          #canvas-block.col-md-4.col-xs-6
-            h4 Expenses per users
-            <canvas id="chart-users" width="150" height="150"></canvas>
+          if count.expenses.length > 0
+            #canvas-block.col-md-4.col-xs-6
+              h4 Expenses per users
+              <canvas id="chart-users" width="150" height="150"></canvas>
 
         .col-md-4.col-xs-6
           label(for='all-expenses') All Expenses:

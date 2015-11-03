@@ -343,53 +343,55 @@ var CountBaseView = BaseView.extend({
    * If count is undefined that mean I haven't find it in the collection so it's
    * a bad url. I redirect to the mainBoard
    */
-	initialize: function () {
-		if (this.count == undefined || this.count == null) {
-			console.error('invalide route');
+  initialize: function () {
+    if (this.count == undefined || this.count == null) {
+      console.error('invalide route');
       app.router.navigate('', {trigger: true});
-		}
+    }
 
-		BaseView.prototype.initialize.call(this);
-	},
+    BaseView.prototype.initialize.call(this);
+  },
 
 
   /*
    * Call in render in BaseView class. Render the data to the template
    */
-	getRenderData: function () {
-		if (this.count !== null && this.count !== undefined) {
+  getRenderData: function () {
+    if (this.count !== null && this.count !== undefined) {
       var expensePerUser = +(Math.round(this.count.get('allExpenses') /
             this.count.get('users').length * 100) / 100).toFixed(2);
 
-			return ({
+      return ({
         count: this.count.toJSON(),
         expensePerUser: expensePerUser
       });
-		}
-	},
+    }
+  },
 
 
   /*
    * Render stats module
    */
-	afterRender: function () {
-    this.stats = new StatsView({count: this.count});
-    this.stats.render();
+  afterRender: function () {
+    if (this.count.get('expenses').length > 0) {
+      this.stats = new StatsView({count: this.count});
+      this.stats.render();
+    }
 
-	},
+  },
 
 
   /*
    * The balancing is by default not printed so I don't create it unless it's
    * required.
    */
-	printBalancing: function () {
-		if (this.balancing === null || this.balancing === undefined) {
-			this.balancing = new SquareView({count: this.count});
-			this.balancing.render();
-		}
-		this.balancing.clickDisplayer()
-	},
+  printBalancing: function () {
+    if (this.balancing === null || this.balancing === undefined) {
+      this.balancing = new SquareView({count: this.count});
+      this.balancing.render();
+    }
+    this.balancing.clickDisplayer()
+  },
 });
 
 module.exports = CountBaseView;
@@ -420,10 +422,10 @@ var CountView = CountBaseView.extend({
 
   events: {
     'click #count-lauch-add-user'	:	'addUser',
-    'click #add-new-expense'			: 'lauchNewExpense',
+    'click #add-new-expense'		: 'lauchNewExpense',
     'click .header-expense-elem'	: 'printTransferBody',
     'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'			: 'printBalancing',
+    'click #header-balancing'		: 'printBalancing',
   },
 
 
@@ -471,12 +473,14 @@ var CountView = CountBaseView.extend({
     this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
     // Save the new list of user
-    this.count.save({users: userList});
+    this.count.save({users: userList}, {
+      url: '/public/count/' + this.count.id,
+    });
 
     // Empty the user input
     this.$('#count-input-add-user').val('');
 
-    // Update the stats
+    // Update the is it printe
     if (this.balancing !== null && this.balancing !== undefined) {
       this.balancing.update();
     }
@@ -540,7 +544,7 @@ var CountView = CountBaseView.extend({
         }
         self.$(event.target).parent().parent().remove();
       });
-      if (this.expenses.length == 0) {
+      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
         this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
       }
     },
@@ -865,7 +869,7 @@ buf.push("<div class=\"row\"><button" + (jade.attr("style", "background-color: #
 buf.push("</div>");
 if ( count.status == 'active')
 {
-buf.push("<div id=\"name-alert\" class=\"row col-md-12\"><div class=\"input-group\"><form><input id=\"count-input-add-user\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"count-lauch-add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div>");
+buf.push("<div id=\"name-alert\" class=\"row col-md-12\"><div class=\"input-group\"><form action=\"#\"><input id=\"count-input-add-user\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"count-lauch-add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div>");
 }
 buf.push("</div><div id=\"canvas-block\" class=\"col-md-4 col-xs-6\"><h4>Expenses per users</h4><canvas id=\"chart-users\" width=\"150\" height=\"150\"></canvas></div></div><div class=\"col-md-4 col-xs-6\"><label for=\"all-expenses\">All Expenses:</label><p id=\"all-expenses\">" + (jade.escape((jade_interp = count.allExpenses) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Number Expenses:</label><p id=\"nb-expenses\">" + (jade.escape((jade_interp = count.expenses.length) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Expenses per user:</label><p id=\"perUser-expenses\">" + (jade.escape((jade_interp = expensePerUser) == null ? '' : jade_interp)) + "</p></div></div>");
 if ( (count.status == 'active'))
@@ -1262,6 +1266,7 @@ var AddExpenseView = BaseView.extend({
         expenses: newExpensesList,
         users: allUsers,
       }, {
+        url: '/public/count/' + this.count.id,
         wait: true,
         success: function (data) {
           app.router.navigate('/', {trigger: true});

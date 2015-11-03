@@ -18,29 +18,25 @@
   box-sizing: border-box;
 }
 html,
-body {
-  height: 100%;
-  width: 100%;
-}
-body {
-  text-rendering: optimizeLegibility;
-}
 body,
-input {
-  color: #444;
-  font: 300 16px Geneva, Verdana, "Lucida Sans", "Lucida Grande", "Lucida Sans Unicode", sans-serif;
-  line-height: 1.2;
-}
+height 100%,
+width 100%,
+text-rendering optimizeLegibility,
+input,
+color #444,
+font 300 16px Geneva,
+Verdana,
+"Lucida Sans",
+"Lucida Grande",
+"Lucida Sans Unicode",
+sans-serif,
+line-height 1.2,
 a,
-a:visited {
-  color: #0086cc;
-  text-decoration: none;
-}
-a:hover,
-a:visited:hover {
-  text-decoration: underline;
-}
-body {
+a:visited,
+color #0086cc,
+text-decoration none,
+:hover,
+text-decoration underline {
   padding-top: 51px;
 }
 .text-center {
@@ -254,6 +250,9 @@ cursor not-allowed {
   padding: 0;
   margin: auto;
   display: block;
+}
+body {
+  padding-top: 51px;
 }
 
 * {

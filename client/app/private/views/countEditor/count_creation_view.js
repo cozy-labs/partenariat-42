@@ -17,7 +17,7 @@ var CountCreationView = CountEditionBase.extend({
   templateUrl: require('./templates/url'),
 
   events: {
-    'click #submit-editor'  : 'submitEditor',
+    'click #submit-editor'  : 'lauchCountCreation',
     'click #add-user'		: 'addUser',
     'click .currency'		: 'setCurrency',
     'click #input-public'   : 'setPublic'
@@ -41,7 +41,9 @@ var CountCreationView = CountEditionBase.extend({
    */
   afterRender: function () {
     this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.checkCountName(event);};
+      return function (event) {
+        _this.countName = _this.checkCountName(event);
+      };
     })(this));
   },
 
@@ -66,7 +68,8 @@ var CountCreationView = CountEditionBase.extend({
 
     // If there is a name we put the alert
     if (nameIsTaken !== undefined) {
-      this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert">\
+          <a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
       return;
     }
 
@@ -93,7 +96,7 @@ var CountCreationView = CountEditionBase.extend({
    * manual managing of the overlighting
    */
     setCurrency: function (event) {
-      var selectedCurrency = event.target.value;
+      var selectedCurrency = this.$(event.target).children().get(0).value;
       var currencyIndex = null;
 
       this.currencies.find(function (elem, index) {
@@ -104,18 +107,12 @@ var CountCreationView = CountEditionBase.extend({
         return false;
       });
 
-      var btnTarget = this.$(event.target);
-
       if (currencyIndex == null) {
-        btnTarget.removeClass('btn-default');
-        btnTarget.addClass('btn-info');
         this.currencies.push({
           name: selectedCurrency,
           taux: 1,
         });
       } else {
-        btnTarget.removeClass('btn-info');
-        btnTarget.addClass('btn-default');
         this.currencies.splice(currencyIndex, 1);
       }
     },

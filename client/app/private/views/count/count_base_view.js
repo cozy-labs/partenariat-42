@@ -49,9 +49,10 @@ var CountBaseView = BaseView.extend({
    * Render stats module
    */
 	afterRender: function () {
-    this.stats = new StatsView({count: this.count});
-    this.stats.render();
-
+      if (this.count.get('expenses').length > 0) {
+        this.stats = new StatsView({count: this.count});
+        this.stats.render();
+      }
 	},
 
 

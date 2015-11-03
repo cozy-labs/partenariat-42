@@ -14,11 +14,11 @@ var AddExpenseView = BaseView.extend({
 
 
 	events: {
-		'click .seeder'							: 'setSeeder',
-		'click .leecher'						: 'setLeecher',
-		'click #add-expense-save'		: 'lauchSaveExpense',
+		'click .seeder'				: 'setSeeder',
+		'click .leecher'			: 'setLeecher',
+		'click #add-expense-save'	: 'lauchSaveExpense',
 		'click #add-expense-cancel'	: 'resetNewExpense',
-		'click .currency'						:	'setCurrency',
+		'click .currency'			:	'setCurrency',
 	},
 
 

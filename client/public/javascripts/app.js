@@ -972,9 +972,10 @@ var CountBaseView = BaseView.extend({
    * Render stats module
    */
 	afterRender: function () {
-    this.stats = new StatsView({count: this.count});
-    this.stats.render();
-
+      if (this.count.get('expenses').length > 0) {
+        this.stats = new StatsView({count: this.count});
+        this.stats.render();
+      }
 	},
 
 
@@ -1144,7 +1145,7 @@ var CountView = CountBaseView.extend({
         }
         self.$(event.target).parent().parent().remove();
       });
-      if (this.expenses.length == 0) {
+      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
         this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
       }
     },
@@ -1469,9 +1470,14 @@ buf.push("<div class=\"row\"><button" + (jade.attr("style", "background-color: #
 buf.push("</div>");
 if ( count.status == 'active')
 {
-buf.push("<div id=\"name-alert\" class=\"row col-md-12\"><div class=\"input-group\"><form><input id=\"count-input-add-user\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"count-lauch-add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div>");
+buf.push("<div id=\"name-alert\" class=\"row col-md-8\"><div class=\"input-group\"><form><input id=\"count-input-add-user\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"count-lauch-add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div>");
 }
-buf.push("</div><div id=\"canvas-block\" class=\"col-md-4 col-xs-6\"><h4>Expenses per users</h4><canvas id=\"chart-users\" width=\"150\" height=\"150\"></canvas></div></div><div class=\"col-md-4 col-xs-6\"><label for=\"all-expenses\">All Expenses:</label><p id=\"all-expenses\">" + (jade.escape((jade_interp = count.allExpenses) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Number Expenses:</label><p id=\"nb-expenses\">" + (jade.escape((jade_interp = count.expenses.length) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Expenses per user:</label><p id=\"perUser-expenses\">" + (jade.escape((jade_interp = expensePerUser) == null ? '' : jade_interp)) + "</p></div></div>");
+buf.push("</div>");
+if ( count.expenses.length > 0)
+{
+buf.push("<div id=\"canvas-block\" class=\"col-md-4 col-xs-6\"><h4>Expenses per users</h4><canvas id=\"chart-users\" width=\"150\" height=\"150\"></canvas></div>");
+}
+buf.push("</div><div class=\"col-md-4 col-xs-6\"><label for=\"all-expenses\">All Expenses:</label><p id=\"all-expenses\">" + (jade.escape((jade_interp = count.allExpenses) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Number Expenses:</label><p id=\"nb-expenses\">" + (jade.escape((jade_interp = count.expenses.length) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Expenses per user:</label><p id=\"perUser-expenses\">" + (jade.escape((jade_interp = expensePerUser) == null ? '' : jade_interp)) + "</p></div></div>");
 if ( (count.status == 'active'))
 {
 buf.push("<div class=\"btn-group btn-block\"><button id=\"add-new-expense\" type=\"button\" data-toggle=\"dropdown\" class=\"btn btn-lg btn-success btn-block\"><span>&nbsp;Add an expense&nbsp;</span></button></div>");
@@ -1676,7 +1682,7 @@ var CountCreationView = CountEditionBase.extend({
   templateUrl: require('./templates/url'),
 
   events: {
-    'click #submit-editor'  : 'submitEditor',
+    'click #submit-editor'  : 'lauchCountCreation',
     'click #add-user'		: 'addUser',
     'click .currency'		: 'setCurrency',
     'click #input-public'   : 'setPublic'
@@ -1700,7 +1706,9 @@ var CountCreationView = CountEditionBase.extend({
    */
   afterRender: function () {
     this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.checkCountName(event);};
+      return function (event) {
+        _this.countName = _this.checkCountName(event);
+      };
     })(this));
   },
 
@@ -1725,7 +1733,8 @@ var CountCreationView = CountEditionBase.extend({
 
     // If there is a name we put the alert
     if (nameIsTaken !== undefined) {
-      this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert">\
+          <a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
       return;
     }
 
@@ -1752,7 +1761,7 @@ var CountCreationView = CountEditionBase.extend({
    * manual managing of the overlighting
    */
     setCurrency: function (event) {
-      var selectedCurrency = event.target.value;
+      var selectedCurrency = this.$(event.target).children().get(0).value;
       var currencyIndex = null;
 
       this.currencies.find(function (elem, index) {
@@ -1763,18 +1772,12 @@ var CountCreationView = CountEditionBase.extend({
         return false;
       });
 
-      var btnTarget = this.$(event.target);
-
       if (currencyIndex == null) {
-        btnTarget.removeClass('btn-default');
-        btnTarget.addClass('btn-info');
         this.currencies.push({
           name: selectedCurrency,
           taux: 1,
         });
       } else {
-        btnTarget.removeClass('btn-info');
-        btnTarget.addClass('btn-default');
         this.currencies.splice(currencyIndex, 1);
       }
     },
@@ -1990,9 +1993,11 @@ var CountUpdateView = CountEditionBase.extend({
   setPublic: function () {
     if (this.count.get('isPublic') == false) {
       this.count.set('isPublic', true);
+      this.$('#input-public').text('Make this count private');
       this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
     } else {
       this.count.set('isPublic', false);
+      this.$('#input-public').text('Make this count public');
       this.$('#public-section-body').remove();
     }
   },
@@ -2027,7 +2032,6 @@ var CountUpdateView = CountEditionBase.extend({
       this.count.set('description', this.$('#input-description').val());
 
       this.count.save(this.count.attributes, {
-        wait: true,
         error: function (xhr) {
           console.error (xhr);
         },
@@ -2048,7 +2052,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div class=\"page-header\"><h1>New count</h1><small>A new count is juste a folder where you can put some friends and</small>create a fictional history of who paid what and who owe who. Each count is\ntotaly separate to other count so each user create in this one is not linked\n(yet) with the others count. If you don't understand just try, you will see !</div><div id=\"formular\"><div id=\"input-name-grp\" class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\" class=\"form-control\"/></div><label for=\"currency\">Count Currencies</label><div id=\"currency\" class=\"form-group\"><button type=\"button\" value=\"€\" class=\"btn btn-default currency\">€</button><button type=\"button\" value=\"$\" class=\"btn btn-default currency\">$</button></div><div class=\"form-group\"><div id=\"list-users\" class=\"btn-group\"></div></div><label for=\"input-user-grp\">Count Users</label><div id=\"input-user-grp\" class=\"form-group\"><div class=\"input-group\"><form><input id=\"input-users\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div><div id=\"name-alert\"></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></div>");;return buf.join("");
+buf.push("<div class=\"page-header\"><h1>New count</h1><p>A new count is juste a folder where you can put some friends and</p>create a fictional history of who paid what and who owe who.</div><div id=\"formular\"><div id=\"input-name-grp\" class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\" class=\"form-control\"/></div><label for=\"currency\">Count Currencies</label><div id=\"currency\" class=\"form-group\"><div id=\"currencies-list\" data-toggle=\"buttons\" class=\"btn-group\"><label class=\"btn btn-primary currency\"><input type=\"checkbox\", autocomplete=\"off\", value=\"€\"> €</label><label class=\"btn btn-primary currency\"><input type=\"checkbox\", autocomplete=\"off\", value=\"$\"> $</label></div></div><div class=\"form-group\"><div id=\"list-users\" class=\"btn-group\"></div></div><label for=\"input-user-grp\">Count Users</label><div id=\"input-user-grp\" class=\"form-group\"><div class=\"input-group\"><form><input id=\"input-users\" type=\"text\" placeholder=\"My name\" class=\"form-control\"/><span class=\"input-group-btn\"><input id=\"add-user\" type=\"submit\" value=\"Add user\" class=\"btn btn-default\"/></span></form></div></div><div id=\"name-alert\"></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -2275,11 +2279,11 @@ var AddExpenseView = BaseView.extend({
 
 
 	events: {
-		'click .seeder'							: 'setSeeder',
-		'click .leecher'						: 'setLeecher',
-		'click #add-expense-save'		: 'lauchSaveExpense',
+		'click .seeder'				: 'setSeeder',
+		'click .leecher'			: 'setLeecher',
+		'click #add-expense-save'	: 'lauchSaveExpense',
 		'click #add-expense-cancel'	: 'resetNewExpense',
-		'click .currency'						:	'setCurrency',
+		'click .currency'			:	'setCurrency',
 	},
 
 

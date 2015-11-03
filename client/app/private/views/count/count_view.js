@@ -146,7 +146,7 @@ var CountView = CountBaseView.extend({
         }
         self.$(event.target).parent().parent().remove();
       });
-      if (this.expenses.length == 0) {
+      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
         this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
       }
     },

@@ -207,6 +207,7 @@ var AddExpenseView = BaseView.extend({
         expenses: newExpensesList,
         users: allUsers,
       }, {
+        url: '/public/count/' + this.count.id,
         wait: true,
         success: function (data) {
           app.router.navigate('/', {trigger: true});
