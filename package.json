@@ -1,31 +1,32 @@
 {
-  "name": "cozycount",
-  "version": "1.0.0",
-  "engines": [
-    "node = 0.4.x"
+	"name": "cozycount",
+	"version": "1.0.0",
+	"engines": [
+		"node = 0.4.x"
   ],
   "description": "Manage debt betwen friends",
   "license": "MIT",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/mycozycloud/cozy-template-js.git"
+	  "type": "git",
+	  "url": "https://github.com/mycozycloud/cozy-template-js.git"
   },
   "main": "server.js",
   "dependencies": {
-    "americano": "0.3.11",
-    "cozydb": "0.1.3",
-    "jade": "^1.11.0"
+	  "cozy-realtime-adapter": "1.0.1",
+	  "americano": "0.3.11",
+	  "cozydb": "0.1.3",
+	  "jade": "^1.11.0"
   },
   "devDependencies": {
-    "should": "4.0.1",
-    "mocha": "1.20.1",
-    "request-json": "0.4.10",
-    "cozy-fixtures": "1.1.1",
-    "jslint": "0.2.0"
+	  "should": "4.0.1",
+	  "mocha": "1.20.1",
+	  "request-json": "0.4.10",
+	  "cozy-fixtures": "1.1.1",
+	  "jslint": "0.2.0"
   },
   "scripts": {
-    "test": "cake tests",
-    "start": "node server.js"
+	  "test": "cake tests",
+	  "start": "node server.js"
   },
   "cozy-permissions": {
 	  "shared-count": {

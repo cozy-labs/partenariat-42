@@ -4,7 +4,7 @@ var error_handler = require('./middleware/error_handler');
 
 
 var staticMiddleware = americano.static(path.resolve(__dirname, '../client/public'), {maxAge: 86400000});
-var viewStatic = function (req, res, next) {
+var publicStatic = function (req, res, next) {
 
 	//Allows assets to be loaded from any route
 	detectAssets = /\/(stylesheets|javascripts|images|fonts)+\/(.+)$/;
@@ -24,9 +24,9 @@ var viewStatic = function (req, res, next) {
 var config = {
 	common: {
 		use: [
-			staticMiddleware,
-			viewStatic,
 			americano.bodyParser({keepExtensions: true}),
+			staticMiddleware,
+			publicStatic,
 		],
 		afterStart: function (app, server) {
           app.use(error_handler)
