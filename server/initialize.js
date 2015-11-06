@@ -7,9 +7,9 @@ module.exports.afterStart = function (app, server, callback) {
   feed.initialize(server);
 
   var realtime = RealtimeAdapter(server, ['shared-count.*'],
-      {path: '/public/socker.io'});
+      {path: '/public/socket.io'});
 
-  realtime.on('shared-count.*', function (event, id) {
+  realtime.on('shared-count.update', function (event, id) {
     console.log('event: ', event, ' / ', id);
   });
 }

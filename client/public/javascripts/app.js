@@ -205,6 +205,29 @@ module.exports = BaseView;
 
 });
 
+require.register("private/lib/socket", function(exports, require, module) {
+
+var Count = require('../models/count');
+
+
+var SocketListener = _.extend(CozySocketListener, {
+  models: {
+    'shared-count': Count
+  },
+
+  events: [ 'shared-count.update' ],
+
+  onRemoteUpdate: function (model, collection) {
+    console.log('remote update');
+  },
+
+});
+
+
+module.exports = SocketListener;
+
+});
+
 require.register("private/lib/view_collection", function(exports, require, module) {
 
 var BaseView = require('./base_view');
@@ -384,6 +407,7 @@ var CountUpdateView = require('./views/countEditor/count_update_view');
 var CountCreationView = require('./views/countEditor/count_creation_view');
 var ArchiveView = require('./views/count/archive_view');
 var NewExpense = require('./views/newEvent/expense/new_expense_view');
+var SocketListener = require('./lib/socket');
 
 // Models
 var CountList = require('./collections/count_list');
@@ -403,6 +427,10 @@ var Router = Backbone.Router.extend({
    */
   initialize: function () {
     this.initializeCollections();
+
+
+    this.socket = new SocketListener();
+    this.socket.watch(window.countCollection);
 
     this.mainMenu = new MenuView();
     this.mainMenu.renderCounts();
@@ -1033,12 +1061,12 @@ var CountView = CountBaseView.extend({
    * navigation there must be juste one count available, set in the router
    */
   initialize: function (attributes) {
-      this.count = window.countCollection.models.find(function (count) {
-        if (count.get('name') == attributes.countName) {
-          return true;
-        }
-        return false;
-      });
+    this.count = window.countCollection.models.find(function (count) {
+      if (count.get('name') == attributes.countName) {
+        return true;
+      }
+      return false;
+    });
 
     CountBaseView.prototype.initialize.call(this);
   },
@@ -1137,18 +1165,25 @@ var CountView = CountBaseView.extend({
     deleteExpense: function (event) {
       var id = Number(this.$(event.target).parent().attr('id'));
       var self = this;
-      this.count.removeExpense(id, function () {
-        self.stats.update();
-        if (self.balancing !== null && self.balancing !== undefined) {
-          self.balancing.update();
+      this.count.removeExpense(id, (function(_this) {
+        return function (id) {
+          _this.deleteExpenseView(id);
         }
-        self.$(event.target).parent().parent().remove();
-      });
+      })(this));
+    },
+
+
+    deleteExpenseView: function (id) {
+        this.stats.update();
+
+      if (this.balancing !== null && this.balancing !== undefined) {
+        this.balancing.update();
+      }
+      this.$('#' + id).parent().parent().remove();
       if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
         this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
       }
     },
-
 
 });
 

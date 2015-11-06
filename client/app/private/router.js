@@ -10,6 +10,7 @@ var CountUpdateView = require('./views/countEditor/count_update_view');
 var CountCreationView = require('./views/countEditor/count_creation_view');
 var ArchiveView = require('./views/count/archive_view');
 var NewExpense = require('./views/newEvent/expense/new_expense_view');
+var SocketListener = require('./lib/socket');
 
 // Models
 var CountList = require('./collections/count_list');
@@ -29,6 +30,10 @@ var Router = Backbone.Router.extend({
    */
   initialize: function () {
     this.initializeCollections();
+
+
+    this.socket = new SocketListener();
+    this.socket.watch(window.countCollection);
 
     this.mainMenu = new MenuView();
     this.mainMenu.renderCounts();
