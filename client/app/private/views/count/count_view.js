@@ -20,11 +20,11 @@ var CountView = CountBaseView.extend({
   balancing: null,
 
   events: {
-    'click #count-lauch-add-user'	:	'addUser',
-    'click #add-new-expense'			: 'lauchNewExpense',
+    'click #count-lauch-add-user'	: 'addUser',
+    'click #add-new-expense'		: 'lauchNewExpense',
     'click .header-expense-elem'	: 'printTransferBody',
     'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'			: 'printBalancing',
+    'click #header-balancing'		: 'printBalancing',
   },
 
 
@@ -136,25 +136,20 @@ var CountView = CountBaseView.extend({
    * Remove a history element and update the stats
    */
     deleteExpense: function (event) {
+      var self = this;
       var id = Number(this.$(event.target).parent().attr('id'));
-      this.count.removeExpense(id, (function(_this) {
-        return function () {
-          _this.deleteExpenseView(id);
+
+      this.count.removeExpense(id, function() {
+        self.stats.update();
+
+        if (self.balancing !== null && self.balancing !== undefined) {
+          self.balancing.update();
         }
-      })(this));
-    },
-
-
-    deleteExpenseView: function (id) {
-      this.stats.update();
-
-      if (this.balancing !== null && this.balancing !== undefined) {
-        this.balancing.update();
-      }
-      this.$('#' + id).parent().remove();
-      if (this.count.get('expenses') == null || this.count.get('expenses') == undefined || this.count.get('expenses').length == 0) {
-        this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-      }
+        self.$('#' + id).parent().remove();
+        if (self.count.get('expenses') == null || self.count.get('expenses') == undefined || self.count.get('expenses').length == 0) {
+          self.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+        }
+      });
     },
 
 });

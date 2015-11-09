@@ -322,72 +322,72 @@ var app = require('../application');
 
 var Count = Backbone.Model.extend({
 
-	removeExpense: function (id, callback) {
-		var index = this.get('expenses').findIndex(function (elem) {
-			if (elem.id === id) {
-				return true;
-			}
-			return false;
-		});
+  removeExpense: function (id, callback) {
+      var index = this.get('expenses').findIndex(function (elem) {
+        if (elem.id === id) {
+          return true;
+        }
+        return false;
+      });
 
-		var newExpenses = this.get('expenses');
-		var expenseRemove = newExpenses.splice(index, 1)[0];
+    var newExpenses = this.get('expenses');
+    var expenseRemove = newExpenses.splice(index, 1)[0];
 
-		var currentExpenses = this.get('allExpenses');
-		var currentUsers = this.get('users');
-		var leecherList = expenseRemove.leecher;
-		var seeder = expenseRemove.seeder;
+    var currentExpenses = this.get('allExpenses');
+    var currentUsers = this.get('users');
+    var leecherList = expenseRemove.leecher;
+    var seeder = expenseRemove.seeder;
 
-		var newUsersList = this.get('users').map(function (user) {
-			leecherList.every(function (expenseUser) {
-				if (user.name === expenseUser.name) {
-					var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
-					user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
-					return false;
-				}
-				return true;
-			});
+    var newUsersList = this.get('users').map(function (user) {
+      leecherList.every(function (expenseUser) {
+        if (user.name === expenseUser.name) {
+          var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
+          user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
+          return false;
+        }
+        return true;
+      });
 
-			if (user.name == seeder) {
-					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
-			}
-			return user;
-		});
+      if (user.name == seeder) {
+        user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+      }
+      return user;
+    });
 
-		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+    var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 
-		this.save({
-			expenses: newExpenses,
-			allExpenses: newAllExpenses,
-			users: newUsersList
-		}, {
-			wait: true,
-			success: function () {
-				callback();
-			},
-			error: function (xht) {
-				console.error(xhr);
-			}
-		});
-	},
+    this.save({
+      expenses: newExpenses,
+      allExpenses: newAllExpenses,
+      users: newUsersList
+    }, {
+      wait: true,
+      success: function () {
+        callback();
+      },
+      error: function (xht) {
+        console.error(xhr);
+      }
+    });
+  },
 
 
-	archive: function () {
-		var self = this;
-		this.save({
-			status: 'archive'
-		}, {
-			wait: true,
-			success: function () {
-				window.countCollection.remove(self);
+  archive: function () {
+    var self = this;
+    this.save({
+      status: 'archive'
+    }, {
+      wait: true,
+      success: function () {
+        window.countCollection.remove(self);
         window.archiveCollection.push(self);
-				app.router.navigate('', {trigger: true});
-			},
-			error: function (xhr) {
-				console.error(xhr);
-			}
-		});
-	},
+        app.router.navigate('', {trigger: true});
+      },
+      error: function (xhr) {
+        console.error(xhr);
+      }
+    });
+  },
 });
 
 module.exports = Count;
@@ -1047,11 +1047,11 @@ var CountView = CountBaseView.extend({
   balancing: null,
 
   events: {
-    'click #count-lauch-add-user'	:	'addUser',
-    'click #add-new-expense'			: 'lauchNewExpense',
+    'click #count-lauch-add-user'	: 'addUser',
+    'click #add-new-expense'		: 'lauchNewExpense',
     'click .header-expense-elem'	: 'printTransferBody',
     'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'			: 'printBalancing',
+    'click #header-balancing'		: 'printBalancing',
   },
 
 
@@ -1163,25 +1163,20 @@ var CountView = CountBaseView.extend({
    * Remove a history element and update the stats
    */
     deleteExpense: function (event) {
+      var self = this;
       var id = Number(this.$(event.target).parent().attr('id'));
-      this.count.removeExpense(id, (function(_this) {
-        return function () {
-          _this.deleteExpenseView(id);
+
+      this.count.removeExpense(id, function() {
+        self.stats.update();
+
+        if (self.balancing !== null && self.balancing !== undefined) {
+          self.balancing.update();
         }
-      })(this));
-    },
-
-
-    deleteExpenseView: function (id) {
-      this.stats.update();
-
-      if (this.balancing !== null && this.balancing !== undefined) {
-        this.balancing.update();
-      }
-      this.$('#' + id).parent().remove();
-      if (this.count.get('expenses') == null || this.count.get('expenses') == undefined || this.count.get('expenses').length == 0) {
-        this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-      }
+        self.$('#' + id).parent().remove();
+        if (self.count.get('expenses') == null || self.count.get('expenses') == undefined || self.count.get('expenses').length == 0) {
+          self.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
+        }
+      });
     },
 
 });
@@ -1381,89 +1376,89 @@ var BaseView = require('../../lib/base_view');
  * Manage all stats in stats module
  */
 var StatsView = BaseView.extend({
-	el: '#stats-module',
+  el: '#stats-module',
 
 
-	initialize: function (attributes) {
-		this.count = attributes.count;
+  initialize: function (attributes) {
+    this.count = attributes.count;
 
-		BaseView.prototype.initialize.call(this);
-	},
+    BaseView.prototype.initialize.call(this);
+  },
 
 
 
   /*
    * Create the pie chart and reder it
    */
-	render: function () {
-		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-		var data = this.computeDataCount();
-		this.pieChart = new Chart(chartCtx).Pie(data);
-	},
+  render: function () {
+    var chartCtx = this.$('#chart-users').get(0).getContext("2d");
+    var data = this.computeDataCount();
+    this.pieChart = new Chart(chartCtx).Pie(data);
+  },
 
 
   /*
    * Compute data needed for the pie chart. We don't add the user with 0 seed
    * because the update don't work from 0 to X value.
    */
-	computeDataCount: function () {
+  computeDataCount: function () {
     var data = [];
-		this.count.get('users').forEach(function (elem) {
+    this.count.get('users').forEach(function (elem) {
       if (Number(elem.seed) !== 0) {
         data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
       }
-		});
+    });
     return data;
-	},
+  },
 
 
   /*
    * Update the value of the pie chart
    */
-	update: function () {
-		var allExpenses = Number(this.count.get('allExpenses'));
-		var nbUsers = Number(this.count.get('users').length);
+  update: function () {
+    var allExpenses = Number(this.count.get('allExpenses'));
+    var nbUsers = Number(this.count.get('users').length);
 
-		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+    var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
     // Update the numbers of the general state (to the right of the pie chart)
-		this.$('#nb-expenses').text(this.count.get('expenses').length);
-		this.$('#all-expenses').text(allExpenses);
-		this.$('#perUser-expenses').text(perUserExpenses);
+    $('#nb-expenses').text(this.count.get('expenses').length);
+    $('#all-expenses').text(allExpenses);
+    $('#perUser-expenses').text(perUserExpenses);
 
-		var self = this;
+    var self = this;
 
     /*
      * Main loop wiche I update/ create data to the pie chart
      */
-		this.count.get('users').forEach(function (user, indexUser) {
-			var indexPie = null;
+    this.count.get('users').forEach(function (user, indexUser) {
+      var indexPie = null;
       // For each user we looking him in the data of the pie chart
-			self.pieChart.segments.find(function (pieSegment, index) {
-				if (pieSegment.label === user.name) {
-					indexPie = index;
-					return true;
-				}
-				return false;
-			})
+      self.pieChart.segments.find(function (pieSegment, index) {
+        if (pieSegment.label === user.name) {
+          indexPie = index;
+          return true;
+        }
+        return false;
+      })
       // If we find it we update the chart with the new data in the segment
-			if (indexPie !== undefined && indexPie !== null) {
-				if (user.seed == 0) {
-					self.pieChart.removeData(indexPie);
-				} else {
-					self.pieChart.segments[indexPie].value = user.seed;
-					self.pieChart.update();
-				}
+      if (indexPie !== undefined && indexPie !== null) {
+        if (user.seed == 0) {
+          self.pieChart.removeData(indexPie);
+        } else {
+          self.pieChart.segments[indexPie].value = user.seed;
+          self.pieChart.update();
+        }
         // If not we create a new segment
-			} else {
-				self.pieChart.addData({
-					value: user.seed,
-					color: '#' + user.color,
-					label: user.name
-				});
-			}
-		});
-	},
+      } else {
+        self.pieChart.addData({
+          value: user.seed,
+          color: '#' + user.color,
+          label: user.name
+        });
+      }
+    });
+  },
 
 });
 
