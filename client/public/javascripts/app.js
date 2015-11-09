@@ -1164,9 +1164,8 @@ var CountView = CountBaseView.extend({
    */
     deleteExpense: function (event) {
       var id = Number(this.$(event.target).parent().attr('id'));
-      var self = this;
       this.count.removeExpense(id, (function(_this) {
-        return function (id) {
+        return function () {
           _this.deleteExpenseView(id);
         }
       })(this));
@@ -1174,13 +1173,13 @@ var CountView = CountBaseView.extend({
 
 
     deleteExpenseView: function (id) {
-        this.stats.update();
+      this.stats.update();
 
       if (this.balancing !== null && this.balancing !== undefined) {
         this.balancing.update();
       }
-      this.$('#' + id).parent().parent().remove();
-      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
+      this.$('#' + id).parent().remove();
+      if (this.count.get('expenses') == null || this.count.get('expenses') == undefined || this.count.get('expenses').length == 0) {
         this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
       }
     },
