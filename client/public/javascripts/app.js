@@ -215,7 +215,7 @@ var SocketListener = _.extend(CozySocketListener, {
     'shared-count': Count
   },
 
-  events: [ 'shared-count.update' ],
+  events: [ 'shared-count.*' ],
 
   onRemoteUpdate: function (model, collection) {
     console.log('remote update');
@@ -1984,7 +1984,7 @@ var CountUpdateView = CountEditionBase.extend({
 
   events: {
     'click #submit-editor'  : 'lauchCountUpdate',
-    'click #input-public'   : 'setPublic'
+    'click #input-public'   : 'changePublicStatus'
   },
 
 
@@ -2024,16 +2024,25 @@ var CountUpdateView = CountEditionBase.extend({
    * Set the variable <this.isPublic> which will set the credential to the futur
    * access from the public area.
    */
-  setPublic: function () {
+  changePublicStatus: function () {
     if (this.count.get('isPublic') == false) {
-      this.count.set('isPublic', true);
-      this.$('#input-public').text('Make this count private');
-      this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
+      this.setPublic();
     } else {
-      this.count.set('isPublic', false);
-      this.$('#input-public').text('Make this count public');
-      this.$('#public-section-body').remove();
+      this.setPrivate();
     }
+  },
+
+  setPublic: function () {
+    this.count.set('isPublic', true);
+    this.$('#input-public').text('Make this count private');
+    this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
+  },
+
+
+  setPrivate: function () {
+    this.count.set('isPublic', false);
+    this.$('#input-public').text('Make this count public');
+    this.$('#public-section-body').remove();
   },
 
   /*
@@ -2062,18 +2071,18 @@ var CountUpdateView = CountEditionBase.extend({
    * Lauche an update server side
    * TODO: improve it and ckeck if name is already taken
    */
-    lauchCountUpdate: function () {
-      this.count.set('description', this.$('#input-description').val());
+  lauchCountUpdate: function () {
+    this.count.set('description', this.$('#input-description').val());
 
-      this.count.save(this.count.attributes, {
-        error: function (xhr) {
-          console.error (xhr);
-        },
-        success: function (data) {
-          app.router.navigate('/count/' + data.get('name'), {trigger: true});
-        }
-      });
-    },
+    this.count.save(this.count.attributes, {
+      error: function (xhr) {
+        console.error (xhr);
+      },
+      success: function (data) {
+        app.router.navigate('/count/' + data.get('name'), {trigger: true});
+      }
+    });
+  },
 });
 
 module.exports = CountUpdateView;

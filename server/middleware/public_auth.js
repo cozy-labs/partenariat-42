@@ -13,7 +13,7 @@ module.exports.checkClearance = function () {
         if (count == null) {
           console.error('Fail to retrieve count');
           var err = new Error('Fail to retrieve data');
-          err.status = 500;
+          err.status = 404;
           return next(err);
         }
 

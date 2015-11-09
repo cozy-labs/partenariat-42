@@ -7,7 +7,7 @@ var SocketListener = _.extend(CozySocketListener, {
     'shared-count': Count
   },
 
-  events: [ 'shared-count.update' ],
+  events: [ 'shared-count.*' ],
 
   onRemoteUpdate: function (model, collection) {
     console.log('remote update');

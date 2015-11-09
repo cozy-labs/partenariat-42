@@ -238,7 +238,7 @@ var Count = Backbone.Model.extend({
 			success: function () {
 				callback();
 			},
-			error: function (xht) {
+			error: function (xhr) {
 				console.error(xhr);
 			}
 		});
