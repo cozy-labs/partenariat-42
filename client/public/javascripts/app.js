@@ -226,7 +226,6 @@ CozySocketListener.prototype.events = [
 
 SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
-
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
   var printModel = app.router.mainView.count;
   if (printModel.id === model.id) {
@@ -1108,9 +1107,16 @@ var CountView = CountBaseView.extend({
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
-
     // Save the new list of user
     this.count.save({users: userList});
+
+    // Empty the user input
+    this.$('#count-input-add-user').val('');
+
+    // Update the stats
+    if (this.balancing !== null && this.balancing !== undefined) {
+      this.balancing.update();
+    }
   },
 
 
