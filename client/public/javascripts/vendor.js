@@ -634,7 +634,6 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
     };
 
     CozySocketListener.prototype.watch = function(collection) {
-      console.log('parent coll: ', collection);
       if (this.collections.length === 0) {
         this.collection = collection;
       }
@@ -728,7 +727,6 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
     };
 
     CozySocketListener.prototype.callbackFactory = function(event) {
-      console.log('event 1 !!!!')
       var _this = this;
       return function(id) {
         var doctype, fullevent, operation, _ref;
@@ -746,7 +744,6 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
     };
 
     CozySocketListener.prototype.processStack = function() {
-      console.log('event 2 !!!!')
       var _results;
       this.cleanStack();
       _results = [];
@@ -757,7 +754,6 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
     };
 
     CozySocketListener.prototype.process = function(event) {
-      console.log('event 3 !!!!')
       var doctype, id, model, operation,
         _this = this;
       doctype = event.doctype, operation = event.operation, id = event.id;

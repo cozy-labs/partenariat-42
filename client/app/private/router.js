@@ -18,8 +18,8 @@ var Count = require('./models/count');
 
 var Router = Backbone.Router.extend({
 
-  mainScreen: null,
   mainMenu: null,
+  mainView: null,
   currentButton: null,
 
   /*
@@ -34,7 +34,6 @@ var Router = Backbone.Router.extend({
 
     this.socket = new SocketListener;
     this.socket.watch(window.countCollection);
-    console.log('socket: ', this.socket);
 
 
     this.mainMenu = new MenuView();
@@ -113,7 +112,7 @@ var Router = Backbone.Router.extend({
   printCount: function (countName) {
     this.selectInMenu($('#count-'+countName).parent());
 
-    view = new CountView({countName: countName});
+    var view = new CountView({countName: countName});
 
     this.displayView(view);
   },

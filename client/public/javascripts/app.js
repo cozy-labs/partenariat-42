@@ -208,36 +208,35 @@ module.exports = BaseView;
 require.register("private/lib/socket", function(exports, require, module) {
 
 var Count = require('../models/count');
-
-//var SocketListener = _.extend(CozySocketListener, {});
-//});
-
+var CountView = require('../views/count/count_view');
+var app = require('../application');
 
 function SocketListener() {
   // Parent constructor
   CozySocketListener.call(this);
-
-  // Public attributes
-  models = {
-    'shared-count': Count
-  };
-
-  events = [ 'shared-count.*' ];
-
 };
+
+CozySocketListener.prototype.models = {
+  'shared-count': Count
+};
+
+CozySocketListener.prototype.events = [
+  'shared-count.update'
+];
 
 SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
 
-//SocketListener.onRemoteUpdate: function (model, collection) {
-  //console.log('remote update');
-//};
-
-SocketListener.prototype.process = function (event) {
-  console.log('event: ', event);
+SocketListener.prototype.onRemoteUpdate = function (model, collection) {
+  console.log('removeUpdate !!!!!!');
+  var printModel = app.router.mainView.count;
+  console.log('countView: ', printModel);
+  if (printModel.id === model.id) {
+    console.log('redirect');
+    var view = new CountView({countName: printModel.get('name')});
+    app.router.displayView(view);
+  }
 };
-
-
 
 module.exports = SocketListener;
 
@@ -430,8 +429,8 @@ var Count = require('./models/count');
 
 var Router = Backbone.Router.extend({
 
-  mainScreen: null,
   mainMenu: null,
+  mainView: null,
   currentButton: null,
 
   /*
@@ -446,7 +445,6 @@ var Router = Backbone.Router.extend({
 
     this.socket = new SocketListener;
     this.socket.watch(window.countCollection);
-    console.log('socket: ', this.socket);
 
 
     this.mainMenu = new MenuView();
@@ -525,7 +523,7 @@ var Router = Backbone.Router.extend({
   printCount: function (countName) {
     this.selectInMenu($('#count-'+countName).parent());
 
-    view = new CountView({countName: countName});
+    var view = new CountView({countName: countName});
 
     this.displayView(view);
   },

@@ -139,19 +139,7 @@ var CountView = CountBaseView.extend({
       var self = this;
       var id = Number(this.$(event.target).parent().attr('id'));
 
-      this.count.removeExpense(id, function() {
-        self.stats.update();
-
-        if (self.balancing !== null && self.balancing !== undefined) {
-          self.balancing.update();
-        }
-        self.$('#' + id).parent().remove();
-        if (self.count.get('expenses') == null || self.count.get('expenses') == undefined || self.count.get('expenses').length == 0) {
-          self.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-        }
-      });
-    },
-
+      this.count.removeExpense(id);
 });
 
 module.exports = CountView;

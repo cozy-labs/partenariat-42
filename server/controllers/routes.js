@@ -14,15 +14,16 @@ module.exports = {
 	post: count.create
   },
 
-  'count/:id': {
-	delete: count.destroy,
-	put: count.update
-  },
-
   'public/count/:id': {
     get: [public_auth.checkClearance(), index.public],
-    put: [public_auth.checkClearance(), count.update]
-  }
+    put: [public_auth.checkClearance(), count.update],
+  },
+
+  'count/:id': {
+	delete: count.destroy,
+	put: count.update,
+    get: count.getUpdate,
+  },
 
 };
 
