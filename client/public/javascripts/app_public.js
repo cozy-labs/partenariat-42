@@ -130,6 +130,18 @@ module.exports = Application;
 
 });
 
+require.register("public/collections/count_list", function(exports, require, module) {
+var Count = require('../models/count');
+
+var CountList = Backbone.Collection.extend({
+	model: Count,
+    url: 'count',
+});
+
+module.exports = CountList;
+
+});
+
 require.register("public/helper/color_set", function(exports, require, module) {
 module.exports = [
     '2979FF',
@@ -188,14 +200,48 @@ module.exports = BaseView;
 
 });
 
+require.register("public/lib/socket", function(exports, require, module) {
+
+var Count = require('../models/count');
+var CountView = require('../views/count/count_view');
+var app = require('../application');
+
+function SocketListener() {
+  // Parent constructor
+  CozySocketListener.call(this);
+};
+
+CozySocketListener.prototype.models = {
+  'shared-count': Count
+};
+
+CozySocketListener.prototype.events = [
+  'shared-count.update'
+];
+
+SocketListener.prototype = Object.create(CozySocketListener.prototype);
+
+
+SocketListener.prototype.onRemoteUpdate = function (model, collection) {
+  console.log('event !!!!!!!: ', model)
+  var printModel = app.router.mainView.count;
+  if (printModel.id === model.id) {
+    var view = new CountView({countName: printModel.get('name')});
+    app.router.displayView(view);
+  }
+};
+
+module.exports = SocketListener;
+
+});
+
 require.register("public/models/count", function(exports, require, module) {
 
 var app = require('../application');
 
 var Count = Backbone.Model.extend({
-	url: 'count',
 
-	removeExpense: function (id, callback) {
+	removeExpense: function (id) {
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -234,10 +280,8 @@ var Count = Backbone.Model.extend({
 			allExpenses: newAllExpenses,
 			users: newUsersList
 		}, {
+            url: '/public/count/' + this.id,
 			wait: true,
-			success: function () {
-				callback();
-			},
 			error: function (xhr) {
 				console.error(xhr);
 			}
@@ -259,6 +303,8 @@ var NewExpense = require('./views/newEvent/expense/new_expense_view');
 
 // Models
 var Count = require('./models/count');
+var CountList = require('./collections/count_list');
+var SocketListener = require('./lib/socket');
 
 var Router = Backbone.Router.extend({
 
@@ -271,7 +317,14 @@ var Router = Backbone.Router.extend({
    * The main HTML is already render server side, be remain the count list
    */
   initialize: function () {
-    this.count = new Count(window.count);
+
+    window.countCollection = new CountList();
+    window.countCollection.add(new Count(window.count));
+
+    this.count = window.countCollection.models[0];
+
+    this.socket = new SocketListener;
+    this.socket.watch(window.countCollection);
 
     Backbone.Router.prototype.initialize.call(this);
   },
@@ -469,21 +522,12 @@ var CountView = CountBaseView.extend({
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
-    // Add the user button to  userlist
-    this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
     // Save the new list of user
     this.count.save({users: userList}, {
       url: '/public/count/' + this.count.id,
     });
 
-    // Empty the user input
-    this.$('#count-input-add-user').val('');
-
-    // Update the is it printe
-    if (this.balancing !== null && this.balancing !== undefined) {
-      this.balancing.update();
-    }
   },
 
 
@@ -537,16 +581,7 @@ var CountView = CountBaseView.extend({
     deleteExpense: function (event) {
       var id = Number(this.$(event.target).parent().attr('id'));
       var self = this;
-      this.count.removeExpense(id, function () {
-        self.stats.update();
-        if (self.balancing !== null && self.balancing !== undefined) {
-          self.balancing.update();
-        }
-        self.$(event.target).parent().parent().remove();
-      });
-      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
-        this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-      }
+      this.count.removeExpense(id);
     },
 
 

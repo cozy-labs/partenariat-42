@@ -72,19 +72,9 @@ var CountView = CountBaseView.extend({
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
-    // Add the user button to  userlist
-    this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
     // Save the new list of user
     this.count.save({users: userList});
-
-    // Empty the user input
-    this.$('#count-input-add-user').val('');
-
-    // Update the stats
-    if (this.balancing !== null && this.balancing !== undefined) {
-      this.balancing.update();
-    }
   },
 
 
@@ -140,6 +130,8 @@ var CountView = CountBaseView.extend({
       var id = Number(this.$(event.target).parent().attr('id'));
 
       this.count.removeExpense(id);
+    },
+
 });
 
 module.exports = CountView;

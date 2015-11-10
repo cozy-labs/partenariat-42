@@ -2,9 +2,8 @@
 var app = require('../application');
 
 var Count = Backbone.Model.extend({
-	url: 'count',
 
-	removeExpense: function (id, callback) {
+	removeExpense: function (id) {
 		var index = this.get('expenses').findIndex(function (elem) {
 			if (elem.id === id) {
 				return true;
@@ -43,10 +42,8 @@ var Count = Backbone.Model.extend({
 			allExpenses: newAllExpenses,
 			users: newUsersList
 		}, {
+            url: '/public/count/' + this.id,
 			wait: true,
-			success: function () {
-				callback();
-			},
 			error: function (xhr) {
 				console.error(xhr);
 			}

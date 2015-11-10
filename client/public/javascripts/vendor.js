@@ -607,13 +607,13 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
       url = window.location.origin;
       path = window.location.pathname.substring(1);
       // CAREFUL, this is a modified version of cozy-realtime-adapter's client.
-      var appName = 'count';
+      var appName = 'shared-count';
       if(path.indexOf(appName) != -1) {
         // if production
         path = 'public/' + appName
       }
       else {
-        // if dev
+         //if dev
         path = 'public'
       }
 
@@ -772,6 +772,7 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
           });
         case 'update':
           if (model = this.singlemodels.get(id)) {
+            console.log('model: ', model);
             model.fetch({
               success: function(fetched) {
                 if (fetched.changedAttributes()) {

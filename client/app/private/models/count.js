@@ -4,12 +4,12 @@ var app = require('../application');
 var Count = Backbone.Model.extend({
 
   removeExpense: function (id) {
-      var index = this.get('expenses').findIndex(function (elem) {
-        if (elem.id === id) {
-          return true;
-        }
-        return false;
-      });
+    var index = this.get('expenses').findIndex(function (elem) {
+      if (elem.id === id) {
+        return true;
+      }
+      return false;
+    });
 
     var newExpenses = this.get('expenses');
     var expenseRemove = newExpenses.splice(index, 1)[0];
@@ -43,7 +43,7 @@ var Count = Backbone.Model.extend({
       users: newUsersList
     }, {
       wait: true,
-      error: function (xht) {
+      error: function (xhr) {
         console.error(xhr);
       }
     });

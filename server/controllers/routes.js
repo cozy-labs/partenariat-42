@@ -19,6 +19,10 @@ module.exports = {
     put: [public_auth.checkClearance(), count.update],
   },
 
+  'public/count/count/:id': {
+    get: [public_auth.checkClearance(), count.getUpdate],
+  },
+
   'count/:id': {
 	delete: count.destroy,
 	put: count.update,

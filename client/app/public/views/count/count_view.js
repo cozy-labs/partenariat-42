@@ -68,21 +68,12 @@ var CountView = CountBaseView.extend({
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
-    // Add the user button to  userlist
-    this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
 
     // Save the new list of user
     this.count.save({users: userList}, {
       url: '/public/count/' + this.count.id,
     });
 
-    // Empty the user input
-    this.$('#count-input-add-user').val('');
-
-    // Update the is it printe
-    if (this.balancing !== null && this.balancing !== undefined) {
-      this.balancing.update();
-    }
   },
 
 
@@ -136,16 +127,7 @@ var CountView = CountBaseView.extend({
     deleteExpense: function (event) {
       var id = Number(this.$(event.target).parent().attr('id'));
       var self = this;
-      this.count.removeExpense(id, function () {
-        self.stats.update();
-        if (self.balancing !== null && self.balancing !== undefined) {
-          self.balancing.update();
-        }
-        self.$(event.target).parent().parent().remove();
-      });
-      if (this.expenses == null || this.expenses == undefined || this.expenses.length == 0) {
-        this.$('#expense-list-view').prepend('<span id="empty-history">Your history is empty</span>');
-      }
+      this.count.removeExpense(id);
     },
 
 

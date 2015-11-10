@@ -5,6 +5,8 @@ var NewExpense = require('./views/newEvent/expense/new_expense_view');
 
 // Models
 var Count = require('./models/count');
+var CountList = require('./collections/count_list');
+var SocketListener = require('./lib/socket');
 
 var Router = Backbone.Router.extend({
 
@@ -17,7 +19,14 @@ var Router = Backbone.Router.extend({
    * The main HTML is already render server side, be remain the count list
    */
   initialize: function () {
-    this.count = new Count(window.count);
+
+    window.countCollection = new CountList();
+    window.countCollection.add(new Count(window.count));
+
+    this.count = window.countCollection.models[0];
+
+    this.socket = new SocketListener;
+    this.socket.watch(window.countCollection);
 
     Backbone.Router.prototype.initialize.call(this);
   },
