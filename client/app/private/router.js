@@ -32,8 +32,10 @@ var Router = Backbone.Router.extend({
     this.initializeCollections();
 
 
-    this.socket = new SocketListener();
+    this.socket = new SocketListener;
     this.socket.watch(window.countCollection);
+    console.log('socket: ', this.socket);
+
 
     this.mainMenu = new MenuView();
     this.mainMenu.renderCounts();

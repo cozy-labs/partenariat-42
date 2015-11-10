@@ -209,19 +209,34 @@ require.register("private/lib/socket", function(exports, require, module) {
 
 var Count = require('../models/count');
 
+//var SocketListener = _.extend(CozySocketListener, {});
+//});
 
-var SocketListener = _.extend(CozySocketListener, {
-  models: {
+
+function SocketListener() {
+  // Parent constructor
+  CozySocketListener.call(this);
+
+  // Public attributes
+  models = {
     'shared-count': Count
-  },
+  };
 
-  events: [ 'shared-count.*' ],
+  events = [ 'shared-count.*' ];
 
-  onRemoteUpdate: function (model, collection) {
-    console.log('remote update');
-  },
+};
 
-});
+SocketListener.prototype = Object.create(CozySocketListener.prototype);
+
+
+//SocketListener.onRemoteUpdate: function (model, collection) {
+  //console.log('remote update');
+//};
+
+SocketListener.prototype.process = function (event) {
+  console.log('event: ', event);
+};
+
 
 
 module.exports = SocketListener;
@@ -429,8 +444,10 @@ var Router = Backbone.Router.extend({
     this.initializeCollections();
 
 
-    this.socket = new SocketListener();
+    this.socket = new SocketListener;
     this.socket.watch(window.countCollection);
+    console.log('socket: ', this.socket);
+
 
     this.mainMenu = new MenuView();
     this.mainMenu.renderCounts();

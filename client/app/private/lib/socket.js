@@ -1,19 +1,34 @@
 
 var Count = require('../models/count');
 
+//var SocketListener = _.extend(CozySocketListener, {});
+//});
 
-var SocketListener = _.extend(CozySocketListener, {
-  models: {
+
+function SocketListener() {
+  // Parent constructor
+  CozySocketListener.call(this);
+
+  // Public attributes
+  models = {
     'shared-count': Count
-  },
+  };
 
-  events: [ 'shared-count.*' ],
+  events = [ 'shared-count.*' ];
 
-  onRemoteUpdate: function (model, collection) {
-    console.log('remote update');
-  },
+};
 
-});
+SocketListener.prototype = Object.create(CozySocketListener.prototype);
+
+
+//SocketListener.onRemoteUpdate: function (model, collection) {
+  //console.log('remote update');
+//};
+
+SocketListener.prototype.process = function (event) {
+  console.log('event: ', event);
+};
+
 
 
 module.exports = SocketListener;

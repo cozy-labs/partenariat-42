@@ -43,7 +43,7 @@
       url = window.location.origin;
       path = window.location.pathname.substring(1);
       // CAREFUL, this is a modified version of cozy-realtime-adapter's client.
-      var appName = 'files';
+      var appName = 'count';
       if(path.indexOf(appName) != -1) {
         // if production
         path = 'public/' + appName
@@ -70,6 +70,7 @@
     };
 
     CozySocketListener.prototype.watch = function(collection) {
+      console.log('parent coll: ', collection);
       if (this.collections.length === 0) {
         this.collection = collection;
       }
@@ -163,6 +164,7 @@
     };
 
     CozySocketListener.prototype.callbackFactory = function(event) {
+      console.log('event 1 !!!!')
       var _this = this;
       return function(id) {
         var doctype, fullevent, operation, _ref;
@@ -180,6 +182,7 @@
     };
 
     CozySocketListener.prototype.processStack = function() {
+      console.log('event 2 !!!!')
       var _results;
       this.cleanStack();
       _results = [];
@@ -190,6 +193,7 @@
     };
 
     CozySocketListener.prototype.process = function(event) {
+      console.log('event 3 !!!!')
       var doctype, id, model, operation,
         _this = this;
       doctype = event.doctype, operation = event.operation, id = event.id;
