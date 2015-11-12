@@ -59,11 +59,11 @@ var StatsView = BaseView.extend({
     var self = this;
 
     /*
-     * Main loop wiche I update/ create data to the pie chart
+     * Main loop where data for the pie chart is updated/created
      */
     this.count.get('users').forEach(function (user, indexUser) {
       var indexPie = null;
-      // For each user we looking him in the data of the pie chart
+      // For each user is looked up in the pie chart's data
       self.pieChart.segments.find(function (pieSegment, index) {
         if (pieSegment.label === user.name) {
           indexPie = index;

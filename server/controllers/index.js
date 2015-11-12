@@ -4,7 +4,7 @@ var Count = require('../models/count');
 module.exports.index = function (req, res, next) {
   Count.all(function (err, listCount) {
     res.render('index.jade',
-        {imports: 'window.listCount = ' + JSON.stringify(listCount) + ''});
+        {imports: 'window.listCount = ' + JSON.stringify(listCount)});
   });
 };
 
@@ -20,6 +20,6 @@ module.exports.public = function (req, res, next) {
     }
 
     res.render('index_public.jade',
-        {imports: 'window.count = ' + JSON.stringify(count) + ''});
+        {imports: 'window.count = ' + JSON.stringify(count)});
   });
 };

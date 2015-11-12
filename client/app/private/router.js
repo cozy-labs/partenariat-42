@@ -23,10 +23,10 @@ var Router = Backbone.Router.extend({
   currentButton: null,
 
   /*
-   * I Fetch all the data from the server in during the router initialization
-   * because for now there is no much data and it's easy to print any page.
+   * Fetch all the data from the server during the router initialization
+   * because there is not much data and it's easy to print any page.
    *
-   * The main HTML is already render server side, be remain the count list
+   * The main HTML is already render server side, but the count list remains
    */
   initialize: function () {
     this.initializeCollections();
@@ -131,8 +131,6 @@ var Router = Backbone.Router.extend({
 
     /*
      * Print specifique archive
-     * TODO: Check if we select with archive id or name, need to be with archive
-     * to avoid url conflic with count
      */
   printArchive: function (archiveName) {
     this.selectInMenu($('#menu-archives').parent());
@@ -154,10 +152,10 @@ var Router = Backbone.Router.extend({
       },
 
 
-      /*
-       * Generique function to manage view printing, must be call if you want print
-       * a screen
-       */
+    /*
+     * Generic function to manage view printing, must be call if you want print
+     * a screen
+     */
     displayView: function (view) {
       if (this.mainView !== null && this.mainView !== undefined) {
         this.mainView.remove();

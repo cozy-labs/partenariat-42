@@ -20,7 +20,6 @@ SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
 
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
-  console.log('event !!!!!!!: ', model)
   var printModel = app.router.mainView.count;
   if (printModel.id === model.id) {
     var view = new CountView({countName: printModel.get('name')});

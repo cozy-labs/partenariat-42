@@ -29,16 +29,11 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * If we are in 'cozy navigation' we get the name of the class and
-   * check in the collection if he can find it. Else if we are in public
-   * navigation there must be juste one count available, set in the router
+   * Find the count model from his name
    */
   initialize: function (attributes) {
     this.count = window.countCollection.models.find(function (count) {
-      if (count.get('name') == attributes.countName) {
-        return true;
-      }
-      return false;
+      return count.get('name') === attributes.countName;
     });
 
     CountBaseView.prototype.initialize.call(this);
@@ -58,15 +53,14 @@ var CountView = CountBaseView.extend({
 
     // Check if the name is taker
     var nameIsTaken = userList.find(function (elem) {
-      if (elem.name === newUser) {
-        return true;
-      }
-      return false;
+      return elem.name === newUser;
     });
 
     // Print an alert and quit if the name is taken
     if (nameIsTaken !== undefined) {
-      this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#name-alert').append('<div id="alert-name" class="alert\
+          alert-danger" role="alert"><a href="#" class="close"\
+          data-dismiss="alert">&times;</a>Name already taken</div>');
       return;
     }
 
@@ -91,7 +85,8 @@ var CountView = CountBaseView.extend({
    * with the new data so we haven't to handle this manually.
    */
   lauchNewExpense: function (event) {
-    app.router.navigate('count/' + this.count.get('name') + '/new-expense', {trigger: true});
+    app.router.navigate('count/' + this.count.get('name') + '/new-expense',
+        {trigger: true});
   },
 
 
@@ -104,7 +99,8 @@ var CountView = CountBaseView.extend({
     this.newExpense= null;
 
     // Remove the div
-    this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
+    this.$('#module').prepend('<button id="add-new-expense" class="btn\
+        btn-default btn-block"> Add a new expense</button>');
   },
 
 

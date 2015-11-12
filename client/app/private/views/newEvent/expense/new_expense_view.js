@@ -3,8 +3,8 @@ var app = require('../../../application');
 
 
 /*
- * View for adding an expense to the count. That's manage in a new view to make
- * more easy the history rendering if we add a new expense.
+ * View for adding an expense to the count. That is managed in a new view to make
+ * easier the history rendering if we add a new expense.
  */
 var AddExpenseView = BaseView.extend({
   template: require('./templates/new_expense'),
@@ -30,10 +30,7 @@ var AddExpenseView = BaseView.extend({
 
     // Find the count
     this.count = window.countCollection.models.find(function (count) {
-      if (count.get('name') == attributes.countName) {
-        return true;
-      }
-      return false;
+      return count.get('name') == attributes.countName;
     });
 
     // If there is no count, it's a bed url so I redirect to the main page
@@ -171,13 +168,12 @@ var AddExpenseView = BaseView.extend({
 
 
   /*
-   * Make all cacules to create the set of data to create the bunch of data
+   * Make all computations to create the set of data to create the bunch of data
    * needer to each expense. I had lost of issues with the number wiche a some
    * time manage as string so I cast everything as Number to be sure.
    *
    * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
    * round.
-   * TODO: create a generique function to manage round.
    */
     sendNewExpense: function () {
       var self = this;

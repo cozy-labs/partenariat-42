@@ -1,6 +1,8 @@
+/*global
+ axonPort
+ */
 
-
-module.exports = Feed = {
+var Feed = {
   axonSock: undefined,
 
   initialize: function (server) {
@@ -13,7 +15,7 @@ module.exports = Feed = {
 
     server.on('close', function () {
       if (self.axonSock !== undefined && self.axonSock !== null) {
-        self.axonSock.clos()
+        self.axonSock.clos();
       }
     });
   },
@@ -28,9 +30,11 @@ module.exports = Feed = {
 
 
   publish: function (event, id) {
-    this.logger.info('Publishing ', + event +' ', + id);
+    this.logger.info('Publishing ' + event + ' ' + id);
     if (this.axonSock !== undefined && this.axonSock !== null) {
       this.axonSock.send(event, id);
     }
   }
-}
+};
+
+module.exports = Feed;

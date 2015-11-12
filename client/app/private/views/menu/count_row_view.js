@@ -2,10 +2,9 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 /*
- * This view represente an element of the viewCollection countListView
+ * This view represents an element of the viewCollection countListView
  */
 var MenuCountRowView = BaseView.extend({
-  //template: require('./templates/count_row'),
 
   tagName: 'li',
 
@@ -21,7 +20,7 @@ var MenuCountRowView = BaseView.extend({
 
 
   getRenderData: function () {
-    return ({model: this.model.toJSON()});
+    return {model: this.model.toJSON()};
   },
 
   render: function () {

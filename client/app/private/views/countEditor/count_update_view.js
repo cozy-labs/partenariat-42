@@ -5,12 +5,7 @@ var app = require('../../application');
 var colorSet = require('../../helper/color_set');
 
 /*
- * View wiche manage the editing for an update or a creation of a view
- * I make the both in the same class because it's exactly the same data to
- * manage.
- *
- * It's an update when this.count is defined, so we update this count else if we
- * find no count it's a creation.
+ * Manage the count updating
  */
 var CountUpdateView = CountEditionBase.extend({
   id: 'count-editor-screen',
@@ -49,7 +44,7 @@ var CountUpdateView = CountEditionBase.extend({
       };
     })(this));
 
-    if (this.count !== null && this.count.get('isPublic') == true) {
+    if (this.count !== null && this.count.get('isPublic')) {
       this.setPublic();
     }
   },
@@ -60,7 +55,7 @@ var CountUpdateView = CountEditionBase.extend({
    * access from the public area.
    */
   changePublicStatus: function () {
-    if (this.count.get('isPublic') == false) {
+    if (!this.count.get('isPublic')) {
       this.setPublic();
     } else {
       this.setPrivate();

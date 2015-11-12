@@ -8,17 +8,17 @@ var MenuCountRowView = require('./count_row_view');
  * automatically add to the viewcollection
  */
 var MenuCountListView = ViewCollection.extend({
-	el: '#menu-list-count',
+  el: '#menu-list-count',
 
-	itemView: MenuCountRowView,
+  itemView: MenuCountRowView,
 
   /*
    * Link the viewCollection to the collection
    */
-	initialize: function (collection) {
-		this.collection = collection;
-		ViewCollection.prototype.initialize.call(this);
-	},
+  initialize: function (collection) {
+    this.collection = collection;
+    ViewCollection.prototype.initialize.call(this);
+  },
 });
 
 module.exports = MenuCountListView;

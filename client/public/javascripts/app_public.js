@@ -223,7 +223,6 @@ SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
 
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
-  console.log('event !!!!!!!: ', model)
   var printModel = app.router.mainView.count;
   if (printModel.id === model.id) {
     var view = new CountView({countName: printModel.get('name')});
@@ -241,52 +240,52 @@ var app = require('../application');
 
 var Count = Backbone.Model.extend({
 
-	removeExpense: function (id) {
-		var index = this.get('expenses').findIndex(function (elem) {
-			if (elem.id === id) {
-				return true;
-			}
-			return false;
-		});
+  removeExpense: function (id) {
+    var index = this.get('expenses').findIndex(function (elem) {
+      if (elem.id === id) {
+        return true;
+      }
+      return false;
+    });
 
-		var newExpenses = this.get('expenses');
-		var expenseRemove = newExpenses.splice(index, 1)[0];
+    var newExpenses = this.get('expenses');
+    var expenseRemove = newExpenses.splice(index, 1)[0];
 
-		var currentExpenses = this.get('allExpenses');
-		var currentUsers = this.get('users');
-		var leecherList = expenseRemove.leecher;
-		var seeder = expenseRemove.seeder;
+    var currentExpenses = this.get('allExpenses');
+    var currentUsers = this.get('users');
+    var leecherList = expenseRemove.leecher;
+    var seeder = expenseRemove.seeder;
 
-		var newUsersList = this.get('users').map(function (user) {
-			leecherList.every(function (expenseUser) {
-				if (user.name === expenseUser.name) {
-					var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
-					user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
-					return false;
-				}
-				return true;
-			});
+    var newUsersList = this.get('users').map(function (user) {
+      leecherList.every(function (expenseUser) {
+        if (user.name === expenseUser.name) {
+          var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
+          user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
+          return false;
+        }
+        return true;
+      });
 
-			if (user.name == seeder) {
-					user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
-			}
-			return user;
-		});
+      if (user.name == seeder) {
+        user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+      }
+      return user;
+    });
 
-		var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+    var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 
-		this.save({
-			expenses: newExpenses,
-			allExpenses: newAllExpenses,
-			users: newUsersList
-		}, {
-            url: '/public/count/' + this.id,
-			wait: true,
-			error: function (xhr) {
-				console.error(xhr);
-			}
-		});
-	},
+    this.save({
+      expenses: newExpenses,
+      allExpenses: newAllExpenses,
+      users: newUsersList
+    }, {
+      url: '/public/count/' + this.id,
+      wait: true,
+      error: function (xhr) {
+        console.error(xhr);
+      }
+    });
+  },
 
 
 });
@@ -610,46 +609,46 @@ var app = require('../../application');
  * TODO: Separate with a model
  */
 var SquareView = BaseView.extend({
-	id: 'square-view',
-	template: require('./templates/square'),
+  id: 'square-view',
+  template: require('./templates/square'),
 
 
-	events: {
-		'click #archive-count': 'archive',
-	},
+  events: {
+    'click #archive-count': 'archive',
+  },
 
 
-	initialize: function (attributes) {
-		this.count = attributes.count;
+  initialize: function (attributes) {
+    this.count = attributes.count;
 
-		this.setUsersBalancing();
+    this.setUsersBalancing();
 
-		BaseView.prototype.initialize.call(this);
-	},
+    BaseView.prototype.initialize.call(this);
+  },
 
 
-	render: function () {
-		$('#module-balancing').prepend(this.$el);
-		this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
-		this.$('#square-displayer').slideDown('slow');
+  render: function () {
+    $('#module-balancing').prepend(this.$el);
+    this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
+    this.$('#square-displayer').slideDown('slow');
 
-	},
+  },
 
 
   /*
    * Print or remove the body of the balancing module
    */
-	clickDisplayer: function () {
-		var displayer = this.$('#square-displayer');
+  clickDisplayer: function () {
+    var displayer = this.$('#square-displayer');
 
-		if (displayer.is('.printed')) {
-			displayer.slideUp('slow');
-			displayer.removeClass('printed');
-		} else {
-			displayer.slideDown('slow');
-			displayer.addClass('printed');
-		}
-	},
+    if (displayer.is('.printed')) {
+      displayer.slideUp('slow');
+      displayer.removeClass('printed');
+    } else {
+      displayer.slideDown('slow');
+      displayer.addClass('printed');
+    }
+  },
 
 
   /*
@@ -657,43 +656,43 @@ var SquareView = BaseView.extend({
    * TODO: make a manual update to changing directly the values not a
    * remove/rerender because that trigger a slide up/slide down and it's visible
    */
-	update: function () {
-		this.setUsersBalancing();
-		this.setSquareMoves();
-		this.remove();
-		this.render();
-	},
+  update: function () {
+    this.setUsersBalancing();
+    this.setSquareMoves();
+    this.remove();
+    this.render();
+  },
 
 
   /*
    * Create an array with the name, color and balancing of each user
    */
-	setUsersBalancing: function () {
-		var allExpenses = this.count.get('allExpenses');
-		var users = this.count.get('users');
+  setUsersBalancing: function () {
+    var allExpenses = this.count.get('allExpenses');
+    var users = this.count.get('users');
 
-		this.usersBalancing = users.map(function (user) {
-			return {
-				name: user.name,
-				color: user.color,
-				balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
-			}
-		});
+    this.usersBalancing = users.map(function (user) {
+      return {
+        name: user.name,
+        color: user.color,
+        balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
+      }
+    });
 
-		this.setSquareMoves();
-	},
+    this.setSquareMoves();
+  },
 
 
   /*
    * Calcule each moves to balancing the count
    */
-	setSquareMoves: function () {
-		this.squareMoves = [];
+  setSquareMoves: function () {
+    this.squareMoves = [];
 
     // copy the userBalancing array
-		var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
+    var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
 
-		var i = 0;
+    var i = 0;
 
     /*
      * The main loop: in each loop we find the biggest leecher and the biggest
@@ -704,78 +703,78 @@ var SquareView = BaseView.extend({
      * a "lost", I can't redistribute to any user. The goal it's to make this
      * lost tinier possible. For now it's max "0.01 * (nb or user -1)"
      */
-		while (tmpUsers.length > 1 && i++ < 50) {
-			var leecher = null;
-			var indexLeecher = 0;
+    while (tmpUsers.length > 1 && i++ < 50) {
+      var leecher = null;
+      var indexLeecher = 0;
 
       // Find the biggest leecher
-			for (index in tmpUsers) {
-				if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
-					leecher = {
-						name: tmpUsers[index].name,
-						balancing: Number(tmpUsers[index].balancing)
-					}
-					indexLeecher = index;
-				}
-			}
+      for (index in tmpUsers) {
+        if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
+          leecher = {
+            name: tmpUsers[index].name,
+            balancing: Number(tmpUsers[index].balancing)
+          }
+          indexLeecher = index;
+        }
+      }
 
-			var seeder = null;
-			var indexSeeder = 0;
+      var seeder = null;
+      var indexSeeder = 0;
 
       // Find the biggest seeder
-			for (index in tmpUsers) {
-				if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
-					seeder = {
-						name: tmpUsers[index].name,
-						balancing: Number(tmpUsers[index].balancing)
-					}
-					indexSeeder = index;
-				}
-			}
+      for (index in tmpUsers) {
+        if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
+          seeder = {
+            name: tmpUsers[index].name,
+            balancing: Number(tmpUsers[index].balancing)
+          }
+          indexSeeder = index;
+        }
+      }
 
       // Set the amount I can send from the leecher to the seeder to equalize a
       // max
-			if (leecher.balancing * -1 > seeder.balancing) {
-				exchange = seeder.balancing;
-			} else {
-				exchange = - leecher.balancing;
-			}
+      if (leecher.balancing * -1 > seeder.balancing) {
+        exchange = seeder.balancing;
+      } else {
+        exchange = - leecher.balancing;
+      }
 
       // Set the new balancin
-			seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
-			leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
+      seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
+      leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
 
       // Add the exchange to the list of exchanges
-			if (exchange !== 0 && exchange !== 'NaN') {
-				this.squareMoves.push({
-					from: leecher.name,
-					to: seeder.name,
-					exchange: exchange
-				});
-			}
+      if (exchange !== 0 && exchange !== 'NaN') {
+        this.squareMoves.push({
+          from: leecher.name,
+          to: seeder.name,
+          exchange: exchange
+        });
+      }
 
       // Remove the leecher of the seeder if their balancing is equal to 0
-			if (leecher.balancing == 0) {
-				tmpUsers.splice(indexLeecher, 1);
-			}
-			if (seeder.balancing == 0) {
-				tmpUsers.splice(indexSeeder, 1);
-			}
-		}
-	},
+      if (leecher.balancing == 0) {
+        tmpUsers.splice(indexLeecher, 1);
+      }
+      if (seeder.balancing == 0) {
+        tmpUsers.splice(indexSeeder, 1);
+      }
+    }
+  },
 
 
   /*
    * Archive a count
    */
-	archive: function (event) {
-		this.count.archive();
-	},
+  archive: function (event) {
+    this.count.archive();
+  },
 
 
-	resetSquare: function () {
-		this.trigger('remove-module');
-	},
+  resetSquare: function () {
+    this.trigger('remove-module');
+  },
 });
 
 module.exports = SquareView;
@@ -791,89 +790,89 @@ var BaseView = require('../../lib/base_view');
  * Manage all stats in stats module
  */
 var StatsView = BaseView.extend({
-	el: '#stats-module',
+  el: '#stats-module',
 
 
-	initialize: function (attributes) {
-		this.count = attributes.count;
+  initialize: function (attributes) {
+    this.count = attributes.count;
 
-		BaseView.prototype.initialize.call(this);
-	},
+    BaseView.prototype.initialize.call(this);
+  },
 
 
 
   /*
    * Create the pie chart and reder it
    */
-	render: function () {
-		var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-		var data = this.computeDataCount();
-		this.pieChart = new Chart(chartCtx).Pie(data);
-	},
+  render: function () {
+    var chartCtx = this.$('#chart-users').get(0).getContext("2d");
+    var data = this.computeDataCount();
+    this.pieChart = new Chart(chartCtx).Pie(data);
+  },
 
 
   /*
    * Compute data needed for the pie chart. We don't add the user with 0 seed
    * because the update don't work from 0 to X value.
    */
-	computeDataCount: function () {
+  computeDataCount: function () {
     var data = [];
-		this.count.get('users').forEach(function (elem) {
+    this.count.get('users').forEach(function (elem) {
       if (Number(elem.seed) !== 0) {
         data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
       }
-		});
+    });
     return data;
-	},
+  },
 
 
   /*
    * Update the value of the pie chart
    */
-	update: function () {
-		var allExpenses = Number(this.count.get('allExpenses'));
-		var nbUsers = Number(this.count.get('users').length);
+  update: function () {
+    var allExpenses = Number(this.count.get('allExpenses'));
+    var nbUsers = Number(this.count.get('users').length);
 
-		var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+    var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
     // Update the numbers of the general state (to the right of the pie chart)
-		this.$('#nb-expenses').text(this.count.get('expenses').length);
-		this.$('#all-expenses').text(allExpenses);
-		this.$('#perUser-expenses').text(perUserExpenses);
+    this.$('#nb-expenses').text(this.count.get('expenses').length);
+    this.$('#all-expenses').text(allExpenses);
+    this.$('#perUser-expenses').text(perUserExpenses);
 
-		var self = this;
+    var self = this;
 
     /*
      * Main loop wiche I update/ create data to the pie chart
      */
-		this.count.get('users').forEach(function (user, indexUser) {
-			var indexPie = null;
+    this.count.get('users').forEach(function (user, indexUser) {
+      var indexPie = null;
       // For each user we looking him in the data of the pie chart
-			self.pieChart.segments.find(function (pieSegment, index) {
-				if (pieSegment.label === user.name) {
-					indexPie = index;
-					return true;
-				}
-				return false;
-			})
+      self.pieChart.segments.find(function (pieSegment, index) {
+        if (pieSegment.label === user.name) {
+          indexPie = index;
+          return true;
+        }
+        return false;
+      })
       // If we find it we update the chart with the new data in the segment
-			if (indexPie !== undefined && indexPie !== null) {
-				if (user.seed == 0) {
-					self.pieChart.removeData(indexPie);
-				} else {
-					self.pieChart.segments[indexPie].value = user.seed;
-					self.pieChart.update();
-				}
+      if (indexPie !== undefined && indexPie !== null) {
+        if (user.seed == 0) {
+          self.pieChart.removeData(indexPie);
+        } else {
+          self.pieChart.segments[indexPie].value = user.seed;
+          self.pieChart.update();
+        }
         // If not we create a new segment
-			} else {
-				self.pieChart.addData({
-					value: user.seed,
-					color: '#' + user.color,
-					label: user.name
-				});
-			}
-		});
-	},
+      } else {
+        self.pieChart.addData({
+          value: user.seed,
+          color: '#' + user.color,
+          label: user.name
+        });
+      }
+    });
+  },
 
 });
 

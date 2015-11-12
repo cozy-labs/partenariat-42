@@ -5,10 +5,7 @@ var Count = Backbone.Model.extend({
 
   removeExpense: function (id) {
     var index = this.get('expenses').findIndex(function (elem) {
-      if (elem.id === id) {
-        return true;
-      }
-      return false;
+      return elem.id === id;
     });
 
     var newExpenses = this.get('expenses');
@@ -17,7 +14,7 @@ var Count = Backbone.Model.extend({
     var currentExpenses = this.get('allExpenses');
     var currentUsers = this.get('users');
     var leecherList = expenseRemove.leecher;
-    var seeder = expenseRemove.seeder;
+    var seederName = expenseRemove.seederName;
 
     var newUsersList = this.get('users').map(function (user) {
       leecherList.every(function (expenseUser) {
@@ -25,11 +22,12 @@ var Count = Backbone.Model.extend({
           var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
           user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
           return false;
+        } else {
+          return true;
         }
-        return true;
       });
 
-      if (user.name == seeder) {
+      if (user.name == seederName) {
         user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
       }
       return user;
@@ -44,7 +42,7 @@ var Count = Backbone.Model.extend({
     }, {
       wait: true,
       error: function (xhr) {
-        console.error(xhr);
+        console.error('Remove expense fail: ', xhr);
       }
     });
   },

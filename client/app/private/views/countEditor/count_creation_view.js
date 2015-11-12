@@ -5,12 +5,7 @@ var app = require('../../application');
 var colorSet = require('../../helper/color_set');
 
 /*
- * View wiche manage the editing for an update or a creation of a view
- * I make the both in the same class because it's exactly the same data to
- * manage.
- *
- * It's an update when this.count is defined, so we update this count else if we
- * find no count it's a creation.
+ * Manage the count creation form
  */
 var CountCreationView = CountEditionBase.extend({
   template: require('./templates/count_creation'),
@@ -92,8 +87,6 @@ var CountCreationView = CountEditionBase.extend({
 
   /*
    * Set the currencies available of the count
-   * TODO: Move to check input like the users in the add expense to avoid the
-   * manual managing of the overlighting
    */
     setCurrency: function (event) {
       var selectedCurrency = this.$(event.target).children().get(0).value;

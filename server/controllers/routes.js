@@ -7,11 +7,11 @@ var public_auth = require('../middleware/public_auth');
 module.exports = {
 
   '': {
-	get: index.index
+    get: index.index
   },
 
   'count': {
-	post: count.create
+    post: count.create
   },
 
   'public/count/:id': {
@@ -24,8 +24,8 @@ module.exports = {
   },
 
   'count/:id': {
-	delete: count.destroy,
-	put: count.update,
+    delete: count.destroy,
+    put: count.update,
     get: count.getUpdate,
   },
 

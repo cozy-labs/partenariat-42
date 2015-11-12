@@ -4,12 +4,7 @@ var app = require('../../application');
 var colorSet = require('../../helper/color_set');
 
 /*
- * View wiche manage the editing for an update or a creation of a view
- * I make the both in the same class because it's exactly the same data to
- * manage.
- *
- * It's an update when this.count is defined, so we update this count else if we
- * find no count it's a creation.
+ * Base Object for the count creation / updating
  */
 var CountEditorBase = BaseView.extend({
   id: 'count-editor-screen',
@@ -31,43 +26,36 @@ var CountEditorBase = BaseView.extend({
 
 
   /*
-   * Check if the count name is valable. It can't match with any of the other
-   * count because that would create somes conflics in the url managements (we
+   * Check if the count name is valid. It can't match with any of the other
+   * count because that would create somes conflicts in the url managements (we
    * find the counts by the name). For now we check the archive.
-   * TODO: move the archive finding and url management to id
    */
   checkCountName: function (event) {
     var countName = event.target.value;
 
     // Check the count collection
     var nameIsTaken = window.countCollection.find(function (elem) {
-      if (elem.get('name')== countName) {
-        return true;
-      }
-      return false;
+      return elem.get('name')== countName;
     });
 
     // Check the archive collection
     if (nameIsTaken === undefined || nameIsTaken === null) {
       var nameIsTaken = window.archiveCollection.find(function (elem) {
-        if (elem.get('name')== countName) {
-          return true;
-        }
-        return false;
+        return elem.get('name')== countName;
       });
     }
 
     var inputGrp = this.$('#input-name-grp');
     // If name is tacken I add an alert
     if (nameIsTaken !== null && nameIsTaken !== undefined) {
-      if (this.nameIsUsed === false) {
+      if (!this.nameIsUsed) {
         inputGrp.addClass('has-error');
         inputGrp.append('<div id="name-used" class="alert alert-danger" role="alert">Name already use</div>');
         this.nameIsUsed = true;
       }
     } else {
       // Else we set the count name
-      if (this.nameIsUsed === true) {
+      if (this.nameIsUsed) {
         this.$('#name-used').remove();
         inputGrp.removeClass('has-error');
         this.nameIsUsed = false;
