@@ -4,12 +4,12 @@
     for user in users
       li
         button.btn(style="background-color: ##{user.color}") #{user.name}:
-        if user.balancing == 0
+        if user.balance == 0
           span(style='color: blue') &nbsp;ok
-        if user.balancing > 0
-          span(style='color: green') &nbsp;+#{user.balancing}
-        if user.balancing < 0
-          span(style='color: red') &nbsp;#{user.balancing}
+        if user.balance > 0
+          span(style='color: green') &nbsp;+#{user.balance}
+        if user.balance < 0
+          span(style='color: red') &nbsp;#{user.balance}
   label(for='balancing') How to be square:
   ul#square
     for move in squareMoves

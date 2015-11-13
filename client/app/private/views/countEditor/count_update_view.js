@@ -82,7 +82,7 @@ var CountUpdateView = CountEditionBase.extend({
    */
   createPublicUrl: function () {
 
-    if (window.domain === false || window.domain === null) {
+    if (window.domain === false || window.domain === null || window.domain == undefined) {
       return (window.location.origin + '/public/count/' + this.count.id);
     }
 

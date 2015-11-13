@@ -169,7 +169,7 @@ var Router = Backbone.Router.extend({
 
 
   /*
-   * Fetch the data from server and create two collection:
+   * Set the fetched data from server in the two main collection:
    *
    * - countCollection
    * - archiveCollection

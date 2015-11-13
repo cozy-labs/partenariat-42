@@ -589,7 +589,7 @@ var Router = Backbone.Router.extend({
 
 
   /*
-   * Fetch the data from server and create two collection:
+   * Set the fetched data from server in the two main collection:
    *
    * - countCollection
    * - archiveCollection
@@ -1273,7 +1273,7 @@ var SquareView = BaseView.extend({
       return {
         name: user.name,
         color: user.color,
-        balance: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
+        balance: (Math.round((user.seed - user.leech) * 100) / 100)
       };
     });
 
@@ -1295,8 +1295,19 @@ var SquareView = BaseView.extend({
       index = 0,
       seeder = null,
       indexSeeder = 0,
+      roundNumber = null,
       exchange = null;
 
+    roundNumber = function (input) {
+      var number = null;
+
+      if (input instanceof Number) {
+        number = input;
+      } else {
+        number = Number(input);
+      }
+      return (Math.round(number * 100) / 100);
+    };
 
     /*
      * The main loop: in each loop we find the biggest leecher and the biggest
@@ -1308,8 +1319,7 @@ var SquareView = BaseView.extend({
      * lost as small as possible. For now it's max "0.01 * (nb or user -1)"
      */
 
-    while (tmpUsers.length > 1 && i < 50) {
-      i = i + 1;
+    while (tmpUsers.length > 1 && i++ < 50) {
       leecher = null;
       indexLeecher = 0;
 
@@ -1338,19 +1348,17 @@ var SquareView = BaseView.extend({
         }
       }
 
-      // Set the amount I can send from the leecher to the seeder to equalize a
-      // max
+      // Compute the max amount available in the leecher and seeder.
       if (leecher.balance * -1 > seeder.balance) {
         exchange = seeder.balance;
       } else {
         exchange = -leecher.balance;
       }
 
-      // Set the new balancin
-      seeder.balance = (Math.round((seeder.balance - exchange) * 100) /
-          100).toFixed(2);
-      leecher.balance = (Math.round((leecher.balance + exchange) * 100) /
-          100).toFixed(2);
+
+      // Set the new balance
+      seeder.balance = roundNumber(seeder.balance - exchange);
+      leecher.balance = roundNumber(leecher.balance + exchange);
 
       // Add the exchange to the list of exchanges
       if (exchange !== 0 && exchange !== 'NaN') {
@@ -1640,17 +1648,17 @@ buf.push("<div id=\"square-displayer\" style=\"display: none\" class=\"panel-bod
       var user = $$obj[$index];
 
 buf.push("<li><button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + ":</button>");
-if ( user.balancing == 0)
+if ( user.balance == 0)
 {
 buf.push("<span style=\"color: blue\">&nbsp;ok</span>");
 }
-if ( user.balancing > 0)
+if ( user.balance > 0)
 {
-buf.push("<span style=\"color: green\">&nbsp;+" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
+buf.push("<span style=\"color: green\">&nbsp;+" + (jade.escape((jade_interp = user.balance) == null ? '' : jade_interp)) + "</span>");
 }
-if ( user.balancing < 0)
+if ( user.balance < 0)
 {
-buf.push("<span style=\"color: red\">&nbsp;" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
+buf.push("<span style=\"color: red\">&nbsp;" + (jade.escape((jade_interp = user.balance) == null ? '' : jade_interp)) + "</span>");
 }
 buf.push("</li>");
     }
@@ -1661,17 +1669,17 @@ buf.push("</li>");
       $$l++;      var user = $$obj[$index];
 
 buf.push("<li><button" + (jade.attr("style", "background-color: #" + (user.color) + "", true, false)) + " class=\"btn\">" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + ":</button>");
-if ( user.balancing == 0)
+if ( user.balance == 0)
 {
 buf.push("<span style=\"color: blue\">&nbsp;ok</span>");
 }
-if ( user.balancing > 0)
+if ( user.balance > 0)
 {
-buf.push("<span style=\"color: green\">&nbsp;+" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
+buf.push("<span style=\"color: green\">&nbsp;+" + (jade.escape((jade_interp = user.balance) == null ? '' : jade_interp)) + "</span>");
 }
-if ( user.balancing < 0)
+if ( user.balance < 0)
 {
-buf.push("<span style=\"color: red\">&nbsp;" + (jade.escape((jade_interp = user.balancing) == null ? '' : jade_interp)) + "</span>");
+buf.push("<span style=\"color: red\">&nbsp;" + (jade.escape((jade_interp = user.balance) == null ? '' : jade_interp)) + "</span>");
 }
 buf.push("</li>");
     }
@@ -1935,14 +1943,14 @@ var CountEditorBase = BaseView.extend({
     });
 
     // Check the archive collection
-    if (nameIsTaken === null) {
+    if (nameIsTaken === undefined) {
       nameIsTaken = window.archiveCollection.find(function (elem) {
         return elem.get('name') === countName;
       });
     }
 
-    // If name is tacken I add an alert
-    if (nameIsTaken !== null) {
+    // If name is taken I add an alert
+    if (nameIsTaken !== undefined) {
       if (!this.nameIsUsed) {
         inputGrp.addClass('has-error');
         inputGrp.append('<div id="name-used" class="alert alert-danger"' +
@@ -2057,7 +2065,7 @@ var CountUpdateView = CountEditionBase.extend({
    */
   createPublicUrl: function () {
 
-    if (window.domain === false || window.domain === null) {
+    if (window.domain === false || window.domain === null || window.domain == undefined) {
       return (window.location.origin + '/public/count/' + this.count.id);
     }
 

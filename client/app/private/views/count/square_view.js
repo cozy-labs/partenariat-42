@@ -68,7 +68,7 @@ var SquareView = BaseView.extend({
       return {
         name: user.name,
         color: user.color,
-        balance: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
+        balance: (Math.round((user.seed - user.leech) * 100) / 100)
       };
     });
 
@@ -90,8 +90,19 @@ var SquareView = BaseView.extend({
       index = 0,
       seeder = null,
       indexSeeder = 0,
+      roundNumber = null,
       exchange = null;
 
+    roundNumber = function (input) {
+      var number = null;
+
+      if (input instanceof Number) {
+        number = input;
+      } else {
+        number = Number(input);
+      }
+      return (Math.round(number * 100) / 100);
+    };
 
     /*
      * The main loop: in each loop we find the biggest leecher and the biggest
@@ -103,8 +114,7 @@ var SquareView = BaseView.extend({
      * lost as small as possible. For now it's max "0.01 * (nb or user -1)"
      */
 
-    while (tmpUsers.length > 1 && i < 50) {
-      i = i + 1;
+    while (tmpUsers.length > 1 && i++ < 50) {
       leecher = null;
       indexLeecher = 0;
 
@@ -133,19 +143,17 @@ var SquareView = BaseView.extend({
         }
       }
 
-      // Set the amount I can send from the leecher to the seeder to equalize a
-      // max
+      // Compute the max amount available in the leecher and seeder.
       if (leecher.balance * -1 > seeder.balance) {
         exchange = seeder.balance;
       } else {
         exchange = -leecher.balance;
       }
 
-      // Set the new balancin
-      seeder.balance = (Math.round((seeder.balance - exchange) * 100) /
-          100).toFixed(2);
-      leecher.balance = (Math.round((leecher.balance + exchange) * 100) /
-          100).toFixed(2);
+
+      // Set the new balance
+      seeder.balance = roundNumber(seeder.balance - exchange);
+      leecher.balance = roundNumber(leecher.balance + exchange);
 
       // Add the exchange to the list of exchanges
       if (exchange !== 0 && exchange !== 'NaN') {

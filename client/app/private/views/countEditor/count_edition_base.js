@@ -43,14 +43,14 @@ var CountEditorBase = BaseView.extend({
     });
 
     // Check the archive collection
-    if (nameIsTaken === null) {
+    if (nameIsTaken === undefined) {
       nameIsTaken = window.archiveCollection.find(function (elem) {
         return elem.get('name') === countName;
       });
     }
 
-    // If name is tacken I add an alert
-    if (nameIsTaken !== null) {
+    // If name is taken I add an alert
+    if (nameIsTaken !== undefined) {
       if (!this.nameIsUsed) {
         inputGrp.addClass('has-error');
         inputGrp.append('<div id="name-used" class="alert alert-danger"' +
