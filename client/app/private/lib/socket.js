@@ -1,4 +1,6 @@
-
+/*global
+ CozySocketListener
+ */
 var Count = require('../models/count');
 var CountView = require('../views/count/count_view');
 var app = require('../application');
@@ -6,7 +8,7 @@ var app = require('../application');
 function SocketListener() {
   // Parent constructor
   CozySocketListener.call(this);
-};
+}
 
 CozySocketListener.prototype.models = {
   'shared-count': Count
@@ -19,9 +21,11 @@ CozySocketListener.prototype.events = [
 SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
-  var printModel = app.router.mainView.count;
+  var printModel = app.router.mainView.count,
+    view = null;
+
   if (printModel.id === model.id) {
-    var view = new CountView({countName: printModel.get('name')});
+    view = new CountView({countName: printModel.get('name')});
     app.router.displayView(view);
   }
 };

@@ -1,10 +1,9 @@
+/*jslint plusplus: true*/
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 /*
- * Specific view Wiche manage the balancing module.
- *
- * TODO: Separate with a model
+ * Manage the balancing module.
  */
 var SquareView = BaseView.extend({
   id: 'square-view',
@@ -27,7 +26,8 @@ var SquareView = BaseView.extend({
 
   render: function () {
     $('#module-balancing').prepend(this.$el);
-    this.$el.html(this.template({users: this.usersBalance, squareMoves: this.squareMoves}));
+    this.$el.html(this.template({users: this.usersBalance,
+      squareMoves: this.squareMoves}));
     this.$('#square-displayer').slideDown('slow');
 
   },
@@ -51,8 +51,6 @@ var SquareView = BaseView.extend({
 
   /*
    * Update and rerender the balance
-   * TODO: make a manual update to changing directly the values not a
-   * remove/rerender because that trigger a slide up/slide down and it's visible
    */
   update: function () {
     this.setUsersBalance();
@@ -66,15 +64,12 @@ var SquareView = BaseView.extend({
    * Create an array with the name, color and balance of each user
    */
   setUsersBalance: function () {
-    var allExpenses = this.count.get('allExpenses');
-    var users = this.count.get('users');
-
-    this.usersBalance = users.map(function (user) {
+    this.usersBalance = this.count.get('users').map(function (user) {
       return {
         name: user.name,
         color: user.color,
         balance: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
-      }
+      };
     });
 
     this.setSquareMoves();
@@ -88,43 +83,52 @@ var SquareView = BaseView.extend({
     this.squareMoves = [];
 
     // copy the userBalance array
-    var tmpUsers = [].concat(this.usersBalance);
+    var tmpUsers = [].concat(this.usersBalance),
+      i = 0,
+      leecher = null,
+      indexLeecher = 0,
+      index = 0,
+      seeder = null,
+      indexSeeder = 0,
+      exchange = null;
 
-    var i = 0;
 
     /*
      * The main loop: in each loop we find the biggest leecher and the biggest
-     * seeder and we equalize between their. If one of them is balanced I remove it.
+     * seeder and we equalize between their. If one of them is balanced it
+     * remove it.
      *
      * Repeat the loop while it stays 1 or less user. If one user stay it's
      * a "lost", I can't redistribute to any user. The goal it's to make this
      * lost as small as possible. For now it's max "0.01 * (nb or user -1)"
      */
-    while (tmpUsers.length > 1 && i++ < 50) {
-      var leecher = null;
-      var indexLeecher = 0;
+
+    while (tmpUsers.length > 1 && i < 50) {
+      i = i + 1;
+      leecher = null;
+      indexLeecher = 0;
 
       // Find the biggest leecher
-      for (index in tmpUsers) {
-        if (leecher === null || (leecher.balance > tmpUsers[index].balance && leecher != tmpUsers[index])) {
+      for (index = 0; index < tmpUsers.length; index++) {
+        if (leecher === null || (leecher.balance > tmpUsers[index].balance &&
+              leecher !== tmpUsers[index])) {
           leecher = {
             name: tmpUsers[index].name,
             balance: Number(tmpUsers[index].balance)
-          }
+          };
           indexLeecher = index;
         }
       }
 
-      var seeder = null;
-      var indexSeeder = 0;
 
       // Find the biggest seeder
-      for (index in tmpUsers) {
-        if (seeder === null || (seeder.balance < tmpUsers[index].balance && seeder != tmpUsers[index])) {
+      for (index = 0; index < tmpUsers.length; index++) {
+        if (seeder === null || (seeder.balance < tmpUsers[index].balance &&
+              seeder !== tmpUsers[index])) {
           seeder = {
             name: tmpUsers[index].name,
             balance: Number(tmpUsers[index].balance)
-          }
+          };
           indexSeeder = index;
         }
       }
@@ -134,12 +138,14 @@ var SquareView = BaseView.extend({
       if (leecher.balance * -1 > seeder.balance) {
         exchange = seeder.balance;
       } else {
-        exchange = - leecher.balance;
+        exchange = -leecher.balance;
       }
 
       // Set the new balancin
-      seeder.balance = (Math.round((seeder.balance - exchange) * 100) / 100).toFixed(2);
-      leecher.balance = (Math.round((leecher.balance + exchange) * 100) / 100).toFixed(2);
+      seeder.balance = (Math.round((seeder.balance - exchange) * 100) /
+          100).toFixed(2);
+      leecher.balance = (Math.round((leecher.balance + exchange) * 100) /
+          100).toFixed(2);
 
       // Add the exchange to the list of exchanges
       if (exchange !== 0 && exchange !== 'NaN') {
@@ -151,10 +157,10 @@ var SquareView = BaseView.extend({
       }
 
       // Remove the leecher of the seeder if their balance is equal to 0
-      if (leecher.balance == 0) {
+      if (leecher.balance === 0) {
         tmpUsers.splice(indexLeecher, 1);
       }
-      if (seeder.balance == 0) {
+      if (seeder.balance === 0) {
         tmpUsers.splice(indexSeeder, 1);
       }
     }

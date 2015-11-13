@@ -20,7 +20,7 @@ var CountBaseView = BaseView.extend({
    * a bad url. I redirect to the mainBoard
    */
   initialize: function () {
-    if (this.count == undefined || this.count == null) {
+    if (this.count === undefined || this.count === null) {
       console.error('invalide route');
       app.router.navigate('', {trigger: true});
     }
@@ -66,7 +66,7 @@ var CountBaseView = BaseView.extend({
       this.balancing = new SquareView({count: this.count});
       this.balancing.render();
     }
-    this.balancing.clickDisplayer()
+    this.balancing.clickDisplayer();
   },
 });
 

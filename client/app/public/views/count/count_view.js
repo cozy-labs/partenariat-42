@@ -20,11 +20,11 @@ var CountView = CountBaseView.extend({
   balancing: null,
 
   events: {
-    'click #count-lauch-add-user'	:	'addUser',
-    'click #add-new-expense'		: 'lauchNewExpense',
-    'click .header-expense-elem'	: 'printTransferBody',
-    'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'		: 'printBalancing',
+    'click #count-lauch-add-user'   : 'addUser',
+    'click #add-new-expense'        : 'lauchNewExpense',
+    'click .header-expense-elem'    : 'printTransferBody',
+    'click .delete-expense-elem'    : 'deleteExpense',
+    'click #header-balancing'       : 'printBalancing',
   },
 
 
@@ -45,31 +45,36 @@ var CountView = CountBaseView.extend({
    * All the process for add a user in the count
    */
   addUser: function () {
-    var userList = this.count.get('users');
-    var newUser = this.$('#count-input-add-user').val();
-    var color = colorSet[userList.length % colorSet.length];
+    var userList = this.count.get('users'),
+      newUser = this.$('#count-input-add-user').val(),
+      color = colorSet[userList.length % colorSet.length],
+      nameIsTaken = null;
 
+    if (newUser.length === 0) {
+      return;
+    }
     // Remove precedent alert
     this.$('#alert-name').remove();
 
     // Check if the name is taker
-    var nameIsTaken = userList.find(function (elem) {
-      if (elem.name === newUser) {
-        return true;
-      }
-      return false;
+    nameIsTaken = userList.find(function (elem) {
+      return elem.name === newUser;
     });
 
     // Print an alert and quit if the name is taken
     if (nameIsTaken !== undefined) {
-      this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#name-alert').append('<div id="alert-name" class="alert' +
+          'alert-danger" role="alert"><a href="#" class="close"' +
+          'data-dismiss="alert">&times;</a>Name already taken</div>');
       return;
     }
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
     // Add the user button to  userlist
-    this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+    this.$('#user-list').append('<div class="row"><button class="btn"' +
+        'style="background-color: #' + color + '">' + newUser +
+        '</button></div>');
 
     // Save the new list of user
     this.count.save({users: userList}, {
@@ -102,10 +107,11 @@ var CountView = CountBaseView.extend({
   removeNewExpense: function () {
     this.newExpense.remove();
     delete this.newExpense;
-    this.newExpense= null;
+    this.newExpense = null;
 
     // Remove the div
-    this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
+    this.$('#module').prepend('<button id="add-new-expense" ' +
+        'class="btn btn-default btn-block"> Add a new expense</button>');
   },
 
 
@@ -113,11 +119,13 @@ var CountView = CountBaseView.extend({
    * Print expand or remove data body of an element of the history
    */
   printTransferBody: function (event) {
-    var elem =  $(event.target);
+    var elem =  $(event.target),
+      expenseBody = null;
+
     if (elem.is('span')) {
-      var expenseBody =  $(event.target).parent().next('div');
+      expenseBody =  $(event.target).parent().next('div');
     } else {
-      var expenseBody =  $(event.target).next('div');
+      expenseBody =  $(event.target).next('div');
     }
 
     if (expenseBody.is('.printed')) {
@@ -133,13 +141,11 @@ var CountView = CountBaseView.extend({
   /*
    * Remove a history element and update the stats
    */
-    deleteExpense: function (event) {
-      var id = Number(this.$(event.target).parent().attr('id'));
-      var self = this;
-      this.count.removeExpense(id);
-    },
+  deleteExpense: function (event) {
+    var id = Number(this.$(event.target).parent().attr('id'));
 
-
+    this.count.removeExpense(id);
+  },
 });
 
 module.exports = CountView;

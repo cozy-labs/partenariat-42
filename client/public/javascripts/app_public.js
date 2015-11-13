@@ -134,8 +134,8 @@ require.register("public/collections/count_list", function(exports, require, mod
 var Count = require('../models/count');
 
 var CountList = Backbone.Collection.extend({
-	model: Count,
-    url: 'count',
+  model: Count,
+  url: 'count',
 });
 
 module.exports = CountList;
@@ -144,28 +144,28 @@ module.exports = CountList;
 
 require.register("public/helper/color_set", function(exports, require, module) {
 module.exports = [
-    '2979FF',
-    'B3C51D',
-    '00D5B8',
-    'FF5700',
-    'F819AA',
-    '7190AB',
-    '00B0FF',
-    'E70505',
-    'FF7900',
-    '51658D',
-    '304FFE',
-    '00DCE9',
-    'FF2828',
-    '6200EA',
-    '64DD17',
-    '00C853',
-    'FFA300',
-]
+  '2979FF',
+  'B3C51D',
+  '00D5B8',
+  'FF5700',
+  'F819AA',
+  '7190AB',
+  '00B0FF',
+  'E70505',
+  'FF7900',
+  '51658D',
+  '304FFE',
+  '00DCE9',
+  'FF2828',
+  '6200EA',
+  '64DD17',
+  '00C853',
+  'FFA300',
+];
 
 });
 
-;require.register("public/initialize", function(exports, require, module) {
+require.register("public/initialize", function(exports, require, module) {
 var application = require('./application');
 
 $(function () {
@@ -201,7 +201,9 @@ module.exports = BaseView;
 });
 
 require.register("public/lib/socket", function(exports, require, module) {
-
+/*global
+ CozySocketListener
+ */
 var Count = require('../models/count');
 var CountView = require('../views/count/count_view');
 var app = require('../application');
@@ -209,7 +211,7 @@ var app = require('../application');
 function SocketListener() {
   // Parent constructor
   CozySocketListener.call(this);
-};
+}
 
 CozySocketListener.prototype.models = {
   'shared-count': Count
@@ -223,9 +225,11 @@ SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
 
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
-  var printModel = app.router.mainView.count;
+  var printModel = app.router.mainView.count,
+    view = null;
+
   if (printModel.id === model.id) {
-    var view = new CountView({countName: printModel.get('name')});
+    view = new CountView({countName: printModel.get('name')});
     app.router.displayView(view);
   }
 };
@@ -241,38 +245,49 @@ var app = require('../application');
 var Count = Backbone.Model.extend({
 
   removeExpense: function (id) {
-    var index = this.get('expenses').findIndex(function (elem) {
+    var newExpenses = this.get('expenses'),
+      currentExpenses = this.get('allExpenses'),
+      index = null,
+      expenseRemove = null,
+      leecherList = null,
+      seeder = null,
+      newUsersList = null,
+      newAllExpenses = null;
+
+
+    index = this.get('expenses').findIndex(function (elem) {
       if (elem.id === id) {
         return true;
       }
       return false;
     });
 
-    var newExpenses = this.get('expenses');
-    var expenseRemove = newExpenses.splice(index, 1)[0];
+    expenseRemove = newExpenses.splice(index, 1)[0];
 
-    var currentExpenses = this.get('allExpenses');
-    var currentUsers = this.get('users');
-    var leecherList = expenseRemove.leecher;
-    var seeder = expenseRemove.seeder;
+    leecherList = expenseRemove.leecher;
+    seeder = expenseRemove.seeder;
 
-    var newUsersList = this.get('users').map(function (user) {
+    newUsersList = this.get('users').map(function (user) {
       leecherList.every(function (expenseUser) {
         if (user.name === expenseUser.name) {
-          var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
-          user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
+          var leechPerUser = (Math.round(Number(expenseRemove.amount) /
+                Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
+          user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) /
+              100).toFixed(2);
           return false;
         }
         return true;
       });
 
-      if (user.name == seeder) {
-        user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+      if (user.name === seeder) {
+        user.seed = (Math.round((Number(user.seed) -
+                Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
       }
       return user;
     });
 
-    var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+    newAllExpenses = (Math.round((Number(currentExpenses) -
+            Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 
     this.save({
       expenses: newExpenses,
@@ -322,7 +337,7 @@ var Router = Backbone.Router.extend({
 
     this.count = window.countCollection.models[0];
 
-    this.socket = new SocketListener;
+    this.socket = new SocketListener();
     this.socket.watch(window.countCollection);
 
     Backbone.Router.prototype.initialize.call(this);
@@ -339,7 +354,7 @@ var Router = Backbone.Router.extend({
    * Screen for create a new expense
    */
   newExpense: function (countName) {
-    view = new NewExpense({countName: countName});
+    var view = new NewExpense({countName: countName});
 
     this.displayView(view);
   },
@@ -349,7 +364,7 @@ var Router = Backbone.Router.extend({
    * Count printer
    */
   printCount: function () {
-    view = new CountView({countName: this.count.get('name')});
+    var view = new CountView({countName: this.count.get('name')});
 
     this.displayView(view);
   },
@@ -396,7 +411,7 @@ var CountBaseView = BaseView.extend({
    * a bad url. I redirect to the mainBoard
    */
   initialize: function () {
-    if (this.count == undefined || this.count == null) {
+    if (this.count === undefined || this.count === null) {
       console.error('invalide route');
       app.router.navigate('', {trigger: true});
     }
@@ -442,7 +457,7 @@ var CountBaseView = BaseView.extend({
       this.balancing = new SquareView({count: this.count});
       this.balancing.render();
     }
-    this.balancing.clickDisplayer()
+    this.balancing.clickDisplayer();
   },
 });
 
@@ -473,11 +488,11 @@ var CountView = CountBaseView.extend({
   balancing: null,
 
   events: {
-    'click #count-lauch-add-user'	:	'addUser',
-    'click #add-new-expense'		: 'lauchNewExpense',
-    'click .header-expense-elem'	: 'printTransferBody',
-    'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'		: 'printBalancing',
+    'click #count-lauch-add-user'   : 'addUser',
+    'click #add-new-expense'        : 'lauchNewExpense',
+    'click .header-expense-elem'    : 'printTransferBody',
+    'click .delete-expense-elem'    : 'deleteExpense',
+    'click #header-balancing'       : 'printBalancing',
   },
 
 
@@ -498,31 +513,36 @@ var CountView = CountBaseView.extend({
    * All the process for add a user in the count
    */
   addUser: function () {
-    var userList = this.count.get('users');
-    var newUser = this.$('#count-input-add-user').val();
-    var color = colorSet[userList.length % colorSet.length];
+    var userList = this.count.get('users'),
+      newUser = this.$('#count-input-add-user').val(),
+      color = colorSet[userList.length % colorSet.length],
+      nameIsTaken = null;
 
+    if (newUser.length === 0) {
+      return;
+    }
     // Remove precedent alert
     this.$('#alert-name').remove();
 
     // Check if the name is taker
-    var nameIsTaken = userList.find(function (elem) {
-      if (elem.name === newUser) {
-        return true;
-      }
-      return false;
+    nameIsTaken = userList.find(function (elem) {
+      return elem.name === newUser;
     });
 
     // Print an alert and quit if the name is taken
     if (nameIsTaken !== undefined) {
-      this.$('#name-alert').append('<div id="alert-name" class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#name-alert').append('<div id="alert-name" class="alert' +
+          'alert-danger" role="alert"><a href="#" class="close"' +
+          'data-dismiss="alert">&times;</a>Name already taken</div>');
       return;
     }
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
     // Add the user button to  userlist
-    this.$('#user-list').append('<div class="row"><button class="btn" style="background-color: #'+ color +'">' + newUser + '</button></div>');
+    this.$('#user-list').append('<div class="row"><button class="btn"' +
+        'style="background-color: #' + color + '">' + newUser +
+        '</button></div>');
 
     // Save the new list of user
     this.count.save({users: userList}, {
@@ -555,10 +575,11 @@ var CountView = CountBaseView.extend({
   removeNewExpense: function () {
     this.newExpense.remove();
     delete this.newExpense;
-    this.newExpense= null;
+    this.newExpense = null;
 
     // Remove the div
-    this.$('#module').prepend('<button id="add-new-expense" class="btn btn-default btn-block"> Add a new expense</button>');
+    this.$('#module').prepend('<button id="add-new-expense" ' +
+        'class="btn btn-default btn-block"> Add a new expense</button>');
   },
 
 
@@ -566,11 +587,13 @@ var CountView = CountBaseView.extend({
    * Print expand or remove data body of an element of the history
    */
   printTransferBody: function (event) {
-    var elem =  $(event.target);
+    var elem =  $(event.target),
+      expenseBody = null;
+
     if (elem.is('span')) {
-      var expenseBody =  $(event.target).parent().next('div');
+      expenseBody =  $(event.target).parent().next('div');
     } else {
-      var expenseBody =  $(event.target).next('div');
+      expenseBody =  $(event.target).next('div');
     }
 
     if (expenseBody.is('.printed')) {
@@ -586,13 +609,11 @@ var CountView = CountBaseView.extend({
   /*
    * Remove a history element and update the stats
    */
-    deleteExpense: function (event) {
-      var id = Number(this.$(event.target).parent().attr('id'));
-      var self = this;
-      this.count.removeExpense(id);
-    },
+  deleteExpense: function (event) {
+    var id = Number(this.$(event.target).parent().attr('id'));
 
-
+    this.count.removeExpense(id);
+  },
 });
 
 module.exports = CountView;
@@ -600,13 +621,12 @@ module.exports = CountView;
 });
 
 require.register("public/views/count/square_view", function(exports, require, module) {
+/*jslint plusplus: true */
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 /*
  * Specific view Wiche manage the balancing module.
- *
- * TODO: Separate with a model
  */
 var SquareView = BaseView.extend({
   id: 'square-view',
@@ -629,7 +649,8 @@ var SquareView = BaseView.extend({
 
   render: function () {
     $('#module-balancing').prepend(this.$el);
-    this.$el.html(this.template({users: this.usersBalancing, squareMoves: this.squareMoves}));
+    this.$el.html(this.template({users: this.usersBalancing,
+      squareMoves: this.squareMoves}));
     this.$('#square-displayer').slideDown('slow');
 
   },
@@ -653,8 +674,6 @@ var SquareView = BaseView.extend({
 
   /*
    * Update and rerender the balancing
-   * TODO: make a manual update to changing directly the values not a
-   * remove/rerender because that trigger a slide up/slide down and it's visible
    */
   update: function () {
     this.setUsersBalancing();
@@ -668,7 +687,6 @@ var SquareView = BaseView.extend({
    * Create an array with the name, color and balancing of each user
    */
   setUsersBalancing: function () {
-    var allExpenses = this.count.get('allExpenses');
     var users = this.count.get('users');
 
     this.usersBalancing = users.map(function (user) {
@@ -676,7 +694,7 @@ var SquareView = BaseView.extend({
         name: user.name,
         color: user.color,
         balancing: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
-      }
+      };
     });
 
     this.setSquareMoves();
@@ -690,9 +708,14 @@ var SquareView = BaseView.extend({
     this.squareMoves = [];
 
     // copy the userBalancing array
-    var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing));
-
-    var i = 0;
+    var tmpUsers = JSON.parse(JSON.stringify(this.usersBalancing)),
+      i = 0,
+      leecher = null,
+      indexLeecher = null,
+      seeder = null,
+      index = null,
+      exchange = null,
+      indexSeeder = null;
 
     /*
      * The main loop: in each loop we find the biggest leecher and the biggest
@@ -704,30 +727,32 @@ var SquareView = BaseView.extend({
      * lost tinier possible. For now it's max "0.01 * (nb or user -1)"
      */
     while (tmpUsers.length > 1 && i++ < 50) {
-      var leecher = null;
-      var indexLeecher = 0;
+      leecher = null;
+      indexLeecher = 0;
 
       // Find the biggest leecher
-      for (index in tmpUsers) {
-        if (leecher === null || (leecher.balancing > tmpUsers[index].balancing && leecher != tmpUsers[index])) {
+      for (index = 0; index < tmpUsers.length; index++) {
+        if (leecher === null || (leecher.balancing > tmpUsers[index].balancing
+              && leecher !== tmpUsers[index])) {
           leecher = {
             name: tmpUsers[index].name,
             balancing: Number(tmpUsers[index].balancing)
-          }
+          };
           indexLeecher = index;
         }
       }
 
-      var seeder = null;
-      var indexSeeder = 0;
+      seeder = null;
+      indexSeeder = 0;
 
       // Find the biggest seeder
-      for (index in tmpUsers) {
-        if (seeder === null || (seeder.balancing < tmpUsers[index].balancing && seeder != tmpUsers[index])) {
+      for (index = 0; index < tmpUsers.length; index++) {
+        if (seeder === null || (seeder.balancing < tmpUsers[index].balancing
+              && seeder !== tmpUsers[index])) {
           seeder = {
             name: tmpUsers[index].name,
             balancing: Number(tmpUsers[index].balancing)
-          }
+          };
           indexSeeder = index;
         }
       }
@@ -737,12 +762,14 @@ var SquareView = BaseView.extend({
       if (leecher.balancing * -1 > seeder.balancing) {
         exchange = seeder.balancing;
       } else {
-        exchange = - leecher.balancing;
+        exchange = -leecher.balancing;
       }
 
       // Set the new balancin
-      seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) / 100).toFixed(2);
-      leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) / 100).toFixed(2);
+      seeder.balancing = (Math.round((seeder.balancing - exchange) * 100) /
+          100).toFixed(2);
+      leecher.balancing = (Math.round((leecher.balancing + exchange) * 100) /
+          100).toFixed(2);
 
       // Add the exchange to the list of exchanges
       if (exchange !== 0 && exchange !== 'NaN') {
@@ -754,10 +781,10 @@ var SquareView = BaseView.extend({
       }
 
       // Remove the leecher of the seeder if their balancing is equal to 0
-      if (leecher.balancing == 0) {
+      if (leecher.balancing === 0) {
         tmpUsers.splice(indexLeecher, 1);
       }
-      if (seeder.balancing == 0) {
+      if (seeder.balancing === 0) {
         tmpUsers.splice(indexSeeder, 1);
       }
     }
@@ -782,7 +809,9 @@ module.exports = SquareView;
 });
 
 require.register("public/views/count/stats_view", function(exports, require, module) {
-
+/*global
+ Chart
+ */
 var BaseView = require('../../lib/base_view');
 
 
@@ -805,8 +834,9 @@ var StatsView = BaseView.extend({
    * Create the pie chart and reder it
    */
   render: function () {
-    var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-    var data = this.computeDataCount();
+    var chartCtx = this.$('#chart-users').get(0).getContext("2d"),
+      data = this.computeDataCount();
+
     this.pieChart = new Chart(chartCtx).Pie(data);
   },
 
@@ -819,7 +849,8 @@ var StatsView = BaseView.extend({
     var data = [];
     this.count.get('users').forEach(function (elem) {
       if (Number(elem.seed) !== 0) {
-        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
+        data.push({value: elem.seed, color: '#' +
+          elem.color, label: elem.name});
       }
     });
     return data;
@@ -830,17 +861,17 @@ var StatsView = BaseView.extend({
    * Update the value of the pie chart
    */
   update: function () {
-    var allExpenses = Number(this.count.get('allExpenses'));
-    var nbUsers = Number(this.count.get('users').length);
+    var allExpenses = Number(this.count.get('allExpenses')),
+      nbUsers = Number(this.count.get('users').length),
+      perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100)
+        .toFixed(2),
+      self = this;
 
-    var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
 
     // Update the numbers of the general state (to the right of the pie chart)
     this.$('#nb-expenses').text(this.count.get('expenses').length);
     this.$('#all-expenses').text(allExpenses);
     this.$('#perUser-expenses').text(perUserExpenses);
-
-    var self = this;
 
     /*
      * Main loop wiche I update/ create data to the pie chart
@@ -854,10 +885,10 @@ var StatsView = BaseView.extend({
           return true;
         }
         return false;
-      })
+      });
       // If we find it we update the chart with the new data in the segment
       if (indexPie !== undefined && indexPie !== null) {
-        if (user.seed == 0) {
+        if (user.seed === 0) {
           self.pieChart.removeData(indexPie);
         } else {
           self.pieChart.segments[indexPie].value = user.seed;
@@ -1086,7 +1117,7 @@ buf.push("<li>[" + (jade.escape((jade_interp = move.from) == null ? '' : jade_in
   }
 }).call(this);
 
-buf.push("</ul><button id=\"archive-count\" class=\"btn btn-primary btn-block\">Close and archive</button></div>");;return buf.join("");
+buf.push("</ul></div>");;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -1116,11 +1147,11 @@ var AddExpenseView = BaseView.extend({
 
 
   events: {
-    'click .seeder'				: 'setSeeder',
-    'click .leecher'			: 'setLeecher',
-    'click #add-expense-save'	: 'lauchSaveExpense',
-    'click #add-expense-cancel'	: 'resetNewExpense',
-    'click .currency'	    	:	'setCurrency',
+    'click .seeder'             : 'setSeeder',
+    'click .leecher'            : 'setLeecher',
+    'click #add-expense-save'   : 'lauchSaveExpense',
+    'click #add-expense-cancel' : 'resetNewExpense',
+    'click .currency'           : 'setCurrency',
   },
 
 
@@ -1131,13 +1162,13 @@ var AddExpenseView = BaseView.extend({
   initialize: function (attributes) {
 
     // Find the count
-    this.count = app.router.count
+    this.count = app.router.count;
 
       // If there is no count, it's a bed url so I redirect to the main page
-      if (this.count == undefined || this.count == null) {
-        console.error('invalide route');
-        app.router.navigate('', {trigger: true});
-      }
+    if (this.count === undefined || this.count === null) {
+      console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+    }
 
     var leecher = this.count.get('users').map(function (elem) {
       return {name: elem.name};
@@ -1163,17 +1194,24 @@ var AddExpenseView = BaseView.extend({
    * Add all the listener to dynamically check if the inputs are correct
    */
   afterRender: function () {
-    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.amount = event.target.value;};
-    })(this));
+    this.$('#input-amount')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.amount = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.name = event.target.value;};
-    })(this));
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.name = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-description')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.description = event.target.value;};
-    })(this));
+    this.$('#input-description')[0].addEventListener('change',
+        (function (_this) {
+        return function (event) {
+          _this.data.description = event.target.value;
+        };
+      }(this)));
   },
 
 
@@ -1194,12 +1232,12 @@ var AddExpenseView = BaseView.extend({
    * Set the leechers of the expense or "who take part"
    */
   setLeecher: function (event) {
-    var target = this.$(event.target).children().get(0).value;
-    var listLeecher = this.data.leecher;
-    var leecherIndex = null;;
+    var target = this.$(event.target).children().get(0).value,
+      listLeecher = this.data.leecher,
+      leecherIndex = null;
 
     listLeecher.find(function (element, index) {
-      if (element.name == target) {
+      if (element.name === target) {
         leecherIndex = index;
         return true;
       }
@@ -1208,8 +1246,7 @@ var AddExpenseView = BaseView.extend({
 
     if (leecherIndex === null) {
       listLeecher.push({name: target});
-    }
-    else {
+    } else {
       listLeecher.splice(leecherIndex, 1);
     }
   },
@@ -1218,10 +1255,10 @@ var AddExpenseView = BaseView.extend({
   /*
    * Set the currency of the expense
    */
-    setCurrency: function (event) {
-      this.data.currency = event.target.text;
-      this.$('#choose-currency').text(this.data.currency);
-    },
+  setCurrency: function (event) {
+    this.data.currency = event.target.text;
+    this.$('#choose-currency').text(this.data.currency);
+  },
 
 
     /*
@@ -1229,20 +1266,20 @@ var AddExpenseView = BaseView.extend({
      * sendNewExpense()
      */
   lauchSaveExpense: function () {
-    var data = this.data;
-    var error = false;
+    var data = this.data,
+      error = false;
 
     this.$('#alert-zone').remove();
     this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
-    if (data.name === null || data.name == undefined) {
+    if (data.name === null || data.name === undefined) {
       this.errorMessage('Your expense need a name');
       error = true;
     }
-    if (data.seeder === null || data.seeder == undefined) {
+    if (data.seeder === null || data.seeder === undefined) {
       this.errorMessage('One person must paid');
       error = true;
     }
-    if (data.amount == undefined) {
+    if (data.amount === undefined) {
       this.errorMessage('You haven\'t set a amount');
       error = true;
     } else if (data.amount <= 0) {
@@ -1263,7 +1300,8 @@ var AddExpenseView = BaseView.extend({
    * Generique function to trigger an alert.
    */
   errorMessage: function (msg) {
-    this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+    this.$('#alert-zone').append('<div class="alert alert-danger"' +
+        ' role="alert">' + msg + '</div>');
   },
 
 
@@ -1274,52 +1312,59 @@ var AddExpenseView = BaseView.extend({
    *
    * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
    * round.
-   * TODO: create a generique function to manage round.
    */
-    sendNewExpense: function () {
-      var self = this;
-      var newExpensesList = this.count.get('expenses');
-      newExpensesList.push(this.data);
+  sendNewExpense: function () {
+    var self = this,
+      newExpensesList = this.count.get('expenses'),
+      allUsers = null,
+      newAllExpenses = null,
+      leechPerUser = null;
 
-      this.data.id = Date.now() + Math.round(Math.random() % 100);
+    newExpensesList.push(this.data);
 
-      var allUsers = this.count.get('users');
+    this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+    allUsers = this.count.get('users');
+    allUsers.every(function (user) {
+      if (self.data.seeder === user.name) {
+        user.seed = (Math.round((Number(self.data.amount) + Number(user.seed))
+              * 100) / 100).toFixed(2);
+        return false;
+      }
+      return true;
+    });
+
+    leechPerUser = (Math.round(Number(this.data.amount) /
+          Number(this.data.leecher.length) * 100) / 100).toFixed(2);
+    this.data.leecher.forEach(function (elem) {
       allUsers.every(function (user) {
-        if (self.data.seeder === user.name) {
-          user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
+        if (elem.name === user.name) {
+          user.leech = +(Math.round((Number(leechPerUser) +
+                  Number(user.leech)) * 100) / 100).toFixed(2);
           return false;
         }
         return true;
       });
+    });
 
-      var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
-      this.data.leecher.forEach(function (elem) {
-        allUsers.every(function (user) {
-          if (elem.name === user.name) {
-            user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
-            return false;
-          }
-          return true;
-        });
-      });
+    newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) +
+            Number(this.data.amount)) * 100) / 100).toFixed(2);
+    this.count.save({
+      allExpenses: newAllExpenses,
+      expenses: newExpensesList,
+      users: allUsers,
+    }, {
+      url: '/public/count/' + this.count.id,
+      wait: true,
+      success: function (data) {
+        app.router.navigate('/', {trigger: true});
+      },
+    });
+  },
 
-      var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
-      this.count.save({
-        allExpenses: newAllExpenses,
-        expenses: newExpensesList,
-        users: allUsers,
-      }, {
-        url: '/public/count/' + this.count.id,
-        wait: true,
-        success: function (data) {
-          app.router.navigate('/', {trigger: true});
-        },
-      });
-    },
-
-    resetNewExpense: function () {
-      app.router.navigate('/', {trigger: true});
-    },
+  resetNewExpense: function () {
+    app.router.navigate('/', {trigger: true});
+  },
 });
 
 module.exports = AddExpenseView;

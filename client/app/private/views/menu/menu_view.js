@@ -7,45 +7,45 @@ var app = require('../../application');
  * dynamically create a list of the count name  and redirect to the good url.
  */
 var MenuView = BaseView.extend({
-	el: '#sidebar',
+  el: '#sidebar',
 
-	events: {
-		'click #menu-all-count'		: 'goHomeView',
-		'click #menu-add-count'		: 'createNewCount',
-		'click #menu-archives'		: 'goToArchives',
-	},
+  events: {
+    'click #menu-all-count' : 'goHomeView',
+    'click #menu-add-count' : 'createNewCount',
+    'click #menu-archives'  : 'goToArchives',
+  },
 
   /*
    * Render the list of count in the menu
    */
-	renderCounts: function () {
-		this.countCollectionView = new CountListView(window.countCollection);
-		this.countCollectionView.render();
-	},
+  renderCounts: function () {
+    this.countCollectionView = new CountListView(window.countCollection);
+    this.countCollectionView.render();
+  },
 
 
   /*
    * Redirect to the mainBoard
    */
-	goHomeView: function () {
-		app.router.navigate('', {trigger: true});
-	},
+  goHomeView: function () {
+    app.router.navigate('', {trigger: true});
+  },
 
 
   /*
    * Redirect to the count creation
    */
-	createNewCount: function () {
-		app.router.navigate('count/create', {trigger: true});
-	},
+  createNewCount: function () {
+    app.router.navigate('count/create', {trigger: true});
+  },
 
 
   /*
    * Redirect to the archive list
    */
-	goToArchives: function () {
-		app.router.navigate('archive', {trigger: true});
-	},
+  goToArchives: function () {
+    app.router.navigate('archive', {trigger: true});
+  },
 
 });
 

@@ -22,7 +22,7 @@ var CountUpdateView = CountEditionBase.extend({
 
     this.count = params.count;
 
-    if (this.count == null || this.count == undefined) {
+    if (this.count === null || this.count === undefined) {
       console.error("Error: retrieve count update");
     }
 
@@ -35,14 +35,14 @@ var CountUpdateView = CountEditionBase.extend({
    * warning.
    */
   afterRender: function () {
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
       return function (event) {
         var res = _this.checkCountName(event);
-        if (res != null) {
+        if (res !== null) {
           _this.count.set('name', res);
         }
       };
-    })(this));
+    }(this)));
 
     if (this.count !== null && this.count.get('isPublic')) {
       this.setPublic();
@@ -65,7 +65,9 @@ var CountUpdateView = CountEditionBase.extend({
   setPublic: function () {
     this.count.set('isPublic', true);
     this.$('#input-public').text('Make this count private');
-    this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
+    this.$('#public-section').append(this.templateUrl({
+      url: this.createPublicUrl()
+    }));
   },
 
 
@@ -80,17 +82,17 @@ var CountUpdateView = CountEditionBase.extend({
    */
   createPublicUrl: function () {
 
-    if (window.domain == false || window.domain == undefined || window.domain == null) {
+    if (window.domain === false || window.domain === null) {
       return (window.location.origin + '/public/count/' + this.count.id);
-    } else {
-      return (window.domain + '/public/count/' + this.count.id);
     }
+
+    return (window.domain + '/public/count/' + this.count.id);
   },
 
 
 
   getRenderData: function () {
-    if (this.count != null) {
+    if (this.count !== null) {
       return ({model: this.count.toJSON()});
     }
     return ({model: null});
@@ -99,14 +101,13 @@ var CountUpdateView = CountEditionBase.extend({
 
   /*
    * Lauche an update server side
-   * TODO: improve it and ckeck if name is already taken
    */
   lauchCountUpdate: function () {
     this.count.set('description', this.$('#input-description').val());
 
     this.count.save(this.count.attributes, {
       error: function (xhr) {
-        console.error (xhr);
+        console.error('Count update fail: ', xhr);
       },
       success: function (data) {
         app.router.navigate('/count/' + data.get('name'), {trigger: true});

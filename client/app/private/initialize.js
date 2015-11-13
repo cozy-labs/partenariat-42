@@ -6,7 +6,7 @@ $(function () {
   Backbone.history.start();
 
   // Launch listener for responsive menu
-  $('[data-toggle=offcanvas]').click(function() {
+  $('[data-toggle=offcanvas]').click(function () {
     $('.row-offcanvas').toggleClass('active');
   });
 });

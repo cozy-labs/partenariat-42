@@ -1,4 +1,3 @@
-
 var RealtimeAdapter = require('cozy-realtime-adapter');
 var feed = require('./lib/feed');
 

@@ -14,11 +14,11 @@ var AddExpenseView = BaseView.extend({
 
 
   events: {
-    'click .seeder'				: 'setSeeder',
-    'click .leecher'			: 'setLeecher',
-    'click #add-expense-save'	: 'lauchSaveExpense',
-    'click #add-expense-cancel'	: 'resetNewExpense',
-    'click .currency'	    	:	'setCurrency',
+    'click .seeder'             : 'setSeeder',
+    'click .leecher'            : 'setLeecher',
+    'click #add-expense-save'   : 'lauchSaveExpense',
+    'click #add-expense-cancel' : 'resetNewExpense',
+    'click .currency'           : 'setCurrency',
   },
 
 
@@ -29,13 +29,13 @@ var AddExpenseView = BaseView.extend({
   initialize: function (attributes) {
 
     // Find the count
-    this.count = app.router.count
+    this.count = app.router.count;
 
       // If there is no count, it's a bed url so I redirect to the main page
-      if (this.count == undefined || this.count == null) {
-        console.error('invalide route');
-        app.router.navigate('', {trigger: true});
-      }
+    if (this.count === undefined || this.count === null) {
+      console.error('invalide route');
+      app.router.navigate('', {trigger: true});
+    }
 
     var leecher = this.count.get('users').map(function (elem) {
       return {name: elem.name};
@@ -61,17 +61,24 @@ var AddExpenseView = BaseView.extend({
    * Add all the listener to dynamically check if the inputs are correct
    */
   afterRender: function () {
-    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.amount = event.target.value;};
-    })(this));
+    this.$('#input-amount')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.amount = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.name = event.target.value;};
-    })(this));
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.name = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-description')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.description = event.target.value;};
-    })(this));
+    this.$('#input-description')[0].addEventListener('change',
+        (function (_this) {
+        return function (event) {
+          _this.data.description = event.target.value;
+        };
+      }(this)));
   },
 
 
@@ -92,12 +99,12 @@ var AddExpenseView = BaseView.extend({
    * Set the leechers of the expense or "who take part"
    */
   setLeecher: function (event) {
-    var target = this.$(event.target).children().get(0).value;
-    var listLeecher = this.data.leecher;
-    var leecherIndex = null;;
+    var target = this.$(event.target).children().get(0).value,
+      listLeecher = this.data.leecher,
+      leecherIndex = null;
 
     listLeecher.find(function (element, index) {
-      if (element.name == target) {
+      if (element.name === target) {
         leecherIndex = index;
         return true;
       }
@@ -106,8 +113,7 @@ var AddExpenseView = BaseView.extend({
 
     if (leecherIndex === null) {
       listLeecher.push({name: target});
-    }
-    else {
+    } else {
       listLeecher.splice(leecherIndex, 1);
     }
   },
@@ -116,10 +122,10 @@ var AddExpenseView = BaseView.extend({
   /*
    * Set the currency of the expense
    */
-    setCurrency: function (event) {
-      this.data.currency = event.target.text;
-      this.$('#choose-currency').text(this.data.currency);
-    },
+  setCurrency: function (event) {
+    this.data.currency = event.target.text;
+    this.$('#choose-currency').text(this.data.currency);
+  },
 
 
     /*
@@ -127,20 +133,20 @@ var AddExpenseView = BaseView.extend({
      * sendNewExpense()
      */
   lauchSaveExpense: function () {
-    var data = this.data;
-    var error = false;
+    var data = this.data,
+      error = false;
 
     this.$('#alert-zone').remove();
     this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
-    if (data.name === null || data.name == undefined) {
+    if (data.name === null || data.name === undefined) {
       this.errorMessage('Your expense need a name');
       error = true;
     }
-    if (data.seeder === null || data.seeder == undefined) {
+    if (data.seeder === null || data.seeder === undefined) {
       this.errorMessage('One person must paid');
       error = true;
     }
-    if (data.amount == undefined) {
+    if (data.amount === undefined) {
       this.errorMessage('You haven\'t set a amount');
       error = true;
     } else if (data.amount <= 0) {
@@ -161,7 +167,8 @@ var AddExpenseView = BaseView.extend({
    * Generique function to trigger an alert.
    */
   errorMessage: function (msg) {
-    this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+    this.$('#alert-zone').append('<div class="alert alert-danger"' +
+        ' role="alert">' + msg + '</div>');
   },
 
 
@@ -172,52 +179,59 @@ var AddExpenseView = BaseView.extend({
    *
    * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
    * round.
-   * TODO: create a generique function to manage round.
    */
-    sendNewExpense: function () {
-      var self = this;
-      var newExpensesList = this.count.get('expenses');
-      newExpensesList.push(this.data);
+  sendNewExpense: function () {
+    var self = this,
+      newExpensesList = this.count.get('expenses'),
+      allUsers = null,
+      newAllExpenses = null,
+      leechPerUser = null;
 
-      this.data.id = Date.now() + Math.round(Math.random() % 100);
+    newExpensesList.push(this.data);
 
-      var allUsers = this.count.get('users');
+    this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+    allUsers = this.count.get('users');
+    allUsers.every(function (user) {
+      if (self.data.seeder === user.name) {
+        user.seed = (Math.round((Number(self.data.amount) + Number(user.seed))
+              * 100) / 100).toFixed(2);
+        return false;
+      }
+      return true;
+    });
+
+    leechPerUser = (Math.round(Number(this.data.amount) /
+          Number(this.data.leecher.length) * 100) / 100).toFixed(2);
+    this.data.leecher.forEach(function (elem) {
       allUsers.every(function (user) {
-        if (self.data.seeder === user.name) {
-          user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
+        if (elem.name === user.name) {
+          user.leech = +(Math.round((Number(leechPerUser) +
+                  Number(user.leech)) * 100) / 100).toFixed(2);
           return false;
         }
         return true;
       });
+    });
 
-      var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
-      this.data.leecher.forEach(function (elem) {
-        allUsers.every(function (user) {
-          if (elem.name === user.name) {
-            user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
-            return false;
-          }
-          return true;
-        });
-      });
+    newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) +
+            Number(this.data.amount)) * 100) / 100).toFixed(2);
+    this.count.save({
+      allExpenses: newAllExpenses,
+      expenses: newExpensesList,
+      users: allUsers,
+    }, {
+      url: '/public/count/' + this.count.id,
+      wait: true,
+      success: function (data) {
+        app.router.navigate('/', {trigger: true});
+      },
+    });
+  },
 
-      var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
-      this.count.save({
-        allExpenses: newAllExpenses,
-        expenses: newExpensesList,
-        users: allUsers,
-      }, {
-        url: '/public/count/' + this.count.id,
-        wait: true,
-        success: function (data) {
-          app.router.navigate('/', {trigger: true});
-        },
-      });
-    },
-
-    resetNewExpense: function () {
-      app.router.navigate('/', {trigger: true});
-    },
+  resetNewExpense: function () {
+    app.router.navigate('/', {trigger: true});
+  },
 });
 
 module.exports = AddExpenseView;

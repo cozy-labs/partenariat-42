@@ -134,8 +134,8 @@ require.register("private/collections/count_list", function(exports, require, mo
 var Count = require('../models/count');
 
 var CountList = Backbone.Collection.extend({
-	model: Count,
-	url: 'count',
+  model: Count,
+  url: 'count',
 });
 
 module.exports = CountList;
@@ -144,28 +144,28 @@ module.exports = CountList;
 
 require.register("private/helper/color_set", function(exports, require, module) {
 module.exports = [
-    '2979FF',
-    'B3C51D',
-    '00D5B8',
-    'FF5700',
-    'F819AA',
-    '7190AB',
-    '00B0FF',
-    'E70505',
-    'FF7900',
-    '51658D',
-    '304FFE',
-    '00DCE9',
-    'FF2828',
-    '6200EA',
-    '64DD17',
-    '00C853',
-    'FFA300',
-]
+  '2979FF',
+  'B3C51D',
+  '00D5B8',
+  'FF5700',
+  'F819AA',
+  '7190AB',
+  '00B0FF',
+  'E70505',
+  'FF7900',
+  '51658D',
+  '304FFE',
+  '00DCE9',
+  'FF2828',
+  '6200EA',
+  '64DD17',
+  '00C853',
+  'FFA300',
+];
 
 });
 
-;require.register("private/initialize", function(exports, require, module) {
+require.register("private/initialize", function(exports, require, module) {
 var application = require('./application');
 
 $(function () {
@@ -174,7 +174,7 @@ $(function () {
   Backbone.history.start();
 
   // Launch listener for responsive menu
-  $('[data-toggle=offcanvas]').click(function() {
+  $('[data-toggle=offcanvas]').click(function () {
     $('.row-offcanvas').toggleClass('active');
   });
 });
@@ -206,7 +206,9 @@ module.exports = BaseView;
 });
 
 require.register("private/lib/socket", function(exports, require, module) {
-
+/*global
+ CozySocketListener
+ */
 var Count = require('../models/count');
 var CountView = require('../views/count/count_view');
 var app = require('../application');
@@ -214,7 +216,7 @@ var app = require('../application');
 function SocketListener() {
   // Parent constructor
   CozySocketListener.call(this);
-};
+}
 
 CozySocketListener.prototype.models = {
   'shared-count': Count
@@ -227,9 +229,11 @@ CozySocketListener.prototype.events = [
 SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
-  var printModel = app.router.mainView.count;
+  var printModel = app.router.mainView.count,
+    view = null;
+
   if (printModel.id === model.id) {
-    var view = new CountView({countName: printModel.get('name')});
+    view = new CountView({countName: printModel.get('name')});
     app.router.displayView(view);
   }
 };
@@ -239,7 +243,7 @@ module.exports = SocketListener;
 });
 
 require.register("private/lib/view_collection", function(exports, require, module) {
-
+/*jslint plusplus: true */
 var BaseView = require('./base_view');
 
 /*
@@ -273,13 +277,15 @@ var ViewCollection = BaseView.extend({
     this.listenTo(this.collection, 'add', this.addItem);
     this.listenTo(this.collection, 'remove', this.removeItem);
 
-    if (this.collectionEl === null || this.collectionEl == undefined) {
+    if (this.collectionEl === null || this.collectionEl === undefined) {
       this.collectionEl = this.el;
     }
   },
 
   render: function () {
-    for (id in this.views) {
+    var id = null;
+
+    for (id = 0; id < this.views.length; id++) {
       this.views[id].$el.detach();
     }
     BaseView.prototype.render.call(this);
@@ -287,8 +293,10 @@ var ViewCollection = BaseView.extend({
   },
 
   afterRender: function () {
+    var id = null;
+
     this.$collectionEl = $(this.collectionEl);
-    for (id in this.views) {
+    for (id = 0; id < this.views.length; id++) {
       this.appendView(this.views[id]);
     }
     this.onReset(this.collection);
@@ -300,17 +308,19 @@ var ViewCollection = BaseView.extend({
   },
 
   onReset: function (newCollection) {
-    for (id in this.views) {
-      view.remove();
+    var id = null,
+      self = this;
+
+    for (id = 0; id < this.views.length; id++) {
+      this.views[id].remove();
     }
-		var self = this;
-		newCollection.forEach(function (elem) {
-				self.addItem(elem);
-		});
+    newCollection.forEach(function (elem) {
+      self.addItem(elem);
+    });
   },
 
   addItem: function (model) {
-    view = new this.itemView({model: model});
+    var view = new this.itemView({model: model});
     this.views[model.cid] = view.render();
     this.appendView(view);
   },
@@ -320,7 +330,7 @@ var ViewCollection = BaseView.extend({
     this.views[model.cid].remove();
     delete this.views[model.cid];
   }
-})
+});
 
 module.exports = ViewCollection;
 
@@ -333,36 +343,44 @@ var app = require('../application');
 var Count = Backbone.Model.extend({
 
   removeExpense: function (id) {
-    var index = this.get('expenses').findIndex(function (elem) {
+    var newExpenses = this.get('expenses'),
+      currentExpenses = this.get('allExpenses'),
+      leecherList = null,
+      expenseRemove = null,
+      seederName = null,
+      newUsersList = null,
+      newAllExpenses = null,
+      index = null;
+
+    index = this.get('expenses').findIndex(function (elem) {
       return elem.id === id;
     });
 
-    var newExpenses = this.get('expenses');
-    var expenseRemove = newExpenses.splice(index, 1)[0];
+    expenseRemove = newExpenses.splice(index, 1)[0];
+    seederName = expenseRemove.seederName;
+    leecherList = expenseRemove.leecher;
 
-    var currentExpenses = this.get('allExpenses');
-    var currentUsers = this.get('users');
-    var leecherList = expenseRemove.leecher;
-    var seederName = expenseRemove.seederName;
-
-    var newUsersList = this.get('users').map(function (user) {
+    newUsersList = this.get('users').map(function (user) {
       leecherList.every(function (expenseUser) {
         if (user.name === expenseUser.name) {
-          var leechPerUser = (Math.round(Number(expenseRemove.amount) / Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
-          user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100) / 100).toFixed(2);
+          var leechPerUser = (Math.round(Number(expenseRemove.amount) /
+                Number(expenseRemove.leecher.length) * 100) / 100).toFixed(2);
+          user.leech = (Math.round((Number(user.leech) - leechPerUser) * 100)
+              / 100).toFixed(2);
           return false;
-        } else {
-          return true;
         }
+        return true;
       });
 
-      if (user.name == seederName) {
-        user.seed = (Math.round((Number(user.seed) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+      if (user.name === seederName) {
+        user.seed = (Math.round((Number(user.seed) -
+                Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
       }
       return user;
     });
 
-    var newAllExpenses = (Math.round((Number(currentExpenses) - Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
+    newAllExpenses = (Math.round((Number(currentExpenses) -
+            Number(expenseRemove.amount)) * 100) / 100).toFixed(2);
 
     this.save({
       expenses: newExpenses,
@@ -400,7 +418,7 @@ module.exports = Count;
 });
 
 require.register("private/router", function(exports, require, module) {
-
+/*jslint plusplus: true*/
 // View list
 var AllCountView = require('./views/allCount/all_count_view');
 var AllArchiveView = require('./views/allArchives/all_archive_view');
@@ -434,7 +452,7 @@ var Router = Backbone.Router.extend({
     this.initializeCollections();
 
 
-    this.socket = new SocketListener;
+    this.socket = new SocketListener();
     this.socket.watch(window.countCollection);
 
 
@@ -446,13 +464,13 @@ var Router = Backbone.Router.extend({
 
 
   routes: {
-    ''				         	: 'mainBoard',
-    'count/create'	        	: 'countCreation',
-    'count/update/:id' 	    	: 'countUpdate',
+    ''                          : 'mainBoard',
+    'count/create'              : 'countCreation',
+    'count/update/:id'          : 'countUpdate',
     'count/:id'                 : 'printCount',
     'count/:name/new-expense'   : 'newExpense',
-    'archive'				    : 'printAllArchive',
-    'archive/:name'		    	: 'printArchive',
+    'archive'                   : 'printAllArchive',
+    'archive/:name'             : 'printArchive',
   },
 
 
@@ -466,7 +484,7 @@ var Router = Backbone.Router.extend({
       this.navigate('count/create', {trigger: true});
     } else {
       this.selectInMenu($('#menu-all-count').parent());
-      view = new AllCountView();
+      var view = new AllCountView();
 
       this.displayView(view);
     }
@@ -477,8 +495,10 @@ var Router = Backbone.Router.extend({
    * This view is used for count modification
    */
   countUpdate: function (countId) {
-    count = window.countCollection.get(countId);
-    this.selectInMenu($('#count-'+ count.get('name')).parent());
+    var count = window.countCollection.get(countId),
+      view = null;
+
+    this.selectInMenu($('#count-' + count.get('name')).parent());
     view = new CountUpdateView({count: count});
 
     this.displayView(view);
@@ -490,7 +510,7 @@ var Router = Backbone.Router.extend({
    */
   countCreation: function () {
     this.selectInMenu($('#menu-add-count').parent());
-    view = new CountCreationView();
+    var view = new CountCreationView();
 
     this.displayView(view);
   },
@@ -500,9 +520,9 @@ var Router = Backbone.Router.extend({
    * Screen for create a new expense
    */
   newExpense: function (countName) {
-    this.selectInMenu($('#count-'+countName).parent());
+    this.selectInMenu($('#count-' + countName).parent());
 
-    view = new NewExpense({countName: countName});
+    var view = new NewExpense({countName: countName});
 
     this.displayView(view);
   },
@@ -512,7 +532,7 @@ var Router = Backbone.Router.extend({
    * Count printer
    */
   printCount: function (countName) {
-    this.selectInMenu($('#count-'+countName).parent());
+    this.selectInMenu($('#count-' + countName).parent());
 
     var view = new CountView({countName: countName});
 
@@ -523,49 +543,49 @@ var Router = Backbone.Router.extend({
   /*
    * Print all archives
    */
-    printAllArchive: function () {
-      this.selectInMenu($('#menu-archives').parent());
-      view = new AllArchiveView();
-
-      this.displayView(view);
-    },
-
-
-    /*
-     * Print specifique archive
-     */
-  printArchive: function (archiveName) {
+  printAllArchive: function () {
     this.selectInMenu($('#menu-archives').parent());
-    view = new ArchiveView({countName: archiveName});
+    var view = new AllArchiveView();
 
     this.displayView(view);
   },
 
 
   /*
-   * Manage menu overlight, must be call in all path
+   * Print specifique archive
    */
-      selectInMenu: function (button) {
-        if (this.currentButton !== null) {
-          this.currentButton.removeClass('active');
-        }
-        this.currentButton = button;
-        this.currentButton.addClass('active');
-      },
+  printArchive: function (archiveName) {
+    this.selectInMenu($('#menu-archives').parent());
+    var view = new ArchiveView({countName: archiveName});
+
+    this.displayView(view);
+  },
 
 
-    /*
-     * Generic function to manage view printing, must be call if you want print
-     * a screen
-     */
-    displayView: function (view) {
-      if (this.mainView !== null && this.mainView !== undefined) {
-        this.mainView.remove();
-      }
-      this.mainView = view;
-      $('#content-screen').append(view.$el);
-      view.render();
-    },
+      /*
+       * Manage menu overlight, must be call in all path
+       */
+  selectInMenu: function (button) {
+    if (this.currentButton !== null) {
+      this.currentButton.removeClass('active');
+    }
+    this.currentButton = button;
+    this.currentButton.addClass('active');
+  },
+
+
+  /*
+   * Generic function to manage view printing, must be call if you want print
+   * a screen
+   */
+  displayView: function (view) {
+    if (this.mainView !== null && this.mainView !== undefined) {
+      this.mainView.remove();
+    }
+    this.mainView = view;
+    $('#content-screen').append(view.$el);
+    view.render();
+  },
 
 
   /*
@@ -574,27 +594,30 @@ var Router = Backbone.Router.extend({
    * - countCollection
    * - archiveCollection
    */
-    initializeCollections: function () {
-      window.countCollection = new CountList();
-      window.archiveCollection = new CountList();
+  initializeCollections: function () {
+    var index = null,
+      count = null,
+      newCount = null;
 
-      if (window.listCount == null || window.listCount == undefined || window.listCount == "") {
-        console.log('listCount empty');
-        return;
-      }
+    window.countCollection = new CountList();
+    window.archiveCollection = new CountList();
 
-      for (index in window.listCount) {
-        var count = window.listCount[index];
-        if (count.status === 'active') {
-          var newCount = new Count(count);
-          window.countCollection.add(newCount);
-        }
-        else if (count.status === 'archive') {
-          var newCount = new Count(count);
-          window.archiveCollection.add(newCount);
-        }
+    if (window.listCount === null) {
+      console.log('listCount empty');
+      return;
+    }
+
+    for (index = 0; index < window.listCount.length; index++) {
+      count = window.listCount[index];
+      if (count.status === 'active') {
+        newCount = new Count(count);
+        window.countCollection.add(newCount);
+      } else if (count.status === 'archive') {
+        newCount = new Count(count);
+        window.archiveCollection.add(newCount);
       }
-    },
+    }
+  },
 });
 
 module.exports = Router;
@@ -606,25 +629,25 @@ var BaseView = require('../../lib/base_view');
 var ArchiveListView = require('./archive_list_view');
 
 var AllArchiveView = BaseView.extend({
-	id: 'all-archive-screen',
+  id: 'all-archive-screen',
   template: require('./templates/all_archive'),
 
 
-	initialize: function () {
-		this.collection = window.archiveCollection;
-		BaseView.prototype.initialize.call(this);
-	},
-
-  getRenderData: function () {
-    return {numberArchives: this.collection.length}
+  initialize: function () {
+    this.collection = window.archiveCollection;
+    BaseView.prototype.initialize.call(this);
   },
 
-	afterRender: function () {
-		this.collectionView = new ArchiveListView({
-			collection: this.collection,
-		});
-		this.collectionView.render();
-	},
+  getRenderData: function () {
+    return {numberArchives: this.collection.length};
+  },
+
+  afterRender: function () {
+    this.collectionView = new ArchiveListView({
+      collection: this.collection,
+    });
+    this.collectionView.render();
+  },
 });
 
 module.exports = AllArchiveView;
@@ -636,14 +659,14 @@ var ViewCollection = require('../../lib/view_collection');
 var ArchiveRowView = require('./archive_row_view');
 
 var ArchiveListView = ViewCollection.extend({
-	el: '#list-view',
+  el: '#list-view',
 
-	itemView: ArchiveRowView,
+  itemView: ArchiveRowView,
 
-	initialize: function () {
-		this.collection = window.archiveCollection;
-		ViewCollection.prototype.initialize.call(this);
-	}
+  initialize: function () {
+    this.collection = window.archiveCollection;
+    ViewCollection.prototype.initialize.call(this);
+  }
 });
 
 module.exports = ArchiveListView;
@@ -656,20 +679,20 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var ArchiveRowView = BaseView.extend({
-	template: require('./templates/archive_row'),
+  template: require('./templates/archive_row'),
 
-	events: {
-		'click .archive-see-count'	: 'seeArchive',
-	},
+  events: {
+    'click .archive-see-count': 'seeArchive',
+  },
 
-	getRenderData: function () {
-		return ({model: this.model.toJSON()});
-	},
+  getRenderData: function () {
+    return ({model: this.model.toJSON()});
+  },
 
 
-	seeArchive: function () {
-		app.router.navigate('archive/' + this.model.get('name'), {trigger: true});
-	},
+  seeArchive: function () {
+    app.router.navigate('archive/' + this.model.get('name'), {trigger: true});
+  },
 });
 
 module.exports = ArchiveRowView;
@@ -749,33 +772,34 @@ if (typeof define === 'function' && define.amd) {
 ;require.register("private/views/allCount/all_count_view", function(exports, require, module) {
 var BaseView = require('../../lib/base_view');
 var CountListView = require('./count_list_view');
+var app = require('../../application');
 
 var AllCountView = BaseView.extend({
-	id: 'all-count-screen',
+  id: 'all-count-screen',
   template: require('./templates/all_count'),
 
-	events: {
-		'click #create-new-count' : 'createNewCount',
-	},
+  events: {
+    'click #create-new-count' : 'createNewCount',
+  },
 
 
-	initialize: function (attributes) {
-		this.collection = window.countCollection;
-		BaseView.prototype.initialize.call(this);
-	},
+  initialize: function (attributes) {
+    this.collection = window.countCollection;
+    BaseView.prototype.initialize.call(this);
+  },
 
 
-	afterRender: function () {
-		this.collectionView = new CountListView({
-			collection: this.collection,
-		});
-		this.collectionView.render();
-	},
+  afterRender: function () {
+    this.collectionView = new CountListView({
+      collection: this.collection,
+    });
+    this.collectionView.render();
+  },
 
 
-	createNewCount: function () {
-		app.router.navigate('count/create', {trigger: true});
-	},
+  createNewCount: function () {
+    app.router.navigate('count/create', {trigger: true});
+  },
 
 });
 
@@ -789,14 +813,14 @@ var ViewCollection = require('../../lib/view_collection');
 var CountRowView = require('./count_row_view');
 
 var CountListView = ViewCollection.extend({
-	el: '#list-view',
+  el: '#list-view',
 
-	itemView: CountRowView,
+  itemView: CountRowView,
 
-	initialize: function () {
-		this.collection = window.countCollection;
-		ViewCollection.prototype.initialize.call(this);
-	}
+  initialize: function () {
+    this.collection = window.countCollection;
+    ViewCollection.prototype.initialize.call(this);
+  }
 });
 
 module.exports = CountListView;
@@ -809,35 +833,35 @@ var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 var CountRowView = BaseView.extend({
-	template: require('./templates/count_row'),
+  template: require('./templates/count_row'),
 
-	events: {
-		'click .count-delete' : 'deleteCount',
-		'click .count-modify' : 'modifyCount',
-		'click .count-see'		: 'seeCount',
-	},
+  events: {
+    'click .count-delete' : 'deleteCount',
+    'click .count-modify' : 'modifyCount',
+    'click .count-see'    : 'seeCount',
+  },
 
-	getRenderData: function () {
-		return ({model: this.model.toJSON()});
-	},
+  getRenderData: function () {
+    return ({model: this.model.toJSON()});
+  },
 
-	deleteCount: function () {
-		window.countCollection.remove(this);
-		this.model.destroy();
-		if (window.countCollection.length === 0) {
-			app.router.navigate('count/create', {trigger: true});
-		}
-	},
-
-
-	modifyCount: function () {
-		app.router.navigate('count/update/' + this.model.id, {trigger: true});
-	},
+  deleteCount: function () {
+    window.countCollection.remove(this);
+    this.model.destroy();
+    if (window.countCollection.length === 0) {
+      app.router.navigate('count/create', {trigger: true});
+    }
+  },
 
 
-	seeCount: function () {
-		app.router.navigate('count/' + this.model.get('name'), {trigger: true});
-	}
+  modifyCount: function () {
+    app.router.navigate('count/update/' + this.model.id, {trigger: true});
+  },
+
+
+  seeCount: function () {
+    app.router.navigate('count/' + this.model.get('name'), {trigger: true});
+  }
 
 });
 
@@ -920,30 +944,27 @@ var app = require('../../application');
  * Shorter because an archive can't be modified
  */
 var ArchiveView = CountBaseView.extend({
-	id: 'archive-screen',
+  id: 'archive-screen',
 
-	count: null,
-	dataResume: {
-		allExpense: 0,
-	},
+  count: null,
+  dataResume: {
+    allExpense: 0,
+  },
 
-	newExpense: null,
-	balancing: null,
+  newExpense: null,
+  balancing: null,
 
-	events: {
-		'click #header-balancing'			: 'printBalancing',
-	},
+  events: {
+    'click #header-balancing':  'printBalancing',
+  },
 
-	initialize: function (attributes) {
-		this.count = window.archiveCollection.models.find(function (count) {
-			if (count.get('name') == attributes.countName) {
-				return true;
-			}
-			return false;
-		});
+  initialize: function (attributes) {
+    this.count = window.archiveCollection.models.find(function (count) {
+      return count.get('name') === attributes.countName;
+    });
 
-		CountBaseView.prototype.initialize.call(this);
-	},
+    CountBaseView.prototype.initialize.call(this);
+  },
 
 
 });
@@ -974,54 +995,54 @@ var CountBaseView = BaseView.extend({
    * If count is undefined that mean I haven't find it in the collection so it's
    * a bad url. I redirect to the mainBoard
    */
-	initialize: function () {
-		if (this.count == undefined || this.count == null) {
-			console.error('invalide route');
+  initialize: function () {
+    if (this.count === undefined || this.count === null) {
+      console.error('invalide route');
       app.router.navigate('', {trigger: true});
-		}
+    }
 
-		BaseView.prototype.initialize.call(this);
-	},
+    BaseView.prototype.initialize.call(this);
+  },
 
 
   /*
    * Call in render in BaseView class. Render the data to the template
    */
-	getRenderData: function () {
-		if (this.count !== null && this.count !== undefined) {
+  getRenderData: function () {
+    if (this.count !== null && this.count !== undefined) {
       var expensePerUser = +(Math.round(this.count.get('allExpenses') /
             this.count.get('users').length * 100) / 100).toFixed(2);
 
-			return ({
+      return ({
         count: this.count.toJSON(),
         expensePerUser: expensePerUser
       });
-		}
-	},
+    }
+  },
 
 
   /*
    * Render stats module
    */
-	afterRender: function () {
-      if (this.count.get('expenses').length > 0) {
-        this.stats = new StatsView({count: this.count});
-        this.stats.render();
-      }
-	},
+  afterRender: function () {
+    if (this.count.get('expenses').length > 0) {
+      this.stats = new StatsView({count: this.count});
+      this.stats.render();
+    }
+  },
 
 
   /*
    * The balancing is by default not printed so I don't create it unless it's
    * required.
    */
-	printBalancing: function () {
-		if (this.balancing === null || this.balancing === undefined) {
-			this.balancing = new SquareView({count: this.count});
-			this.balancing.render();
-		}
-		this.balancing.clickDisplayer()
-	},
+  printBalancing: function () {
+    if (this.balancing === null || this.balancing === undefined) {
+      this.balancing = new SquareView({count: this.count});
+      this.balancing.render();
+    }
+    this.balancing.clickDisplayer();
+  },
 });
 
 module.exports = CountBaseView;
@@ -1051,11 +1072,11 @@ var CountView = CountBaseView.extend({
   balancing: null,
 
   events: {
-    'click #count-lauch-add-user'	: 'addUser',
-    'click #add-new-expense'		: 'lauchNewExpense',
-    'click .header-expense-elem'	: 'printTransferBody',
-    'click .delete-expense-elem'	: 'deleteExpense',
-    'click #header-balancing'		: 'printBalancing',
+    'click #count-lauch-add-user' : 'addUser',
+    'click #add-new-expense'      : 'lauchNewExpense',
+    'click .header-expense-elem'  : 'printTransferBody',
+    'click .delete-expense-elem'  : 'deleteExpense',
+    'click #header-balancing'     : 'printBalancing',
   },
 
 
@@ -1075,28 +1096,37 @@ var CountView = CountBaseView.extend({
    * All the process for add a user in the count
    */
   addUser: function () {
-    var userList = this.count.get('users');
-    var newUser = this.$('#count-input-add-user').val();
-    var color = colorSet[userList.length % colorSet.length];
+    var userList = this.count.get('users'),
+      newUser = this.$('#count-input-add-user').val(),
+      color = colorSet[userList.length % colorSet.length],
+      nameIsTaken = null;
 
+    if (newUser.length === 0) {
+      return;
+    }
     // Remove precedent alert
     this.$('#alert-name').remove();
-
     // Check if the name is taker
-    var nameIsTaken = userList.find(function (elem) {
+    nameIsTaken = userList.find(function (elem) {
       return elem.name === newUser;
     });
 
     // Print an alert and quit if the name is taken
     if (nameIsTaken !== undefined) {
-      this.$('#name-alert').append('<div id="alert-name" class="alert\
-          alert-danger" role="alert"><a href="#" class="close"\
-          data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#name-alert').append("<div id='alert-name' class='alert" +
+          "alert-danger' role='alert'><a href='#' class='close'" +
+          " data-dismiss='alert'>&times;</a>Name already taken</div>");
       return;
     }
 
     // Add the name to the userlist if not taken
     userList.push({name: newUser, seed: 0, leech: 0, color: color});
+
+    // Add the user button to  userlist
+    this.$('#user-list').append('<div class="row"><button class="btn"' +
+        'style="background-color: #' + color + '">' + newUser +
+        '</button></div>');
+
     // Save the new list of user
     this.count.save({users: userList});
 
@@ -1127,11 +1157,11 @@ var CountView = CountBaseView.extend({
   removeNewExpense: function () {
     this.newExpense.remove();
     delete this.newExpense;
-    this.newExpense= null;
+    this.newExpense = null;
 
     // Remove the div
-    this.$('#module').prepend('<button id="add-new-expense" class="btn\
-        btn-default btn-block"> Add a new expense</button>');
+    this.$('#module').prepend('<button id="add-new-expense" class="btn' +
+        'btn-default btn-block"> Add a new expense</button>');
   },
 
 
@@ -1139,11 +1169,12 @@ var CountView = CountBaseView.extend({
    * Print expand or remove data body of an element of the history
    */
   printTransferBody: function (event) {
-    var elem =  $(event.target);
+    var elem =  $(event.target),
+      expenseBody = null;
     if (elem.is('span')) {
-      var expenseBody =  $(event.target).parent().next('div');
+      expenseBody =  $(event.target).parent().next('div');
     } else {
-      var expenseBody =  $(event.target).next('div');
+      expenseBody =  $(event.target).next('div');
     }
 
     if (expenseBody.is('.printed')) {
@@ -1159,12 +1190,11 @@ var CountView = CountBaseView.extend({
   /*
    * Remove a history element and update the stats
    */
-    deleteExpense: function (event) {
-      var self = this;
-      var id = Number(this.$(event.target).parent().attr('id'));
+  deleteExpense: function (event) {
+    var id = Number(this.$(event.target).parent().attr('id'));
 
-      this.count.removeExpense(id);
-    },
+    this.count.removeExpense(id);
+  },
 
 });
 
@@ -1173,13 +1203,12 @@ module.exports = CountView;
 });
 
 require.register("private/views/count/square_view", function(exports, require, module) {
+/*jslint plusplus: true*/
 var BaseView = require('../../lib/base_view');
 var app = require('../../application');
 
 /*
- * Specific view Wiche manage the balancing module.
- *
- * TODO: Separate with a model
+ * Manage the balancing module.
  */
 var SquareView = BaseView.extend({
   id: 'square-view',
@@ -1202,7 +1231,8 @@ var SquareView = BaseView.extend({
 
   render: function () {
     $('#module-balancing').prepend(this.$el);
-    this.$el.html(this.template({users: this.usersBalance, squareMoves: this.squareMoves}));
+    this.$el.html(this.template({users: this.usersBalance,
+      squareMoves: this.squareMoves}));
     this.$('#square-displayer').slideDown('slow');
 
   },
@@ -1226,8 +1256,6 @@ var SquareView = BaseView.extend({
 
   /*
    * Update and rerender the balance
-   * TODO: make a manual update to changing directly the values not a
-   * remove/rerender because that trigger a slide up/slide down and it's visible
    */
   update: function () {
     this.setUsersBalance();
@@ -1241,15 +1269,12 @@ var SquareView = BaseView.extend({
    * Create an array with the name, color and balance of each user
    */
   setUsersBalance: function () {
-    var allExpenses = this.count.get('allExpenses');
-    var users = this.count.get('users');
-
-    this.usersBalance = users.map(function (user) {
+    this.usersBalance = this.count.get('users').map(function (user) {
       return {
         name: user.name,
         color: user.color,
         balance: (Math.round((user.seed - user.leech) * 100) / 100).toFixed(2)
-      }
+      };
     });
 
     this.setSquareMoves();
@@ -1263,43 +1288,52 @@ var SquareView = BaseView.extend({
     this.squareMoves = [];
 
     // copy the userBalance array
-    var tmpUsers = [].concat(this.usersBalance);
+    var tmpUsers = [].concat(this.usersBalance),
+      i = 0,
+      leecher = null,
+      indexLeecher = 0,
+      index = 0,
+      seeder = null,
+      indexSeeder = 0,
+      exchange = null;
 
-    var i = 0;
 
     /*
      * The main loop: in each loop we find the biggest leecher and the biggest
-     * seeder and we equalize between their. If one of them is balanced I remove it.
+     * seeder and we equalize between their. If one of them is balanced it
+     * remove it.
      *
      * Repeat the loop while it stays 1 or less user. If one user stay it's
      * a "lost", I can't redistribute to any user. The goal it's to make this
      * lost as small as possible. For now it's max "0.01 * (nb or user -1)"
      */
-    while (tmpUsers.length > 1 && i++ < 50) {
-      var leecher = null;
-      var indexLeecher = 0;
+
+    while (tmpUsers.length > 1 && i < 50) {
+      i = i + 1;
+      leecher = null;
+      indexLeecher = 0;
 
       // Find the biggest leecher
-      for (index in tmpUsers) {
-        if (leecher === null || (leecher.balance > tmpUsers[index].balance && leecher != tmpUsers[index])) {
+      for (index = 0; index < tmpUsers.length; index++) {
+        if (leecher === null || (leecher.balance > tmpUsers[index].balance &&
+              leecher !== tmpUsers[index])) {
           leecher = {
             name: tmpUsers[index].name,
             balance: Number(tmpUsers[index].balance)
-          }
+          };
           indexLeecher = index;
         }
       }
 
-      var seeder = null;
-      var indexSeeder = 0;
 
       // Find the biggest seeder
-      for (index in tmpUsers) {
-        if (seeder === null || (seeder.balance < tmpUsers[index].balance && seeder != tmpUsers[index])) {
+      for (index = 0; index < tmpUsers.length; index++) {
+        if (seeder === null || (seeder.balance < tmpUsers[index].balance &&
+              seeder !== tmpUsers[index])) {
           seeder = {
             name: tmpUsers[index].name,
             balance: Number(tmpUsers[index].balance)
-          }
+          };
           indexSeeder = index;
         }
       }
@@ -1309,12 +1343,14 @@ var SquareView = BaseView.extend({
       if (leecher.balance * -1 > seeder.balance) {
         exchange = seeder.balance;
       } else {
-        exchange = - leecher.balance;
+        exchange = -leecher.balance;
       }
 
       // Set the new balancin
-      seeder.balance = (Math.round((seeder.balance - exchange) * 100) / 100).toFixed(2);
-      leecher.balance = (Math.round((leecher.balance + exchange) * 100) / 100).toFixed(2);
+      seeder.balance = (Math.round((seeder.balance - exchange) * 100) /
+          100).toFixed(2);
+      leecher.balance = (Math.round((leecher.balance + exchange) * 100) /
+          100).toFixed(2);
 
       // Add the exchange to the list of exchanges
       if (exchange !== 0 && exchange !== 'NaN') {
@@ -1326,10 +1362,10 @@ var SquareView = BaseView.extend({
       }
 
       // Remove the leecher of the seeder if their balance is equal to 0
-      if (leecher.balance == 0) {
+      if (leecher.balance === 0) {
         tmpUsers.splice(indexLeecher, 1);
       }
-      if (seeder.balance == 0) {
+      if (seeder.balance === 0) {
         tmpUsers.splice(indexSeeder, 1);
       }
     }
@@ -1354,7 +1390,9 @@ module.exports = SquareView;
 });
 
 require.register("private/views/count/stats_view", function(exports, require, module) {
-
+/*global
+ Chart
+ */
 var BaseView = require('../../lib/base_view');
 
 
@@ -1377,8 +1415,8 @@ var StatsView = BaseView.extend({
    * Create the pie chart and reder it
    */
   render: function () {
-    var chartCtx = this.$('#chart-users').get(0).getContext("2d");
-    var data = this.computeDataCount();
+    var chartCtx = this.$('#chart-users').get(0).getContext("2d"),
+      data = this.computeDataCount();
     this.pieChart = new Chart(chartCtx).Pie(data);
   },
 
@@ -1391,7 +1429,8 @@ var StatsView = BaseView.extend({
     var data = [];
     this.count.get('users').forEach(function (elem) {
       if (Number(elem.seed) !== 0) {
-        data.push({value: elem.seed, color: '#'+elem.color, label: elem.name});
+        data.push({value: elem.seed, color: '#' + elem.color,
+          label: elem.name});
       }
     });
     return data;
@@ -1402,17 +1441,17 @@ var StatsView = BaseView.extend({
    * Update the value of the pie chart
    */
   update: function () {
-    var allExpenses = Number(this.count.get('allExpenses'));
-    var nbUsers = Number(this.count.get('users').length);
-
-    var perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) / 100).toFixed(2);
+    var allExpenses = Number(this.count.get('allExpenses')),
+      nbUsers = Number(this.count.get('users').length),
+      perUserExpenses = +(Math.round(allExpenses / nbUsers * 100) /
+          100).toFixed(2),
+      self = this;
 
     // Update the numbers of the general state (to the right of the pie chart)
     $('#nb-expenses').text(this.count.get('expenses').length);
     $('#all-expenses').text(allExpenses);
     $('#perUser-expenses').text(perUserExpenses);
 
-    var self = this;
 
     /*
      * Main loop where data for the pie chart is updated/created
@@ -1426,10 +1465,10 @@ var StatsView = BaseView.extend({
           return true;
         }
         return false;
-      })
+      });
       // If we find it we update the chart with the new data in the segment
       if (indexPie !== undefined && indexPie !== null) {
-        if (user.seed == 0) {
+        if (user.seed === 0) {
           self.pieChart.removeData(indexPie);
         } else {
           self.pieChart.segments[indexPie].value = user.seed;
@@ -1692,8 +1731,8 @@ var CountCreationView = CountEditionBase.extend({
 
   events: {
     'click #submit-editor'  : 'lauchCountCreation',
-    'click #add-user'		: 'addUser',
-    'click .currency'		: 'setCurrency',
+    'click #add-user'       : 'addUser',
+    'click .currency'       : 'setCurrency',
     'click #input-public'   : 'setPublic'
   },
 
@@ -1714,11 +1753,11 @@ var CountCreationView = CountEditionBase.extend({
    * Add a listener in the changes of the input of name
    */
   afterRender: function () {
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
       return function (event) {
         _this.countName = _this.checkCountName(event);
       };
-    })(this));
+    }(this)));
   },
 
 
@@ -1727,13 +1766,14 @@ var CountCreationView = CountEditionBase.extend({
    * alert else he add a button with the name.
    */
   addUser: function (event) {
-    var color = colorSet[this.userList.length % colorSet.length];
-    var newUser = this.$('#input-users').val();
+    var color = colorSet[this.userList.length % colorSet.length],
+      newUser = this.$('#input-users').val(),
+      nameIsTaken = null;
 
     this.$('#alert-name').remove();
 
     // Check if the name is already in the userList
-    var nameIsTaken = this.userList.find(function (user) {
+    nameIsTaken = this.userList.find(function (user) {
       if (user.name === newUser) {
         return true;
       }
@@ -1742,8 +1782,9 @@ var CountCreationView = CountEditionBase.extend({
 
     // If there is a name we put the alert
     if (nameIsTaken !== undefined) {
-      this.$('#input-user-grp').append('<div id="alert-name" class="alert alert-danger" role="alert">\
-          <a href="#" class="close" data-dismiss="alert">&times;</a>Name already taken</div>');
+      this.$('#input-user-grp').append('<div id="alert-name" class="alert' +
+          'alert-danger" role="alert"><a href="#" class="close"' +
+          'data-dismiss="alert">&times;</a>Name already taken</div>');
       return;
     }
 
@@ -1757,7 +1798,9 @@ var CountCreationView = CountEditionBase.extend({
       });
 
       // Add the button
-      this.$('#list-users').append('<button class="btn" style="background-color: #'+ color +'">' + newUser + '</button>');
+      this.$('#list-users').append('<button class="btn"' +
+        ' style="background-color: #' + color +
+        '">' + newUser + '</button>');
       // Add empty the input
       this.$('#input-users').val('');
     }
@@ -1767,79 +1810,79 @@ var CountCreationView = CountEditionBase.extend({
   /*
    * Set the currencies available of the count
    */
-    setCurrency: function (event) {
-      var selectedCurrency = this.$(event.target).children().get(0).value;
-      var currencyIndex = null;
+  setCurrency: function (event) {
+    var selectedCurrency = this.$(event.target).children().get(0).value,
+      currencyIndex = null;
 
-      this.currencies.find(function (elem, index) {
-        if (elem.name == selectedCurrency) {
-          currencyIndex = index;
-          return true;
-        }
-        return false;
+    this.currencies.find(function (elem, index) {
+      if (elem.name === selectedCurrency) {
+        currencyIndex = index;
+        return true;
+      }
+      return false;
+    });
+
+    if (currencyIndex === null) {
+      this.currencies.push({
+        name: selectedCurrency,
+        taux: 1,
       });
-
-      if (currencyIndex == null) {
-        this.currencies.push({
-          name: selectedCurrency,
-          taux: 1,
-        });
-      } else {
-        this.currencies.splice(currencyIndex, 1);
-      }
-    },
+    } else {
+      this.currencies.splice(currencyIndex, 1);
+    }
+  },
 
 
-    /*
-     * Check all inputs to verifies if their are correct. If their wrong an alert
-     * div is trigger. If all inputs are good I save the new count in the
-     * collection server side
-     */
-    lauchCountCreation: function () {
-      var countDescription = this.$('#input-description').val();
-      var countName = this.countName;
+  /*
+   * Check all inputs to verifies if their are correct. If their wrong an alert
+   * div is trigger. If all inputs are good I save the new count in the
+   * collection server side
+   */
+  lauchCountCreation: function () {
+    var countDescription = this.$('#input-description').val(),
+      countName = this.countName,
+      error = false;
 
-      var error = false;
+    this.$('#alert-zone').remove();
+    this.$('#formular').prepend('<div id="alert-zone"></div>');
 
-      this.$('#alert-zone').remove();
-      this.$('#formular').prepend('<div id="alert-zone"></div>');
+    if (this.nameIsUsed === true) {
+      this.errorMessage('Your namee is already use');
+      error = true;
+    }
+    if (this.countName.length <= 0) {
+      this.errorMessage('Your count need a name');
+      error = true;
+    }
+    if (this.userList.length <= 0) {
+      this.errorMessage('Your count need almost one user');
+      error = true;
+    }
+    if (this.currencies.length <= 0) {
+      this.errorMessage('Your count need almost one currency');
+      error = true;
+    }
 
-      if (this.nameIsUsed == true) {
-        this.errorMessage('Your namee is already use');
-        error = true;
-      }
-      if (this.countName.length <= 0) {
-        this.errorMessage('Your count need a name');
-        error = true;
-      }
-      if (this.userList.length <= 0) {
-        this.errorMessage('Your count need almost one user');
-        error = true;
-      }
-      if (this.currencies.length <= 0) {
-        this.errorMessage('Your count need almost one currency');
-        error = true;
-      }
-
-      if (error === false) {
-        window.countCollection.create({
-          name: this.countName,
-          description: countDescription,
-          users: this.userList,
-          currencies: this.currencies,
-          isPublic: this.isPublic,
-          status: 'active',
-        },{
-          wait: true,
-          success: function () {
-            app.router.navigate('count/' + countName, {trigger: true});
-          },
-          error: function (xhr) {
-            console.error(xhr);
-            app.router.navigate('', {trigger: true});
-          }});
-      }
-    },
+    if (error === false) {
+      window.countCollection.create({
+        name: this.countName,
+        description: countDescription,
+        users: this.userList,
+        currencies: this.currencies,
+        isPublic: this.isPublic,
+        status: 'active',
+      }, {
+        wait: true,
+        success: function () {
+          app.router.navigate('count/' + countName, {trigger: true});
+        },
+        error: function (xhr) {
+          console.error(xhr);
+          app.router.navigate('', {trigger: true});
+        }
+      });
+    }
+  },
 });
 
 module.exports = CountCreationView;
@@ -1863,10 +1906,12 @@ var CountEditorBase = BaseView.extend({
    * Add a listener in the changes of the input of name
    */
   afterRender: function () {
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.checkCountName(event);};
-    })(this));
-    if (this.count !== null && this.count.get('isPublic') == true) {
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.checkCountName(event);
+      };
+    }(this)));
+    if (this.count !== null && this.count.get('isPublic')) {
       this.setPublic();
       this.$('#input-public').attr('checked');
     }
@@ -1880,26 +1925,28 @@ var CountEditorBase = BaseView.extend({
    * find the counts by the name). For now we check the archive.
    */
   checkCountName: function (event) {
-    var countName = event.target.value;
+    var countName = event.target.value,
+      nameIsTaken = null,
+      inputGrp = this.$('#input-name-grp');
 
     // Check the count collection
-    var nameIsTaken = window.countCollection.find(function (elem) {
-      return elem.get('name')== countName;
+    nameIsTaken = window.countCollection.find(function (elem) {
+      return elem.get('name') === countName;
     });
 
     // Check the archive collection
-    if (nameIsTaken === undefined || nameIsTaken === null) {
-      var nameIsTaken = window.archiveCollection.find(function (elem) {
-        return elem.get('name')== countName;
+    if (nameIsTaken === null) {
+      nameIsTaken = window.archiveCollection.find(function (elem) {
+        return elem.get('name') === countName;
       });
     }
 
-    var inputGrp = this.$('#input-name-grp');
     // If name is tacken I add an alert
-    if (nameIsTaken !== null && nameIsTaken !== undefined) {
+    if (nameIsTaken !== null) {
       if (!this.nameIsUsed) {
         inputGrp.addClass('has-error');
-        inputGrp.append('<div id="name-used" class="alert alert-danger" role="alert">Name already use</div>');
+        inputGrp.append('<div id="name-used" class="alert alert-danger"' +
+            ' role="alert">Name already use</div>');
         this.nameIsUsed = true;
       }
     } else {
@@ -1914,9 +1961,11 @@ var CountEditorBase = BaseView.extend({
   },
 
 
-    errorMessage: function (msg) {
-      this.$('#alert-zone').append('<div class="alert alert-danger" role="alert"><a href="#" class="close" data-dismiss="alert">&times;</a>'+msg+'</div>');
-    },
+  errorMessage: function (msg) {
+    this.$('#alert-zone').append('<div class="alert alert-danger"' +
+        ' role="alert"><a href="#" class="close" data-dismiss="alert">' +
+        '&times;</a>' + msg + '</div>');
+  },
 });
 
 module.exports = CountEditorBase;
@@ -1948,7 +1997,7 @@ var CountUpdateView = CountEditionBase.extend({
 
     this.count = params.count;
 
-    if (this.count == null || this.count == undefined) {
+    if (this.count === null || this.count === undefined) {
       console.error("Error: retrieve count update");
     }
 
@@ -1961,14 +2010,14 @@ var CountUpdateView = CountEditionBase.extend({
    * warning.
    */
   afterRender: function () {
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
       return function (event) {
         var res = _this.checkCountName(event);
-        if (res != null) {
+        if (res !== null) {
           _this.count.set('name', res);
         }
       };
-    })(this));
+    }(this)));
 
     if (this.count !== null && this.count.get('isPublic')) {
       this.setPublic();
@@ -1991,7 +2040,9 @@ var CountUpdateView = CountEditionBase.extend({
   setPublic: function () {
     this.count.set('isPublic', true);
     this.$('#input-public').text('Make this count private');
-    this.$('#public-section').append(this.templateUrl({url: this.createPublicUrl()}))
+    this.$('#public-section').append(this.templateUrl({
+      url: this.createPublicUrl()
+    }));
   },
 
 
@@ -2006,17 +2057,17 @@ var CountUpdateView = CountEditionBase.extend({
    */
   createPublicUrl: function () {
 
-    if (window.domain == false || window.domain == undefined || window.domain == null) {
+    if (window.domain === false || window.domain === null) {
       return (window.location.origin + '/public/count/' + this.count.id);
-    } else {
-      return (window.domain + '/public/count/' + this.count.id);
     }
+
+    return (window.domain + '/public/count/' + this.count.id);
   },
 
 
 
   getRenderData: function () {
-    if (this.count != null) {
+    if (this.count !== null) {
       return ({model: this.count.toJSON()});
     }
     return ({model: null});
@@ -2025,14 +2076,13 @@ var CountUpdateView = CountEditionBase.extend({
 
   /*
    * Lauche an update server side
-   * TODO: improve it and ckeck if name is already taken
    */
   lauchCountUpdate: function () {
     this.count.set('description', this.$('#input-description').val());
 
     this.count.save(this.count.attributes, {
       error: function (xhr) {
-        console.error (xhr);
+        console.error('Count update fail: ', xhr);
       },
       success: function (data) {
         app.router.navigate('/count/' + data.get('name'), {trigger: true});
@@ -2157,7 +2207,7 @@ var MenuCountRowView = BaseView.extend({
     var self = this;
     this.$el.click(function () {
       self.printCount();
-    })
+    });
   },
 
 
@@ -2166,8 +2216,8 @@ var MenuCountRowView = BaseView.extend({
   },
 
   render: function () {
-    name = this.model.get('name')
-    this.$el.html('<a id="count-' + name +'">'+ name+'</a>');
+    var name = this.model.get('name');
+    this.$el.html('<a id="count-' + name + '">' + name + '</a>');
     this.afterRender();
     return this;
   },
@@ -2195,45 +2245,45 @@ var app = require('../../application');
  * dynamically create a list of the count name  and redirect to the good url.
  */
 var MenuView = BaseView.extend({
-	el: '#sidebar',
+  el: '#sidebar',
 
-	events: {
-		'click #menu-all-count'		: 'goHomeView',
-		'click #menu-add-count'		: 'createNewCount',
-		'click #menu-archives'		: 'goToArchives',
-	},
+  events: {
+    'click #menu-all-count' : 'goHomeView',
+    'click #menu-add-count' : 'createNewCount',
+    'click #menu-archives'  : 'goToArchives',
+  },
 
   /*
    * Render the list of count in the menu
    */
-	renderCounts: function () {
-		this.countCollectionView = new CountListView(window.countCollection);
-		this.countCollectionView.render();
-	},
+  renderCounts: function () {
+    this.countCollectionView = new CountListView(window.countCollection);
+    this.countCollectionView.render();
+  },
 
 
   /*
    * Redirect to the mainBoard
    */
-	goHomeView: function () {
-		app.router.navigate('', {trigger: true});
-	},
+  goHomeView: function () {
+    app.router.navigate('', {trigger: true});
+  },
 
 
   /*
    * Redirect to the count creation
    */
-	createNewCount: function () {
-		app.router.navigate('count/create', {trigger: true});
-	},
+  createNewCount: function () {
+    app.router.navigate('count/create', {trigger: true});
+  },
 
 
   /*
    * Redirect to the archive list
    */
-	goToArchives: function () {
-		app.router.navigate('archive', {trigger: true});
-	},
+  goToArchives: function () {
+    app.router.navigate('archive', {trigger: true});
+  },
 
 });
 
@@ -2266,8 +2316,8 @@ var app = require('../../../application');
 
 
 /*
- * View for adding an expense to the count. That is managed in a new view to make
- * easier the history rendering if we add a new expense.
+ * View for adding an expense to the count. That is managed in a new
+ * view to make easier the history rendering if we add a new expense.
  */
 var AddExpenseView = BaseView.extend({
   template: require('./templates/new_expense'),
@@ -2277,11 +2327,11 @@ var AddExpenseView = BaseView.extend({
 
 
   events: {
-    'click .seeder'				: 'setSeeder',
-    'click .leecher'			: 'setLeecher',
-    'click #add-expense-save'	: 'lauchSaveExpense',
-    'click #add-expense-cancel'	: 'resetNewExpense',
-    'click .currency'			:	'setCurrency',
+    'click .seeder'             : 'setSeeder',
+    'click .leecher'            : 'setLeecher',
+    'click #add-expense-save'   : 'lauchSaveExpense',
+    'click #add-expense-cancel' : 'resetNewExpense',
+    'click .currency'           : 'setCurrency',
   },
 
 
@@ -2293,11 +2343,11 @@ var AddExpenseView = BaseView.extend({
 
     // Find the count
     this.count = window.countCollection.models.find(function (count) {
-      return count.get('name') == attributes.countName;
+      return count.get('name') === attributes.countName;
     });
 
     // If there is no count, it's a bed url so I redirect to the main page
-    if (this.count == undefined || this.count == null) {
+    if (this.count === undefined || this.count === null) {
       console.error('invalide route');
       app.router.navigate('', {trigger: true});
     }
@@ -2326,17 +2376,24 @@ var AddExpenseView = BaseView.extend({
    * Add all the listener to dynamically check if the inputs are correct
    */
   afterRender: function () {
-    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.amount = event.target.value;};
-    })(this));
+    this.$('#input-amount')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.amount = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.name = event.target.value;};
-    })(this));
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.name = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-description')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.description = event.target.value;};
-    })(this));
+    this.$('#input-description')[0].addEventListener('change',
+        (function (_this) {
+        return function (event) {
+          _this.data.description = event.target.value;
+        };
+      }(this)));
   },
 
 
@@ -2357,12 +2414,12 @@ var AddExpenseView = BaseView.extend({
    * Set the leechers of the expense or "who take part"
    */
   setLeecher: function (event) {
-    var target = this.$(event.target).children().get(0).value;
-    var listLeecher = this.data.leecher;
-    var leecherIndex = null;;
+    var target = this.$(event.target).children().get(0).value,
+      listLeecher = this.data.leecher,
+      leecherIndex = null;
 
     listLeecher.find(function (element, index) {
-      if (element.name == target) {
+      if (element.name === target) {
         leecherIndex = index;
         return true;
       }
@@ -2371,8 +2428,7 @@ var AddExpenseView = BaseView.extend({
 
     if (leecherIndex === null) {
       listLeecher.push({name: target});
-    }
-    else {
+    } else {
       listLeecher.splice(leecherIndex, 1);
     }
   },
@@ -2381,10 +2437,10 @@ var AddExpenseView = BaseView.extend({
   /*
    * Set the currency of the expense
    */
-    setCurrency: function (event) {
-      this.data.currency = event.target.text;
-      this.$('#choose-currency').text(this.data.currency);
-    },
+  setCurrency: function (event) {
+    this.data.currency = event.target.text;
+    this.$('#choose-currency').text(this.data.currency);
+  },
 
 
     /*
@@ -2392,20 +2448,20 @@ var AddExpenseView = BaseView.extend({
      * sendNewExpense()
      */
   lauchSaveExpense: function () {
-    var data = this.data;
-    var error = false;
+    var data = this.data,
+      error = false;
 
     this.$('#alert-zone').remove();
     this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
-    if (data.name === null || data.name == undefined) {
+    if (data.name === null || data.name === undefined) {
       this.errorMessage('Your expense need a name');
       error = true;
     }
-    if (data.seeder === null || data.seeder == undefined) {
+    if (data.seeder === null || data.seeder === undefined) {
       this.errorMessage('One person must paid');
       error = true;
     }
-    if (data.amount == undefined) {
+    if (data.amount === undefined) {
       this.errorMessage('You haven\'t set a amount');
       error = true;
     } else if (data.amount <= 0) {
@@ -2426,7 +2482,8 @@ var AddExpenseView = BaseView.extend({
    * Generique function to trigger an alert.
    */
   errorMessage: function (msg) {
-    this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+    this.$('#alert-zone').append('<div class="alert alert-danger"' +
+        ' role="alert">' + msg + '</div>');
   },
 
 
@@ -2438,49 +2495,58 @@ var AddExpenseView = BaseView.extend({
    * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
    * round.
    */
-    sendNewExpense: function () {
-      var self = this;
-      var newExpensesList = this.count.get('expenses');
-      newExpensesList.push(this.data);
+  sendNewExpense: function () {
+    var self = this,
+      newExpensesList = this.count.get('expenses'),
+      allUsers = this.count.get('users'),
+      newAllExpenses = null,
+      leechPerUser = null;
 
-      this.data.id = Date.now() + Math.round(Math.random() % 100);
 
-      var allUsers = this.count.get('users');
+    newExpensesList.push(this.data);
+
+    this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+    allUsers.every(function (user) {
+      if (self.data.seeder === user.name) {
+        user.seed = (Math.round((Number(self.data.amount) +
+                Number(user.seed)) * 100) / 100).toFixed(2);
+        return false;
+      }
+      return true;
+    });
+
+    leechPerUser = (Math.round(Number(this.data.amount) /
+          Number(this.data.leecher.length) * 100) / 100).toFixed(2);
+    this.data.leecher.forEach(function (elem) {
       allUsers.every(function (user) {
-        if (self.data.seeder === user.name) {
-          user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
+        if (elem.name === user.name) {
+          user.leech = +(Math.round((Number(leechPerUser) +
+                  Number(user.leech)) * 100) / 100).toFixed(2);
           return false;
         }
         return true;
       });
+    });
 
-      var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
-      this.data.leecher.forEach(function (elem) {
-        allUsers.every(function (user) {
-          if (elem.name === user.name) {
-            user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
-            return false;
-          }
-          return true;
-        });
-      });
+    newAllExpenses = (Math.round((Number(this.count.get('allExpenses'))
+            + Number(this.data.amount)) * 100) / 100).toFixed(2);
+    this.count.save({
+      allExpenses: newAllExpenses,
+      expenses: newExpensesList,
+      users: allUsers,
+    }, {
+      wait: true,
+      success: function (data) {
+        app.router.navigate('/count/' + self.count.get('name'),
+            {trigger: true});
+      },
+    });
+  },
 
-      var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
-      this.count.save({
-        allExpenses: newAllExpenses,
-        expenses: newExpensesList,
-        users: allUsers,
-      }, {
-        wait: true,
-        success: function (data) {
-          app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
-        },
-      });
-    },
-
-    resetNewExpense: function () {
-      app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
-    },
+  resetNewExpense: function () {
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
+  },
 });
 
 module.exports = AddExpenseView;

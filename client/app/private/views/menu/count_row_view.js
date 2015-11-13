@@ -15,7 +15,7 @@ var MenuCountRowView = BaseView.extend({
     var self = this;
     this.$el.click(function () {
       self.printCount();
-    })
+    });
   },
 
 
@@ -24,8 +24,8 @@ var MenuCountRowView = BaseView.extend({
   },
 
   render: function () {
-    name = this.model.get('name')
-    this.$el.html('<a id="count-' + name +'">'+ name+'</a>');
+    var name = this.model.get('name');
+    this.$el.html('<a id="count-' + name + '">' + name + '</a>');
     this.afterRender();
     return this;
   },

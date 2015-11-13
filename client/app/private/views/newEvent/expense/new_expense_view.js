@@ -3,8 +3,8 @@ var app = require('../../../application');
 
 
 /*
- * View for adding an expense to the count. That is managed in a new view to make
- * easier the history rendering if we add a new expense.
+ * View for adding an expense to the count. That is managed in a new
+ * view to make easier the history rendering if we add a new expense.
  */
 var AddExpenseView = BaseView.extend({
   template: require('./templates/new_expense'),
@@ -14,11 +14,11 @@ var AddExpenseView = BaseView.extend({
 
 
   events: {
-    'click .seeder'				: 'setSeeder',
-    'click .leecher'			: 'setLeecher',
-    'click #add-expense-save'	: 'lauchSaveExpense',
-    'click #add-expense-cancel'	: 'resetNewExpense',
-    'click .currency'			:	'setCurrency',
+    'click .seeder'             : 'setSeeder',
+    'click .leecher'            : 'setLeecher',
+    'click #add-expense-save'   : 'lauchSaveExpense',
+    'click #add-expense-cancel' : 'resetNewExpense',
+    'click .currency'           : 'setCurrency',
   },
 
 
@@ -30,11 +30,11 @@ var AddExpenseView = BaseView.extend({
 
     // Find the count
     this.count = window.countCollection.models.find(function (count) {
-      return count.get('name') == attributes.countName;
+      return count.get('name') === attributes.countName;
     });
 
     // If there is no count, it's a bed url so I redirect to the main page
-    if (this.count == undefined || this.count == null) {
+    if (this.count === undefined || this.count === null) {
       console.error('invalide route');
       app.router.navigate('', {trigger: true});
     }
@@ -63,17 +63,24 @@ var AddExpenseView = BaseView.extend({
    * Add all the listener to dynamically check if the inputs are correct
    */
   afterRender: function () {
-    this.$('#input-amount')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.amount = event.target.value;};
-    })(this));
+    this.$('#input-amount')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.amount = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-name')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.name = event.target.value;};
-    })(this));
+    this.$('#input-name')[0].addEventListener('change', (function (_this) {
+      return function (event) {
+        _this.data.name = event.target.value;
+      };
+    }(this)));
 
-    this.$('#input-description')[0].addEventListener('change', (function(_this) {
-      return function (event) {_this.data.description = event.target.value;};
-    })(this));
+    this.$('#input-description')[0].addEventListener('change',
+        (function (_this) {
+        return function (event) {
+          _this.data.description = event.target.value;
+        };
+      }(this)));
   },
 
 
@@ -94,12 +101,12 @@ var AddExpenseView = BaseView.extend({
    * Set the leechers of the expense or "who take part"
    */
   setLeecher: function (event) {
-    var target = this.$(event.target).children().get(0).value;
-    var listLeecher = this.data.leecher;
-    var leecherIndex = null;;
+    var target = this.$(event.target).children().get(0).value,
+      listLeecher = this.data.leecher,
+      leecherIndex = null;
 
     listLeecher.find(function (element, index) {
-      if (element.name == target) {
+      if (element.name === target) {
         leecherIndex = index;
         return true;
       }
@@ -108,8 +115,7 @@ var AddExpenseView = BaseView.extend({
 
     if (leecherIndex === null) {
       listLeecher.push({name: target});
-    }
-    else {
+    } else {
       listLeecher.splice(leecherIndex, 1);
     }
   },
@@ -118,10 +124,10 @@ var AddExpenseView = BaseView.extend({
   /*
    * Set the currency of the expense
    */
-    setCurrency: function (event) {
-      this.data.currency = event.target.text;
-      this.$('#choose-currency').text(this.data.currency);
-    },
+  setCurrency: function (event) {
+    this.data.currency = event.target.text;
+    this.$('#choose-currency').text(this.data.currency);
+  },
 
 
     /*
@@ -129,20 +135,20 @@ var AddExpenseView = BaseView.extend({
      * sendNewExpense()
      */
   lauchSaveExpense: function () {
-    var data = this.data;
-    var error = false;
+    var data = this.data,
+      error = false;
 
     this.$('#alert-zone').remove();
     this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
-    if (data.name === null || data.name == undefined) {
+    if (data.name === null || data.name === undefined) {
       this.errorMessage('Your expense need a name');
       error = true;
     }
-    if (data.seeder === null || data.seeder == undefined) {
+    if (data.seeder === null || data.seeder === undefined) {
       this.errorMessage('One person must paid');
       error = true;
     }
-    if (data.amount == undefined) {
+    if (data.amount === undefined) {
       this.errorMessage('You haven\'t set a amount');
       error = true;
     } else if (data.amount <= 0) {
@@ -163,7 +169,8 @@ var AddExpenseView = BaseView.extend({
    * Generique function to trigger an alert.
    */
   errorMessage: function (msg) {
-    this.$('#alert-zone').append('<div class="alert alert-danger" role="alert">'+msg+'</div>');
+    this.$('#alert-zone').append('<div class="alert alert-danger"' +
+        ' role="alert">' + msg + '</div>');
   },
 
 
@@ -175,49 +182,58 @@ var AddExpenseView = BaseView.extend({
    * The (Math.round(Num1 +/- Num2) * 100) / 100)toFixed(2) is use to manage the
    * round.
    */
-    sendNewExpense: function () {
-      var self = this;
-      var newExpensesList = this.count.get('expenses');
-      newExpensesList.push(this.data);
+  sendNewExpense: function () {
+    var self = this,
+      newExpensesList = this.count.get('expenses'),
+      allUsers = this.count.get('users'),
+      newAllExpenses = null,
+      leechPerUser = null;
 
-      this.data.id = Date.now() + Math.round(Math.random() % 100);
 
-      var allUsers = this.count.get('users');
+    newExpensesList.push(this.data);
+
+    this.data.id = Date.now() + Math.round(Math.random() % 100);
+
+    allUsers.every(function (user) {
+      if (self.data.seeder === user.name) {
+        user.seed = (Math.round((Number(self.data.amount) +
+                Number(user.seed)) * 100) / 100).toFixed(2);
+        return false;
+      }
+      return true;
+    });
+
+    leechPerUser = (Math.round(Number(this.data.amount) /
+          Number(this.data.leecher.length) * 100) / 100).toFixed(2);
+    this.data.leecher.forEach(function (elem) {
       allUsers.every(function (user) {
-        if (self.data.seeder === user.name) {
-          user.seed = (Math.round((Number(self.data.amount) + Number(user.seed)) * 100) / 100).toFixed(2);
+        if (elem.name === user.name) {
+          user.leech = +(Math.round((Number(leechPerUser) +
+                  Number(user.leech)) * 100) / 100).toFixed(2);
           return false;
         }
         return true;
       });
+    });
 
-      var leechPerUser = (Math.round(Number(this.data.amount) / Number(this.data.leecher.length) * 100) / 100).toFixed(2);
-      this.data.leecher.forEach(function (elem) {
-        allUsers.every(function (user) {
-          if (elem.name === user.name) {
-            user.leech = +(Math.round((Number(leechPerUser) + Number(user.leech)) * 100) / 100).toFixed(2);
-            return false;
-          }
-          return true;
-        });
-      });
+    newAllExpenses = (Math.round((Number(this.count.get('allExpenses'))
+            + Number(this.data.amount)) * 100) / 100).toFixed(2);
+    this.count.save({
+      allExpenses: newAllExpenses,
+      expenses: newExpensesList,
+      users: allUsers,
+    }, {
+      wait: true,
+      success: function (data) {
+        app.router.navigate('/count/' + self.count.get('name'),
+            {trigger: true});
+      },
+    });
+  },
 
-      var newAllExpenses = (Math.round((Number(this.count.get('allExpenses')) + Number(this.data.amount)) * 100) / 100).toFixed(2);
-      this.count.save({
-        allExpenses: newAllExpenses,
-        expenses: newExpensesList,
-        users: allUsers,
-      }, {
-        wait: true,
-        success: function (data) {
-          app.router.navigate('/count/' + self.count.get('name'), {trigger: true});
-        },
-      });
-    },
-
-    resetNewExpense: function () {
-      app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
-    },
+  resetNewExpense: function () {
+    app.router.navigate('/count/' + this.count.get('name'), {trigger: true});
+  },
 });
 
 module.exports = AddExpenseView;

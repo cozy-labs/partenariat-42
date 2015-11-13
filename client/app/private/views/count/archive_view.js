@@ -6,30 +6,27 @@ var app = require('../../application');
  * Shorter because an archive can't be modified
  */
 var ArchiveView = CountBaseView.extend({
-	id: 'archive-screen',
+  id: 'archive-screen',
 
-	count: null,
-	dataResume: {
-		allExpense: 0,
-	},
+  count: null,
+  dataResume: {
+    allExpense: 0,
+  },
 
-	newExpense: null,
-	balancing: null,
+  newExpense: null,
+  balancing: null,
 
-	events: {
-		'click #header-balancing'			: 'printBalancing',
-	},
+  events: {
+    'click #header-balancing':  'printBalancing',
+  },
 
-	initialize: function (attributes) {
-		this.count = window.archiveCollection.models.find(function (count) {
-			if (count.get('name') == attributes.countName) {
-				return true;
-			}
-			return false;
-		});
+  initialize: function (attributes) {
+    this.count = window.archiveCollection.models.find(function (count) {
+      return count.get('name') === attributes.countName;
+    });
 
-		CountBaseView.prototype.initialize.call(this);
-	},
+    CountBaseView.prototype.initialize.call(this);
+  },
 
 
 });

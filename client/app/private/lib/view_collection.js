@@ -1,4 +1,4 @@
-
+/*jslint plusplus: true */
 var BaseView = require('./base_view');
 
 /*
@@ -32,13 +32,15 @@ var ViewCollection = BaseView.extend({
     this.listenTo(this.collection, 'add', this.addItem);
     this.listenTo(this.collection, 'remove', this.removeItem);
 
-    if (this.collectionEl === null || this.collectionEl == undefined) {
+    if (this.collectionEl === null || this.collectionEl === undefined) {
       this.collectionEl = this.el;
     }
   },
 
   render: function () {
-    for (id in this.views) {
+    var id = null;
+
+    for (id = 0; id < this.views.length; id++) {
       this.views[id].$el.detach();
     }
     BaseView.prototype.render.call(this);
@@ -46,8 +48,10 @@ var ViewCollection = BaseView.extend({
   },
 
   afterRender: function () {
+    var id = null;
+
     this.$collectionEl = $(this.collectionEl);
-    for (id in this.views) {
+    for (id = 0; id < this.views.length; id++) {
       this.appendView(this.views[id]);
     }
     this.onReset(this.collection);
@@ -59,17 +63,19 @@ var ViewCollection = BaseView.extend({
   },
 
   onReset: function (newCollection) {
-    for (id in this.views) {
-      view.remove();
+    var id = null,
+      self = this;
+
+    for (id = 0; id < this.views.length; id++) {
+      this.views[id].remove();
     }
-		var self = this;
-		newCollection.forEach(function (elem) {
-				self.addItem(elem);
-		});
+    newCollection.forEach(function (elem) {
+      self.addItem(elem);
+    });
   },
 
   addItem: function (model) {
-    view = new this.itemView({model: model});
+    var view = new this.itemView({model: model});
     this.views[model.cid] = view.render();
     this.appendView(view);
   },
@@ -79,6 +85,6 @@ var ViewCollection = BaseView.extend({
     this.views[model.cid].remove();
     delete this.views[model.cid];
   }
-})
+});
 
 module.exports = ViewCollection;

@@ -25,7 +25,7 @@ var Router = Backbone.Router.extend({
 
     this.count = window.countCollection.models[0];
 
-    this.socket = new SocketListener;
+    this.socket = new SocketListener();
     this.socket.watch(window.countCollection);
 
     Backbone.Router.prototype.initialize.call(this);
@@ -42,7 +42,7 @@ var Router = Backbone.Router.extend({
    * Screen for create a new expense
    */
   newExpense: function (countName) {
-    view = new NewExpense({countName: countName});
+    var view = new NewExpense({countName: countName});
 
     this.displayView(view);
   },
@@ -52,7 +52,7 @@ var Router = Backbone.Router.extend({
    * Count printer
    */
   printCount: function () {
-    view = new CountView({countName: this.count.get('name')});
+    var view = new CountView({countName: this.count.get('name')});
 
     this.displayView(view);
   },
