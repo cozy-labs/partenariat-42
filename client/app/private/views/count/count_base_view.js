@@ -8,8 +8,9 @@ var SquareView = require('./square_view');
 
 
 /*
- * CountBaseView is a generique class wiche is call in count and archive. There
- * are both exactly the same stucture but just more or less actions
+ * CountBaseView is a generique class for count and archive. Both
+ * are both exactly the same stuctur (as count) but have differents actions in
+ * fonction of their permissions
  */
 var CountBaseView = BaseView.extend({
   template: require('./templates/count'),
@@ -17,7 +18,7 @@ var CountBaseView = BaseView.extend({
 
   /*
    * If count is undefined that mean I haven't find it in the collection so it's
-   * a bad url. I redirect to the mainBoard
+   * a bad url. That redirect to the mainBoard
    */
   initialize: function () {
     if (this.count === undefined || this.count === null) {
@@ -57,7 +58,7 @@ var CountBaseView = BaseView.extend({
 
 
   /*
-   * The balancing is by default not printed so I don't create it unless it's
+   * The balancing is by default not printed so that don't create it unless it's
    * required.
    */
   printBalancing: function () {

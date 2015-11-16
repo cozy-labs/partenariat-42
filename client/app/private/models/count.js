@@ -1,6 +1,9 @@
 
 var app = require('../application');
 
+/*
+ * Count object
+ */
 var Count = Backbone.Model.extend({
 
   removeExpense: function (id) {

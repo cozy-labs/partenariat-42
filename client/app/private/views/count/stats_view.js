@@ -20,7 +20,7 @@ var StatsView = BaseView.extend({
 
 
   /*
-   * Create the pie chart and reder it
+   * Create the pie chart and render it
    */
   render: function () {
     var chartCtx = this.$('#chart-users').get(0).getContext("2d"),
@@ -30,7 +30,7 @@ var StatsView = BaseView.extend({
 
 
   /*
-   * Compute data needed for the pie chart. We don't add the user with 0 seed
+   * Compute data needed in the pie chart. We don't add the user with 0 seed
    * because the update don't work from 0 to X value.
    */
   computeDataCount: function () {

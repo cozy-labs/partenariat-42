@@ -1,4 +1,5 @@
 /*jslint plusplus: true*/
+
 // View list
 var AllCountView = require('./views/allCount/all_count_view');
 var AllArchiveView = require('./views/allArchives/all_archive_view');
@@ -23,10 +24,9 @@ var Router = Backbone.Router.extend({
   currentButton: null,
 
   /*
-   * Fetch all the data from the server during the router initialization
-   * because there is not much data and it's easy to print any page.
+   * Initialize the main collections and the real-time socket. The menu is the
+   * same in each view so it rendered here.
    *
-   * The main HTML is already render server side, but the count list remains
    */
   initialize: function () {
     this.initializeCollections();
@@ -57,7 +57,7 @@ var Router = Backbone.Router.extend({
   /*
    * Print The main Board with the list of counts.
    *
-   * If the is not count I redirect to the count creation
+   * If there is not count it redirect to the count creation
    */
   mainBoard: function () {
     if (window.countCollection.length === 0) {
@@ -109,7 +109,7 @@ var Router = Backbone.Router.extend({
 
 
   /*
-   * Count printer
+   * Print specific count
    */
   printCount: function (countName) {
     this.selectInMenu($('#count-' + countName).parent());
@@ -142,9 +142,9 @@ var Router = Backbone.Router.extend({
   },
 
 
-      /*
-       * Manage menu overlight, must be call in all path
-       */
+  /*
+   * Manage menu overlight, must be call in all path
+   */
   selectInMenu: function (button) {
     if (this.currentButton !== null) {
       this.currentButton.removeClass('active');
@@ -173,6 +173,10 @@ var Router = Backbone.Router.extend({
    *
    * - countCollection
    * - archiveCollection
+   *
+   * All data are send directly with the first page so we don't have to manage
+   * an "in-time" fetching. Currently there isn't a bunch of data so it is the
+   * simpliest way and it haven't consequences on rendering time
    */
   initializeCollections: function () {
     var index = null,

@@ -77,7 +77,7 @@ var SquareView = BaseView.extend({
 
 
   /*
-   * Calcule each moves to balance the count
+   * Compute each moves to balance the count
    */
   setSquareMoves: function () {
     this.squareMoves = [];
@@ -105,13 +105,13 @@ var SquareView = BaseView.extend({
     };
 
     /*
-     * The main loop: in each loop we find the biggest leecher and the biggest
-     * seeder and we equalize between their. If one of them is balanced it
+     * The main loop: in each loop it find the biggest leecher and the biggest
+     * seeder and we equalize between them. If one of them is balanced, that
      * remove it.
      *
      * Repeat the loop while it stays 1 or less user. If one user stay it's
-     * a "lost", I can't redistribute to any user. The goal it's to make this
-     * lost as small as possible. For now it's max "0.01 * (nb or user -1)"
+     * a "lost" and we can't redistribute to any user. The goal it's to make
+     * this lost as small as possible. For now it's max "0.01 * (nb or user -1)"
      */
 
     while (tmpUsers.length > 1 && i++ < 50) {

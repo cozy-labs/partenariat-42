@@ -92,7 +92,7 @@ var SquareView = BaseView.extend({
       seeder = null,
       index = null,
       exchange = null,
-      roundNumber = null;
+      roundNumber = null,
       indexSeeder = null;
 
 

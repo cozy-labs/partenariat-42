@@ -41,7 +41,7 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * All the process for add a user in the count
+   * All the process to add an user in the count
    */
   addUser: function () {
     var userList = this.count.get('users'),
@@ -89,9 +89,9 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * The new expense editor is manage in a new page in order to make this page
-   * lighter in code and informations. It's also easier we re-render the count
-   * with the new data so we haven't to handle this manually.
+   * The new expense editor is managed in a new page in order to make this page
+   * lighter in code and informations. It's also easier because we re-render
+   * the count with the new data so we haven't to handle hot change
    */
   lauchNewExpense: function (event) {
     app.router.navigate('count/' + this.count.get('name') + '/new-expense',
@@ -114,7 +114,7 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * Print expand or remove data body of an element of the history
+   * Expand or remove the body of an element of the history
    */
   printTransferBody: function (event) {
     var elem =  $(event.target),
@@ -136,7 +136,7 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * Remove a history element and update the stats
+   * Remove an history element and update the stats
    */
   deleteExpense: function (event) {
     var id = Number(this.$(event.target).parent().attr('id'));

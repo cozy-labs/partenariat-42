@@ -77,12 +77,10 @@ var CountUpdateView = CountEditionBase.extend({
     this.$('#public-section-body').remove();
   },
 
-  /*
-   *
-   */
   createPublicUrl: function () {
 
-    if (window.domain === false || window.domain === null || window.domain == undefined) {
+    if (window.domain === false || window.domain === null ||
+        window.domain === undefined) {
       return (window.location.origin + '/public/count/' + this.count.id);
     }
 

@@ -3,7 +3,6 @@ var app = require('../../application');
 
 /*
  * View for all the archived count, based on the countBaseView (as count).
- * Shorter because an archive can't be modified
  */
 var ArchiveView = CountBaseView.extend({
   id: 'archive-screen',

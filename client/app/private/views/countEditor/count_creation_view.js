@@ -90,7 +90,7 @@ var CountCreationView = CountEditionBase.extend({
 
 
   /*
-   * Set the currencies available of the count
+   * Set the currencies available on the count
    */
   setCurrency: function (event) {
     var selectedCurrency = this.$(event.target).children().get(0).value,
@@ -116,8 +116,8 @@ var CountCreationView = CountEditionBase.extend({
 
 
   /*
-   * Check all inputs to verifies if their are correct. If their wrong an alert
-   * div is trigger. If all inputs are good I save the new count in the
+   * Check all inputs to verifies if they are correct. If they are wrong an
+   * alert div is trigger. If all inputs are good it save the new count in the
    * collection server side
    */
   lauchCountCreation: function () {
