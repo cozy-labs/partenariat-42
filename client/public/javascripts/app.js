@@ -133,6 +133,10 @@ module.exports = Application;
 require.register("private/collections/count_list", function(exports, require, module) {
 var Count = require('../models/count');
 
+/*
+ * Manage a list of count like countCollection or archiveCollection.
+ *
+ */
 var CountList = Backbone.Collection.extend({
   model: Count,
   url: 'count',
@@ -213,21 +217,40 @@ var Count = require('../models/count');
 var CountView = require('../views/count/count_view');
 var app = require('../application');
 
+/*
+ * Manage the real-time
+ */
 function SocketListener() {
   // Parent constructor
   CozySocketListener.call(this);
 }
 
+SocketListener.prototype = Object.create(CozySocketListener.prototype);
+
+/*
+ * Listen the dataype "shared-count"
+ */
 CozySocketListener.prototype.models = {
   'shared-count': Count
 };
 
+/*
+ * Listen the "update" action
+ */
 CozySocketListener.prototype.events = [
   'shared-count.update'
 ];
 
-SocketListener.prototype = Object.create(CozySocketListener.prototype);
 
+/*
+ * Is trigger after update the model in collection. Create a complete
+ * re-rendering
+ * if the updated count is the one currently printed, in other case, do nothing.
+ *
+ * This is basic but without real-time any count modification lead to a page
+ * rendering except the user-adding so currently there isn't methode to make
+ * hot update
+ */
 SocketListener.prototype.onRemoteUpdate = function (model, collection) {
   var printModel = app.router.mainView.count,
     view = null;
@@ -340,6 +363,9 @@ require.register("private/models/count", function(exports, require, module) {
 
 var app = require('../application');
 
+/*
+ * Count object
+ */
 var Count = Backbone.Model.extend({
 
   removeExpense: function (id) {
@@ -419,6 +445,7 @@ module.exports = Count;
 
 require.register("private/router", function(exports, require, module) {
 /*jslint plusplus: true*/
+
 // View list
 var AllCountView = require('./views/allCount/all_count_view');
 var AllArchiveView = require('./views/allArchives/all_archive_view');
@@ -443,10 +470,9 @@ var Router = Backbone.Router.extend({
   currentButton: null,
 
   /*
-   * Fetch all the data from the server during the router initialization
-   * because there is not much data and it's easy to print any page.
+   * Initialize the main collections and the real-time socket. The menu is the
+   * same in each view so it rendered here.
    *
-   * The main HTML is already render server side, but the count list remains
    */
   initialize: function () {
     this.initializeCollections();
@@ -477,7 +503,7 @@ var Router = Backbone.Router.extend({
   /*
    * Print The main Board with the list of counts.
    *
-   * If the is not count I redirect to the count creation
+   * If there is not count it redirect to the count creation
    */
   mainBoard: function () {
     if (window.countCollection.length === 0) {
@@ -529,7 +555,7 @@ var Router = Backbone.Router.extend({
 
 
   /*
-   * Count printer
+   * Print specific count
    */
   printCount: function (countName) {
     this.selectInMenu($('#count-' + countName).parent());
@@ -562,9 +588,9 @@ var Router = Backbone.Router.extend({
   },
 
 
-      /*
-       * Manage menu overlight, must be call in all path
-       */
+  /*
+   * Manage menu overlight, must be call in all path
+   */
   selectInMenu: function (button) {
     if (this.currentButton !== null) {
       this.currentButton.removeClass('active');
@@ -593,6 +619,10 @@ var Router = Backbone.Router.extend({
    *
    * - countCollection
    * - archiveCollection
+   *
+   * All data are send directly with the first page so we don't have to manage
+   * an "in-time" fetching. Currently there isn't a bunch of data so it is the
+   * simpliest way and it haven't consequences on rendering time
    */
   initializeCollections: function () {
     var index = null,
@@ -941,7 +971,6 @@ var app = require('../../application');
 
 /*
  * View for all the archived count, based on the countBaseView (as count).
- * Shorter because an archive can't be modified
  */
 var ArchiveView = CountBaseView.extend({
   id: 'archive-screen',
@@ -984,8 +1013,9 @@ var SquareView = require('./square_view');
 
 
 /*
- * CountBaseView is a generique class wiche is call in count and archive. There
- * are both exactly the same stucture but just more or less actions
+ * CountBaseView is a generique class for count and archive. Both
+ * are both exactly the same stuctur (as count) but have differents actions in
+ * fonction of their permissions
  */
 var CountBaseView = BaseView.extend({
   template: require('./templates/count'),
@@ -993,7 +1023,7 @@ var CountBaseView = BaseView.extend({
 
   /*
    * If count is undefined that mean I haven't find it in the collection so it's
-   * a bad url. I redirect to the mainBoard
+   * a bad url. That redirect to the mainBoard
    */
   initialize: function () {
     if (this.count === undefined || this.count === null) {
@@ -1033,7 +1063,7 @@ var CountBaseView = BaseView.extend({
 
 
   /*
-   * The balancing is by default not printed so I don't create it unless it's
+   * The balancing is by default not printed so that don't create it unless it's
    * required.
    */
   printBalancing: function () {
@@ -1093,7 +1123,7 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * All the process for add a user in the count
+   * All the process to add an user in the count
    */
   addUser: function () {
     var userList = this.count.get('users'),
@@ -1141,9 +1171,9 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * The new expense editor is manage in a new page in order to make this page
-   * lighter in code and informations. It's also easier we re-render the count
-   * with the new data so we haven't to handle this manually.
+   * The new expense editor is managed in a new page in order to make this page
+   * lighter in code and informations. It's also easier because we re-render
+   * the count with the new data so we haven't to handle hot change
    */
   lauchNewExpense: function (event) {
     app.router.navigate('count/' + this.count.get('name') + '/new-expense',
@@ -1166,7 +1196,7 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * Print expand or remove data body of an element of the history
+   * Expand or remove the body of an element of the history
    */
   printTransferBody: function (event) {
     var elem =  $(event.target),
@@ -1188,7 +1218,7 @@ var CountView = CountBaseView.extend({
 
 
   /*
-   * Remove a history element and update the stats
+   * Remove an history element and update the stats
    */
   deleteExpense: function (event) {
     var id = Number(this.$(event.target).parent().attr('id'));
@@ -1282,7 +1312,7 @@ var SquareView = BaseView.extend({
 
 
   /*
-   * Calcule each moves to balance the count
+   * Compute each moves to balance the count
    */
   setSquareMoves: function () {
     this.squareMoves = [];
@@ -1310,13 +1340,13 @@ var SquareView = BaseView.extend({
     };
 
     /*
-     * The main loop: in each loop we find the biggest leecher and the biggest
-     * seeder and we equalize between their. If one of them is balanced it
+     * The main loop: in each loop it find the biggest leecher and the biggest
+     * seeder and we equalize between them. If one of them is balanced, that
      * remove it.
      *
      * Repeat the loop while it stays 1 or less user. If one user stay it's
-     * a "lost", I can't redistribute to any user. The goal it's to make this
-     * lost as small as possible. For now it's max "0.01 * (nb or user -1)"
+     * a "lost" and we can't redistribute to any user. The goal it's to make
+     * this lost as small as possible. For now it's max "0.01 * (nb or user -1)"
      */
 
     while (tmpUsers.length > 1 && i++ < 50) {
@@ -1420,7 +1450,7 @@ var StatsView = BaseView.extend({
 
 
   /*
-   * Create the pie chart and reder it
+   * Create the pie chart and render it
    */
   render: function () {
     var chartCtx = this.$('#chart-users').get(0).getContext("2d"),
@@ -1430,7 +1460,7 @@ var StatsView = BaseView.extend({
 
 
   /*
-   * Compute data needed for the pie chart. We don't add the user with 0 seed
+   * Compute data needed in the pie chart. We don't add the user with 0 seed
    * because the update don't work from 0 to X value.
    */
   computeDataCount: function () {
@@ -1816,7 +1846,7 @@ var CountCreationView = CountEditionBase.extend({
 
 
   /*
-   * Set the currencies available of the count
+   * Set the currencies available on the count
    */
   setCurrency: function (event) {
     var selectedCurrency = this.$(event.target).children().get(0).value,
@@ -1842,8 +1872,8 @@ var CountCreationView = CountEditionBase.extend({
 
 
   /*
-   * Check all inputs to verifies if their are correct. If their wrong an alert
-   * div is trigger. If all inputs are good I save the new count in the
+   * Check all inputs to verifies if they are correct. If they are wrong an
+   * alert div is trigger. If all inputs are good it save the new count in the
    * collection server side
    */
   lauchCountCreation: function () {
@@ -2060,12 +2090,10 @@ var CountUpdateView = CountEditionBase.extend({
     this.$('#public-section-body').remove();
   },
 
-  /*
-   *
-   */
   createPublicUrl: function () {
 
-    if (window.domain === false || window.domain === null || window.domain == undefined) {
+    if (window.domain === false || window.domain === null ||
+        window.domain === undefined) {
       return (window.location.origin + '/public/count/' + this.count.id);
     }
 

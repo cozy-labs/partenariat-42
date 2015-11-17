@@ -133,6 +133,10 @@ module.exports = Application;
 require.register("public/collections/count_list", function(exports, require, module) {
 var Count = require('../models/count');
 
+/*
+ * Manage a list of count like countCollection or archiveCollection.
+ *
+ */
 var CountList = Backbone.Collection.extend({
   model: Count,
   url: 'count',
@@ -715,7 +719,7 @@ var SquareView = BaseView.extend({
       seeder = null,
       index = null,
       exchange = null,
-      roundNumber = null;
+      roundNumber = null,
       indexSeeder = null;
 
 
