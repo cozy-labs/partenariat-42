@@ -1,0 +1,276 @@
+%******************************************************************************%
+%                                                                              %
+%                  sample.fr.tex for LaTeX                                     %
+%                  Created on : Tue Mar 10 13:27:28 2015                       %
+%                  Made by : David "Thor" GIRON <thor@42.fr>                   %
+%                                                                              %
+%******************************************************************************%
+
+\documentclass{42-fr}
+
+
+%******************************************************************************%
+%                                                                              %
+%                                  Prologue                                    %
+%                                                                              %
+%******************************************************************************%
+\begin{document}
+
+
+
+                           \title{Cozy}
+                          \subtitle{friends\_with\_benefits}
+                         \member{ppeltier}{ppeltier@student.42.fr}
+                      \member{42 Staff}{pedago@staff.42.fr}
+
+\summary {
+	L'open source c'est cool.
+}
+
+\maketitle
+
+\tableofcontents
+
+
+%******************************************************************************%
+%                                                                              %
+%                                  Préambule                                   %
+%                                                                              %
+%******************************************************************************%
+\chapter{Préambule}
+
+
+	\section{Ou sont mes donn\'ees ?}
+
+		Aujourd'hui chaque personne produit une grande quantit\'ee de donn\'es
+		qui se retrouvent dispers\'ees partout sur le web faisant la richesse de
+		grandes entreprises. Ces informations peuvent etre aussi d'une grande
+		utilit\'e pour l'utilisateur mais le probl\`eme est qu'\'etant completement
+		\'eparpill\'e il devient tr\`es dure de les r\'ecuperer et d'en tirer
+		avantage. L'autre probl\`eme est que c'est les h\'ebergeurs des services
+		qui gardent vos informations donc vous n'avez pas la mains dessus.
+
+
+	\section{And.... Cozy !}
+
+		C'est pour r\'epondre \`a ces probl\`emes que Cozy a \'et\'e  cr\'e\'e,
+		Le but est de vous aider \`a regrouper toutes vos donn\'ees en dans endroit
+		qui vous appartient et donc qui vous conf\`ere controle total sur les
+		donn\'es que vous h\'egergerez: traitement, modification, suppression.\\
+
+		\subsection{Comment ca marche?}
+
+			Cozy est un logiciel open-source que vous pouvez h\'egerger chez vous
+			avec une base de donn\'ees regroupant toutes vos informations et une liste
+			d'applications installable qui vous permet d'agir avec elle: cela vous
+			permet entre autre de rassembler vos contacts, g\'erer vos
+			informations banquaires ou encore de controller vos mails. Il y a de
+			nombreuses autres applications d\'ej\`a existante comme les notes,
+			la musique et autres.
+
+	\section{Cool... et 42 dans tout ca ?}
+
+		Cozy est open-source et fonctionne grace \`a des applications qui
+		fonctionnent comme des modules. Elles sont d\'evolopp\'es par la
+		team Cozy mais aussi par la communaut\'e. Le but de ce partenariat est
+		de vous permettre via divers sujets d'avancer dans votre scholarit\'e
+		tout en contribuant \'a la communaut\'e open-source et au projet Cozy.
+
+
+%******************************************************************************%
+%                                                                              %
+%                                 Introduction                                 %
+%                                                                              %
+%******************************************************************************%
+\chapter{Introduction}
+
+	Ce projet vous propose de cr\'eer une application open-source de gestion de
+	comptes entre amis \'evoluant dans l'environnement Cozy.
+
+	\section{Gestion de comptes en amis: WTF?}
+
+		C'est une application ou l'on peut tenir un historique des d\'epenses faites
+		dans le cadre d'un \'ev\`eenement et qui indique a chaque participant
+		quelle somme il doit rembourser a qui. Somme calcul\'ee en fonction
+		de ses d\'epenses et des ses consommations.
+
+
+	\section{Application Cozy ?}
+
+		Ce sera une "web-app", ce qui veut indique qu'il ne doit pas y avoir
+		de chargements. Toutes les modifications sont faites dans une seul et
+		unique page ou le javascript s'occupera de d'afficher les diff\'erentes
+		vues.\\
+		Cette application doit etre utilisable dans une instance Cozy, ce qui
+		l'oblige a s'adapter aux diff\'erents outils mise a disposition.
+		Vous verrez assez vite que cela facilite le travail plus qu'autre chose
+		car vous n'avez plus a vous occuper de la base de donn\'ee, des
+		utilisateurs, ou m\^eme de l'installation.
+
+
+	\section{Open-source?}
+
+		Ce projet c'est aussi de l'open-source, ce qui implique que si vous voulez
+		que l'on contribue a votre code il faut qu'il soit claire et document\'e.
+		La communaut\'e d'utilisateur que vous allez monter autour de votre app
+		peut vous remonter des erreurs ou m\^eme des souhaits, pensez \`a \'echanger
+		avec elle.
+
+
+
+%******************************************************************************%
+%                                                                              %
+%                                  Objectifs                                   %
+%                                                                              %
+%******************************************************************************%
+\chapter{Objectifs}
+
+
+	Ce sujet est une introduire au d\'eveloppement de web-apps ainsi qu'au
+	d\'eveloppement de projet l'open-source. Cela vous demandera l'utilisation de
+	differentes API, des templates ainsi que le framework de votre choix. Vous devrez
+	faire du javascript cot\'e client et nodejs cot\'e serveur.
+	Votre projet a pour but d'etre utili\'e et repris par d'autres
+	d\'eveloppeurs, ce qui implique entre autre du code claire et de la communication
+	avec les utilisateurs.
+
+	\warn {
+		Open-source ne veut pas dire pomper l'application du voisin et changer 5 lignes
+		de codes...
+	}
+
+%******************************************************************************%
+%                                                                              %
+%                             Consignes generales                              %
+%                                                                              %
+%******************************************************************************%
+\chapter{Consignes g\'en\'erales}
+
+
+    \section{Environnement}
+        L'app doit s'integrer a l'environnement Cozy, ce qui comprend:
+
+        \begin{itemize}\itemsep1pt
+            \item L'installation par lien Github a partir du MarketPlace
+            \item L'utilisation des diff\'erentes outils/API
+            \item L'utilisation du data-system
+            \item L'application doit etre \textbf{au moins} anglophone
+        \end{itemize}
+
+    \section{L'application}
+        \begin{itemize}\itemsep1pt
+            \item L'application doit etre en one-page, ce qui induit que le
+				changement de contenu est dynamique et se fait dans la meme page
+            \item Une gestion dynamique de l'url doit etre faite: l'url change
+				suivant le contenus que j'affiche et l'on dois avoir la
+        possibilit\'e de charger directement ce contenue si on lance cette url.
+        \end{itemize}
+
+    \section{Language/Outil}
+        \begin{itemize}\itemsep1pt
+            \item Le language cote client est Javascript (ECMAScript 5 ou 6)
+            \item Le language cote server est Nodejs (la version support\'e)
+            \item Tout code doit etre maintenable, document\'e et comment\'e
+            \item Le choix des differents outils/frameworks est libre
+        \end{itemize}
+
+		\hint {
+			Des tutos et outils sont present sur le site de Cozy
+		}
+
+	\section{Open-source}
+		Votre application doit etre open-source et doit donc posseder une license ad\'equate
+		ainsi que les outils ou librairies que vous utiliserez.
+
+
+
+%******************************************************************************%
+%                                                                              %
+%                             Partie obligatoire                               %
+%                                                                              %
+%******************************************************************************%
+\chapter{Partie obligatoire}
+
+
+    \section{Fonctionnalit\'es g\'en\'erales}
+
+        L'application doit pouvoir au moins:\\
+
+        \begin{itemize}\itemsep1pt
+            \item Afficher la liste des comptes
+			\item G\'erer les comptes (ajout/suppression/modification/...)
+            \item Avoir un gestion d'utilisateurs global ou interne a chaque compte (au choix)
+			\item Afficher le contenus de chaque compte
+			\item Afficher l'ensemble des transactions a faire entre les
+				utilisateurs pour qu'ils puissent \'equilibrer leur d\'epenses
+			\item Etre responsive sur tout les supports
+        \end{itemize}
+
+
+    \section{Fonctionnalit\'es d'un compte}
+
+        La vue d'un compte doit pouvoir au moins:\\
+
+        \begin{itemize}\itemsep1pt
+            \item Afficher les utilisateurs participants
+            \item Afficher l'historique des d\'epenses du compte
+			\item Ajouter une d\'epense
+			\item Afficher l'\'etat actuel du compte avec par exemple: la somme
+				de toutes les d\'epenses, le nombre de d\'epenses, des graphes,
+				pleins d'autres stats utiles.
+        \end{itemize}
+
+
+    \section{Ergonomie}
+
+        L'ergonomie g\'en\'eral sera prise en compte dans la correction,
+		ceci n'inclue pas le graphisme/design: votre site ne doit pas necessairement
+		etre 'beau', juste pratique.
+
+
+%******************************************************************************%
+%                                                                              %
+%                                 Partie bonus                                 %
+%                                                                              %
+%******************************************************************************%
+\chapter{Partie bonus}
+
+    Bonus possible:\newline
+
+    \begin{itemize}\itemsep1pt
+		\item Localisation (languages)
+        \item Une partie public pour que tout les utilisateurs puisse acceder a
+			l'app sans connexion au compte Cozy
+        \item Graphisme/design pouss\'ee
+        \item Gestion des devises
+		\item Real-time
+		\item Gestion des emprunts/prets entre utilisateurs
+		\item Utilisation des donn\'ees et avatars de l'application Contact
+    \end{itemize}
+
+    \hint {
+        Vous avez pas d'id\'ees de bonus? Demandez a la communaut\'e !
+    }
+
+
+
+%******************************************************************************%
+%                                                                              %
+%                           Rendu et peer-evaluation                           %
+%                                                                              %
+%******************************************************************************%
+\chapter{Rendu et peer-\'evaluation}
+
+	Travaillez sur un depot github en public pour que les gens puissent suivrent
+	votre travail et pouvoir pull votre travail une fois terminer, mais pour la
+	correction rendez votre travail sur votre d\'epot \texttt{GiT} comme d'habitude.
+	Seul le travail pr\'esent sur votre d\'epot priv\'e sera \'evalu\'e en soutenance.\\
+	Les consignes de la partie g\'en\'erales et obligatoire doivent etre faites
+	mais sont soumises \`a votre interpretation, ce sera \`a vous de justifier
+	\`a vos correcteur votre maniere d'implementer et ses raisons.
+
+
+
+
+%******************************************************************************%
+\end{document}
