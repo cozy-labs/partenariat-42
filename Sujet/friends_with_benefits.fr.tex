@@ -18,13 +18,13 @@
 
 
 
-                           \title{Cozy}
+                           \title{Cozy Cloud}
                           \subtitle{friends\_with\_benefits}
                          \member{ppeltier}{ppeltier@student.42.fr}
                       \member{42 Staff}{pedago@staff.42.fr}
 
 \summary {
-	L'open source c'est cool.
+	Cr\'eation d'une application web de gestion de compte entre ami pour la plateforme de Cloud Personnel open-source, Cozy Cloud.
 }
 
 \maketitle
@@ -40,41 +40,42 @@
 \chapter{Préambule}
 
 
-	\section{Ou sont mes donn\'ees ?}
+	\section{O\`u sont mes donn\'ees ?}
 
-		Aujourd'hui chaque personne produit une grande quantit\'ee de donn\'es
-		qui se retrouvent dispers\'ees partout sur le web faisant la richesse de
-		grandes entreprises. Ces informations peuvent etre aussi d'une grande
-		utilit\'e pour l'utilisateur mais le probl\`eme est qu'\'etant completement
-		\'eparpill\'e il devient tr\`es dure de les r\'ecuperer et d'en tirer
-		avantage. L'autre probl\`eme est que c'est les h\'ebergeurs des services
-		qui gardent vos informations donc vous n'avez pas la mains dessus.
+		Que vous le sachiez ou non, vous produisez chaque jour une grande quantit\'ee de donn\'es
+		qui sont capt\'ees, enregistr\'ees, et utilis\ees partout sur le web, faisant 
+		la richesse des entreprises qui se les accaparent. Vous pourriez vous aussi
+		tirer la juste valeur de vos donn\'ees, mais ces dernières sont \'eparpill\'ees
+		chez tous les acteurs, qui souvent cherchent \`a ne surtout pas les partager.
+		Vous n'avez plus le contrôle de vos donn\'ees, n'en \^etes plus les propri\'etaires.
 
 
-	\section{And.... Cozy !}
+	\section{And…Cozy Cloud !}
 
-		C'est pour r\'epondre \`a ces probl\`emes que Cozy a \'et\'e  cr\'e\'e,
-		Le but est de vous aider \`a regrouper toutes vos donn\'ees en dans endroit
-		qui vous appartient et donc qui vous conf\`ere controle total sur les
-		donn\'es que vous h\'egergerez: traitement, modification, suppression.\\
+		C'est pour r\'epondre \`a cette probl\'ematique que Cozy Cloud a \'et\'e  cr\'e\'e,
+		R\'eappropriez-vous vos donn\'ees à travers une plateforme open-source, que vous contr\^olez
+		compl\`etement. Centralisez un maximum de vos donn\'ees et installez des services
+		qui les utiliseront de façon respectueuse. D\'ecouvrez un cloud vraiment personnel !
 
-		\subsection{Comment ca marche?}
+		\subsection{Comment ça marche ?}
 
-			Cozy est un logiciel open-source que vous pouvez h\'egerger chez vous
-			avec une base de donn\'ees regroupant toutes vos informations et une liste
-			d'applications installable qui vous permet d'agir avec elle: cela vous
-			permet entre autre de rassembler vos contacts, g\'erer vos
-			informations banquaires ou encore de controller vos mails. Il y a de
-			nombreuses autres applications d\'ej\`a existante comme les notes,
-			la musique et autres.
+			Cozy Cloud est un logiciel open-source que vous pouvez h\'eberger chez vous
+			avec, qui vous permet de rassembler le plus grand nombre de donn\'ees
+			personnelles possible. Ces donn\'ees peuvent ensuite \^etre utiliser par des 
+			applications installables dans le but de fournir un service. Par exemple
+			rassembler vos contacts, g\'erer votre agenda, partager vos fichiers et 
+			photos, consulter vos emails ou encore conna\^itre l'état de vos comptes
+			bancaires. Il y a environ 25 applications de toute sorte : lecteur de musique,
+			gestion de notes, …
 
-	\section{Cool... et 42 dans tout ca ?}
+	\section{Cool… et 42 dans tout ca ?}
 
-		Cozy est open-source et fonctionne grace \`a des applications qui
-		fonctionnent comme des modules. Elles sont d\'evolopp\'es par la
-		team Cozy mais aussi par la communaut\'e. Le but de ce partenariat est
-		de vous permettre via divers sujets d'avancer dans votre scholarit\'e
-		tout en contribuant \'a la communaut\'e open-source et au projet Cozy.
+		Cozy Cloud permet le déploiement d'applications qui fonctionnent comme
+		des modules. Pensez à Android, mais pour un serveur. Les applications de 
+		base sont sont d\'evolopp\'ees par l'équipe de Cozy Cloud, mais toutes 
+		les autres le sont par la communaut\'e. Le but de ce partenariat est de vous
+		permettre de d\'evelopper vos comp\'etences en d\'eveloppement web tout
+		en contribuant \'a la communaut\'e  et au projet Cozy Cloud.
 
 
 %******************************************************************************%
@@ -84,10 +85,10 @@
 %******************************************************************************%
 \chapter{Introduction}
 
-	Ce projet vous propose de cr\'eer une application open-source de gestion de
-	comptes entre amis \'evoluant dans l'environnement Cozy.
+	Ce projet vous propose de cr\'eer une application web open-source de gestion de
+	comptes entre amis pour la plateforme Cozy Cloud.
 
-	\section{Gestion de comptes en amis: WTF?}
+	\section{Gestion de comptes en amis : WTF ?}
 
 		C'est une application ou l'on peut tenir un historique des d\'epenses faites
 		dans le cadre d'un \'ev\`eenement et qui indique a chaque participant
@@ -95,26 +96,23 @@
 		de ses d\'epenses et des ses consommations.
 
 
-	\section{Application Cozy ?}
+	\section{Application Cozy Cloud ?}
 
-		Ce sera une "web-app", ce qui veut indique qu'il ne doit pas y avoir
-		de chargements. Toutes les modifications sont faites dans une seul et
-		unique page ou le javascript s'occupera de d'afficher les diff\'erentes
-		vues.\\
-		Cette application doit etre utilisable dans une instance Cozy, ce qui
-		l'oblige a s'adapter aux diff\'erents outils mise a disposition.
-		Vous verrez assez vite que cela facilite le travail plus qu'autre chose
-		car vous n'avez plus a vous occuper de la base de donn\'ee, des
-		utilisateurs, ou m\^eme de l'installation.
+		Une application Cozy Cloud est une application web un peu particuli\`ere. 
+		Cozy Cloud \'etant une plateforme, vous n'aurez pas \`a vous soucier du 
+		d\'eploiement, de la gestion de l'authentification ou encore de la base de 
+		donn\'ees. Vous serez donc amener \`a d\'ecouvrir la plateforme elle-m\^eme pour 
+		vous faciliter le plus possible la vie.
 
 
-	\section{Open-source?}
+	\section{Open-source ?}
 
-		Ce projet c'est aussi de l'open-source, ce qui implique que si vous voulez
-		que l'on contribue a votre code il faut qu'il soit claire et document\'e.
-		La communaut\'e d'utilisateur que vous allez monter autour de votre app
-		peut vous remonter des erreurs ou m\^eme des souhaits, pensez \`a \'echanger
-		avec elle.
+		Ce projet est pour vous l'occasion d'\'ecrire du code open-source.
+		Cela implique des contributions, sous forme de remont\'ees de bugs, des 
+		demandes de fonctionnalit\'es ou m\^eme du code produit par un d\'eveloppeur 
+		ext\'erieur \`a votre projet !
+		Confront\'e \`a la plateforme, vous aurez certainement des remarques \`a 
+		adresser \'a ses d\'eveloppeurs : n'h\'esitez pas et contribuer aussi au projet !
 
 
 
@@ -126,17 +124,18 @@
 \chapter{Objectifs}
 
 
-	Ce sujet est une introduire au d\'eveloppement de web-apps ainsi qu'au
-	d\'eveloppement de projet l'open-source. Cela vous demandera l'utilisation de
-	differentes API, des templates ainsi que le framework de votre choix. Vous devrez
-	faire du javascript cot\'e client et nodejs cot\'e serveur.
-	Votre projet a pour but d'etre utili\'e et repris par d'autres
-	d\'eveloppeurs, ce qui implique entre autre du code claire et de la communication
-	avec les utilisateurs.
+	Ce sujet est une introduction au d\'eveloppement d'applications web dans un contexte
+	open-source. Vous serez amenés à choisir et utiliser diff\'erentes APIs, 
+	biblioth\`eques, et technologie. Vous devrez 	faire du javascript cot\'e 
+	client et Node.js cot\'e serveur. Votre projet a pour but d'\^etre utilis\'e
+	par les utilisateurs de Cozy Cloud, et d'\^etre repris par d'autres
+	d\'eveloppeurs, ce qui implique de placer les futurs utilisateurs au centre
+	de la conception de votre application, tout en pensant aux d\'eveloppeurs qui
+	r\'eutiliseront votre code.
 
 	\warn {
 		Open-source ne veut pas dire pomper l'application du voisin et changer 5 lignes
-		de codes...
+		de codes…
 	}
 
 %******************************************************************************%
@@ -148,39 +147,36 @@
 
 
     \section{Environnement}
-        L'app doit s'integrer a l'environnement Cozy, ce qui comprend:
+        L'app doit s'int\'egrer \`a l'environnement Cozy, c'est-\`a-dire :
 
         \begin{itemize}\itemsep1pt
-            \item L'installation par lien Github a partir du MarketPlace
-            \item L'utilisation des diff\'erentes outils/API
-            \item L'utilisation du data-system
-            \item L'application doit etre \textbf{au moins} anglophone
+            \item Elle sera installable via l'interface de Cozy Cloud.
+            \item Elle utilisera la base de donn\'ees de Cozy Cloud.
+            \item Elle sera \textbf{au moins} localis\'ee en anglais.
         \end{itemize}
 
     \section{L'application}
         \begin{itemize}\itemsep1pt
-            \item L'application doit etre en one-page, ce qui induit que le
-				changement de contenu est dynamique et se fait dans la meme page
-            \item Une gestion dynamique de l'url doit etre faite: l'url change
-				suivant le contenus que j'affiche et l'on dois avoir la
-        possibilit\'e de charger directement ce contenue si on lance cette url.
+            \item L'application devra \^etre une Single Page Application, c'est-\`a-dire
+				que le changement de contenu est dynamique au sein d'une page unique.
+            \item Chaque écran de l'application doit cependant poss\'eder une URL propre.
         \end{itemize}
 
     \section{Language/Outil}
         \begin{itemize}\itemsep1pt
-            \item Le language cote client est Javascript (ECMAScript 5 ou 6)
-            \item Le language cote server est Nodejs (la version support\'e)
-            \item Tout code doit etre maintenable, document\'e et comment\'e
-            \item Le choix des differents outils/frameworks est libre
+            \item Le language c\^ot\'e client est Javascript (ECMAScript 5 ou 6)
+            \item Le language c\^ot\'e serveur est Node.js (v0.10.34)
+            \item Tout code doit \^etre maintenable, document\'e et comment\'e
+            \item Le choix des diff\'erents outils/frameworks est libre
         \end{itemize}
 
 		\hint {
-			Des tutos et outils sont present sur le site de Cozy
+			Des tutos et outils sont pr\e'sent sur le site de Cozy Cloud : http://cozy.io/
 		}
 
 	\section{Open-source}
-		Votre application doit etre open-source et doit donc posseder une license ad\'equate
-		ainsi que les outils ou librairies que vous utiliserez.
+		Votre application sera open-source et devra poss\'eder une license ad\'equate.
+		Attention aussi aux outils et bibliothèques que vous utiliserez !
 
 
 
@@ -194,38 +190,43 @@
 
     \section{Fonctionnalit\'es g\'en\'erales}
 
-        L'application doit pouvoir au moins:\\
+        L'application doit pouvoir a minima :\\
 
         \begin{itemize}\itemsep1pt
             \item Afficher la liste des comptes
-			\item G\'erer les comptes (ajout/suppression/modification/...)
-            \item Avoir un gestion d'utilisateurs global ou interne a chaque compte (au choix)
-			\item Afficher le contenus de chaque compte
-			\item Afficher l'ensemble des transactions a faire entre les
-				utilisateurs pour qu'ils puissent \'equilibrer leur d\'epenses
-			\item Etre responsive sur tout les supports
+			\item G\'erer les comptes (ajout / suppression / modification)
+            \item G\'erer les participants d'un compte
+			\item Afficher le résumé de chaque compte
+			\item \^Etre consultable sur tous les supports (pensez à l'usage mobile !)
         \end{itemize}
 
 
     \section{Fonctionnalit\'es d'un compte}
 
-        La vue d'un compte doit pouvoir au moins:\\
+        Le résumé d'un compte poss\`edera au moins les fonctionnalités suivantes :\\
 
         \begin{itemize}\itemsep1pt
-            \item Afficher les utilisateurs participants
-            \item Afficher l'historique des d\'epenses du compte
-			\item Ajouter une d\'epense
-			\item Afficher l'\'etat actuel du compte avec par exemple: la somme
-				de toutes les d\'epenses, le nombre de d\'epenses, des graphes,
-				pleins d'autres stats utiles.
+            \item Afficher les participants au compte.
+            \item Afficher l'historique des d\'epenses du compte.
+			\item Ajouter une d\'epense.
+			\item Afficher la balance du compte : quel participant doit combien à qui.
+	        \item Une partie publique à laquelle les participants peuvent acc\'eder sans 
+				\^etre connect\'e au Cozy.
         \end{itemize}
 
 
     \section{Ergonomie}
 
         L'ergonomie g\'en\'eral sera prise en compte dans la correction,
-		ceci n'inclue pas le graphisme/design: votre site ne doit pas necessairement
-		etre 'beau', juste pratique.
+		ceci n'inclue pas le graphisme/design : votre application ne doit
+		pas n\'ecessairement \^etre belle, mais pratique et intuitive.
+		
+		\hint {
+			L'ergonomie recoupe \`a la fois la disposition g\'en\'erale des diff\'erents
+			\'ecrans, les retours visuels \`a l'utilisateur, la position des boutons,
+			le validation des formulaires, les raccourcis claviers, …
+		}
+
 
 
 %******************************************************************************%
@@ -235,17 +236,15 @@
 %******************************************************************************%
 \chapter{Partie bonus}
 
-    Bonus possible:\newline
+    Si vous voulez enrichir votre application, voici quelques id\'ees :\newline
 
     \begin{itemize}\itemsep1pt
-		\item Localisation (languages)
-        \item Une partie public pour que tout les utilisateurs puisse acceder a
-			l'app sans connexion au compte Cozy
-        \item Graphisme/design pouss\'ee
+		\item Gérer la localisation (plusieurs languages)
         \item Gestion des devises
-		\item Real-time
-		\item Gestion des emprunts/prets entre utilisateurs
-		\item Utilisation des donn\'ees et avatars de l'application Contact
+		\item Afficher les changements en temps r\'eel (particuli\`erement utile si
+			un participant ajoute une d\'epense depuis la partie publique)
+		\item Afficher l'\'etat du compte sous forme graphique et statistiques.
+		\item Utilisation des fiches contacts du Cozy pour identifier un participant.
     \end{itemize}
 
     \hint {
@@ -261,14 +260,16 @@
 %******************************************************************************%
 \chapter{Rendu et peer-\'evaluation}
 
-	Travaillez sur un depot github en public pour que les gens puissent suivrent
-	votre travail et pouvoir pull votre travail une fois terminer, mais pour la
-	correction rendez votre travail sur votre d\'epot \texttt{GiT} comme d'habitude.
-	Seul le travail pr\'esent sur votre d\'epot priv\'e sera \'evalu\'e en soutenance.\\
-	Les consignes de la partie g\'en\'erales et obligatoire doivent etre faites
-	mais sont soumises \`a votre interpretation, ce sera \`a vous de justifier
-	\`a vos correcteur votre maniere d'implementer et ses raisons.
-
+	Travaillez sur un d\'ep\^ot Github public pour que tout le monde puisse suivre
+	votre travail et pouvoir facilement le récupérer une fois terminé. Cela permettra
+	aussi que l'application soit installable par une instance Cozy Cloud.\newline
+	En ce qui concerne la correction, d\'eposez votre travail sur votre d\'ep\^ot 
+	\texttt{GiT} comme d'habitude.\newline
+	Seul le travail pr\'esent sur votre d\'ep\^ot priv\'e sera \'evalu\'e en soutenance.\\
+	Les fonctionnalit\'es d\'ecrites dans les consignes g\'en\'erales et et la partie
+	obligatoire doivent \^etre impl\'ementées, mais il n'y a pas un unique rendu attendu :
+	soyez cr\'eatif et en mesure de justifier vos choix fonctionnels et techniques à vos 
+	correcteurs.
 
 
 
