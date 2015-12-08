@@ -22,6 +22,7 @@ var CountView = CountBaseView.extend({
   events: {
     'click #count-lauch-add-user' : 'addUser',
     'click #add-new-expense'      : 'lauchNewExpense',
+    'click #add-new-repayment'    : 'lauchNewRepayment',
     'click .header-expense-elem'  : 'printTransferBody',
     'click .delete-expense-elem'  : 'deleteExpense',
     'click #header-balancing'     : 'printBalancing',
@@ -95,6 +96,12 @@ var CountView = CountBaseView.extend({
    */
   lauchNewExpense: function (event) {
     app.router.navigate('count/' + this.count.get('name') + '/new-expense',
+        {trigger: true});
+  },
+
+
+  lauchNewRepayment: function (event) {
+    app.router.navigate('count/' + this.count.get('name') + '/new-repayment',
         {trigger: true});
   },
 

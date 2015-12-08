@@ -495,6 +495,7 @@ var Router = Backbone.Router.extend({
     'count/update/:id'          : 'countUpdate',
     'count/:id'                 : 'printCount',
     'count/:name/new-expense'   : 'newExpense',
+    'count/:name/new-repayment' : 'newRepayment',
     'archive'                   : 'printAllArchive',
     'archive/:name'             : 'printArchive',
   },
@@ -548,7 +549,19 @@ var Router = Backbone.Router.extend({
   newExpense: function (countName) {
     this.selectInMenu($('#count-' + countName).parent());
 
-    var view = new NewExpense({countName: countName});
+    var view = new NewExpense({countName: countName, type: 'expense'});
+
+    this.displayView(view);
+  },
+
+
+  /*
+   * Screen for create a new expense
+   */
+  newRepayment: function (countName) {
+    this.selectInMenu($('#count-' + countName).parent());
+
+    var view = new NewExpense({countName: countName, type: 'payment'});
 
     this.displayView(view);
   },
@@ -734,7 +747,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),numberArchives = locals_.numberArchives;
+;var locals_for_with = (locals || {});(function (numberArchives) {
 buf.push("<div class=\"panel panel-default\"><div class=\"panel-body\">");
 if ( numberArchives > 0)
 {
@@ -744,7 +757,7 @@ else
 {
 buf.push("<div class=\"page-header\"><h1>No archive yet</h1><p>When you archieve some account you can find it here :)</p></div>");
 }
-buf.push("</div></div>");;return buf.join("");
+buf.push("</div></div>");}.call(this,"numberArchives" in locals_for_with?locals_for_with.numberArchives:typeof numberArchives!=="undefined"?numberArchives:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -762,7 +775,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),model = locals_.model;
+;var locals_for_with = (locals || {});(function (model, undefined) {
 buf.push("<div class=\"panel panel-primary\"><div class=\"panel-heading\">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</div><div class=\"panel-body\"><label for=\"description\">Description</label><div id=\"description\" class=\"form-group\"><p>" + (jade.escape((jade_interp = model.description) == null ? '' : jade_interp)) + "</p></div><label for=\"user-list\">Users</label><div id=\"user-list\" class=\"form-group\">");
 // iterate model.users
 ;(function(){
@@ -786,7 +799,7 @@ buf.push("<button" + (jade.attr("style", "background-color: #" + (user.color) + 
   }
 }).call(this);
 
-buf.push("</div><div class=\"form-group\"><button class=\"archive-see-count btn btn-primary btn-block\">See</button></div></div></div>");;return buf.join("");
+buf.push("</div><div class=\"form-group\"><button class=\"archive-see-count btn btn-primary btn-block\">See</button></div></div></div>");}.call(this,"model" in locals_for_with?locals_for_with.model:typeof model!=="undefined"?model:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -923,7 +936,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),model = locals_.model;
+;var locals_for_with = (locals || {});(function (model, undefined) {
 buf.push("<div class=\"panel panel-primary\"><div class=\"panel-heading\">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</div><div class=\"panel-body\">");
 if ( model.description)
 {
@@ -952,7 +965,7 @@ buf.push("<button" + (jade.attr("style", "background-color: #" + (user.color) + 
   }
 }).call(this);
 
-buf.push("</div><div class=\"form-group\"><button class=\"count-see btn btn-default btn-block\">See</button><button class=\"count-modify btn btn-default btn-block\">Modify</button><button class=\"count-delete btn btn-default btn-block\">Delete</button></div></div></div>");;return buf.join("");
+buf.push("</div><div class=\"form-group\"><button class=\"count-see btn btn-default btn-block\">See</button><button class=\"count-modify btn btn-default btn-block\">Modify</button><button class=\"count-delete btn btn-default btn-block\">Delete</button></div></div></div>");}.call(this,"model" in locals_for_with?locals_for_with.model:typeof model!=="undefined"?model:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -1104,6 +1117,7 @@ var CountView = CountBaseView.extend({
   events: {
     'click #count-lauch-add-user' : 'addUser',
     'click #add-new-expense'      : 'lauchNewExpense',
+    'click #add-new-repayment'    : 'lauchNewRepayment',
     'click .header-expense-elem'  : 'printTransferBody',
     'click .delete-expense-elem'  : 'deleteExpense',
     'click #header-balancing'     : 'printBalancing',
@@ -1177,6 +1191,12 @@ var CountView = CountBaseView.extend({
    */
   lauchNewExpense: function (event) {
     app.router.navigate('count/' + this.count.get('name') + '/new-expense',
+        {trigger: true});
+  },
+
+
+  lauchNewRepayment: function (event) {
+    app.router.navigate('count/' + this.count.get('name') + '/new-repayment',
         {trigger: true});
   },
 
@@ -1534,7 +1554,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),count = locals_.count,expensePerUser = locals_.expensePerUser;
+;var locals_for_with = (locals || {});(function (count, expensePerUser, undefined) {
 buf.push("<div class=\"panel panel-default\"><div class=\"panel-body\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">Users</div><div class=\"panel-body\"><div id=\"stats-module\"><div class=\"col-md-4\"><div id=\"user-list\" class=\"col-md-12\">");
 // iterate count.users
 ;(function(){
@@ -1571,7 +1591,7 @@ buf.push("<div id=\"canvas-block\" class=\"col-md-4 col-xs-6\"><h4>Expenses per 
 buf.push("</div><div class=\"col-md-4 col-xs-6\"><label for=\"all-expenses\">All Expenses:</label><p id=\"all-expenses\">" + (jade.escape((jade_interp = count.allExpenses) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Number Expenses:</label><p id=\"nb-expenses\">" + (jade.escape((jade_interp = count.expenses.length) == null ? '' : jade_interp)) + "</p><label for=\"nb-expenses\">Expenses per user:</label><p id=\"perUser-expenses\">" + (jade.escape((jade_interp = expensePerUser) == null ? '' : jade_interp)) + "</p></div></div>");
 if ( (count.status == 'active'))
 {
-buf.push("<div class=\"btn-group btn-block\"><button id=\"add-new-expense\" type=\"button\" data-toggle=\"dropdown\" class=\"btn btn-lg btn-success btn-block\"><span>&nbsp;Add an expense&nbsp;</span></button></div>");
+buf.push("<div class=\"btn-group btn-block\"><button id=\"add-new-expense\" type=\"button\" data-toggle=\"dropdown\" class=\"btn btn-lg btn-success btn-block\"><span>&nbsp;Add an expense&nbsp;</span></button><button id=\"add-new-repayment\" type=\"button\" data-toggle=\"dropdown\" class=\"btn btn-lg btn-success btn-block\"><span>&nbsp;Add an repayment&nbsp;</span></button></div>");
 }
 buf.push("</div><div class=\"panel panel-primary\"><div id=\"header-balancing\" class=\"panel-heading\"><span class=\"caret\"></span><span>&nbsp;Balancing</span></div><div id=\"module-balancing\"></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\">History</div><div class=\"panel-body\"><div id=\"expense-list-view\">");
 if ( count.expenses.length == 0)
@@ -1649,7 +1669,7 @@ buf.push("</div></div><button class=\"btn btn-default btn-block delete-expense-e
 }).call(this);
 
 }
-buf.push("</div></div></div></div></div>");;return buf.join("");
+buf.push("</div></div></div></div></div>");}.call(this,"count" in locals_for_with?locals_for_with.count:typeof count!=="undefined"?count:undefined,"expensePerUser" in locals_for_with?locals_for_with.expensePerUser:typeof expensePerUser!=="undefined"?expensePerUser:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -1667,7 +1687,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),users = locals_.users,squareMoves = locals_.squareMoves;
+;var locals_for_with = (locals || {});(function (squareMoves, undefined, users) {
 buf.push("<div id=\"square-displayer\" style=\"display: none\" class=\"panel-body\"><label for=\"balancing\">Balancing:</label><ul id=\"balancing\">");
 // iterate users
 ;(function(){
@@ -1740,7 +1760,7 @@ buf.push("<li>[" + (jade.escape((jade_interp = move.from) == null ? '' : jade_in
   }
 }).call(this);
 
-buf.push("</ul><button id=\"archive-count\" class=\"btn btn-primary btn-block\">Close and archive</button></div>");;return buf.join("");
+buf.push("</ul><button id=\"archive-count\" class=\"btn btn-primary btn-block\">Close and archive</button></div>");}.call(this,"squareMoves" in locals_for_with?locals_for_with.squareMoves:typeof squareMoves!=="undefined"?squareMoves:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined,"users" in locals_for_with?locals_for_with.users:typeof users!=="undefined"?users:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -2155,7 +2175,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),model = locals_.model;
+;var locals_for_with = (locals || {});(function (model) {
 buf.push("<h1>" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</h1><form><div class=\"form-group\"><label for=\"input-name\">Count Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Name\"" + (jade.attr("value", "" + (model.name) + "", true, false)) + " class=\"form-control\"/></div><div class=\"form-group\"><label for=\"input-description\">Count Description</label><input id=\"input-description\" type=\"text\" placeholder=\"Description\"" + (jade.attr("value", "" + (model.description) + "", true, false)) + " class=\"form-control\"/></div><div class=\"panel panel-primary\"><div class=\"panel-heading\">Public</div><div class=\"panel-body\"><div id=\"public-section\" class=\"col-md-6\"><div class=\"form-group\"><div data-toggle=\"buttons\" class=\"btn-group\"><label id=\"input-public\" class=\"btn btn-primary leecher\">");
 if ( model.isPublic)
 {
@@ -2165,7 +2185,7 @@ else
 {
 buf.push("<input id=\"input-public\" type='checkbox' autocomplete=\"off\"> Make this count public");
 }
-buf.push("</label></div></div></div><div class=\"col-md-6\"><p>You can make this count public, which mean that everyone who try to</p><access>the address below will see the count and will have the</access><possibility>to modify it.</possibility></div></div></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></form>");;return buf.join("");
+buf.push("</label></div></div></div><div class=\"col-md-6\"><p>You can make this count public, which mean that everyone who try to</p><access>the address below will see the count and will have the</access><possibility>to modify it.</possibility></div></div></div><button id=\"submit-editor\" class=\"btn btn-default\">Submit</button></form>");}.call(this,"model" in locals_for_with?locals_for_with.model:typeof model!=="undefined"?model:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -2183,8 +2203,8 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),url = locals_.url;
-buf.push("<div id=\"public-section-body\"><label for=\"public-url\">Url to share:</label><p id=\"public-url\"> " + (jade.escape((jade_interp = url) == null ? '' : jade_interp)) + "</p></div>");;return buf.join("");
+;var locals_for_with = (locals || {});(function (url) {
+buf.push("<div id=\"public-section-body\"><label for=\"public-url\">Url to share:</label><p id=\"public-url\"> " + (jade.escape((jade_interp = url) == null ? '' : jade_interp)) + "</p></div>");}.call(this,"url" in locals_for_with?locals_for_with.url:typeof url!=="undefined"?url:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -2332,8 +2352,8 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),model = locals_.model;
-buf.push("<a" + (jade.attr("id", "count-" + (model.name) + "", true, false)) + ">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</a>");;return buf.join("");
+;var locals_for_with = (locals || {});(function (model) {
+buf.push("<a" + (jade.attr("id", "count-" + (model.name) + "", true, false)) + ">" + (jade.escape((jade_interp = model.name) == null ? '' : jade_interp)) + "</a>");}.call(this,"model" in locals_for_with?locals_for_with.model:typeof model!=="undefined"?model:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -2376,6 +2396,7 @@ var AddExpenseView = BaseView.extend({
    * in the url if two count have the same name, so be carefule.
    */
   initialize: function (attributes) {
+    this.type = attributes.type;
 
     // Find the count
     this.count = window.countCollection.models.find(function (count) {
@@ -2388,9 +2409,11 @@ var AddExpenseView = BaseView.extend({
       app.router.navigate('', {trigger: true});
     }
 
-    var leecher = this.count.get('users').map(function (elem) {
-      return {name: elem.name};
-    });
+    if (this.type !== 'payment') {
+      var leecher = this.count.get('users').map(function (elem) {
+        return {name: elem.name};
+      });
+    }
 
     this.data = {
       leecher: leecher,
@@ -2405,6 +2428,7 @@ var AddExpenseView = BaseView.extend({
     return {
       currencies: this.count.get('currencies'),
       users: this.count.get('users'),
+      type: this.type
     };
   },
 
@@ -2418,18 +2442,20 @@ var AddExpenseView = BaseView.extend({
       };
     }(this)));
 
-    this.$('#input-name')[0].addEventListener('change', (function (_this) {
-      return function (event) {
-        _this.data.name = event.target.value;
-      };
-    }(this)));
-
-    this.$('#input-description')[0].addEventListener('change',
-        (function (_this) {
+    if (this.type !== 'payment') {
+      this.$('#input-name')[0].addEventListener('change', (function (_this) {
         return function (event) {
-          _this.data.description = event.target.value;
+          _this.data.name = event.target.value;
         };
       }(this)));
+
+      this.$('#input-description')[0].addEventListener('change',
+          (function (_this) {
+          return function (event) {
+            _this.data.description = event.target.value;
+          };
+        }(this)));
+    }
   },
 
 
@@ -2450,22 +2476,26 @@ var AddExpenseView = BaseView.extend({
    * Set the leechers of the expense or "who take part"
    */
   setLeecher: function (event) {
-    var target = this.$(event.target).children().get(0).value,
-      listLeecher = this.data.leecher,
-      leecherIndex = null;
+      var target = this.$(event.target).children().get(0).value,
+        listLeecher = this.data.leecher,
+        leecherIndex = null;
 
-    listLeecher.find(function (element, index) {
-      if (element.name === target) {
-        leecherIndex = index;
-        return true;
+    if (this.type !== 'payment') {
+      listLeecher.find(function (element, index) {
+        if (element.name === target) {
+          leecherIndex = index;
+          return true;
+        }
+        return false;
+      });
+
+      if (leecherIndex === null) {
+        listLeecher.push({name: target});
+      } else {
+        listLeecher.splice(leecherIndex, 1);
       }
-      return false;
-    });
-
-    if (leecherIndex === null) {
-      listLeecher.push({name: target});
     } else {
-      listLeecher.splice(leecherIndex, 1);
+      this.data.leecher = [{name: target}];
     }
   },
 
@@ -2489,9 +2519,11 @@ var AddExpenseView = BaseView.extend({
 
     this.$('#alert-zone').remove();
     this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
-    if (data.name === null || data.name === undefined) {
-      this.errorMessage('Your expense need a name');
-      error = true;
+    if (this.type !== 'payment') {
+      if (data.name === null || data.name === undefined) {
+        this.errorMessage('Your expense need a name');
+        error = true;
+      }
     }
     if (data.seeder === null || data.seeder === undefined) {
       this.errorMessage('One person must paid');
@@ -2508,6 +2540,17 @@ var AddExpenseView = BaseView.extend({
       this.errorMessage('You must choose almost one persone who get benefice');
       error = true;
     }
+
+
+    if (this.type === 'payment') {
+      if (data.leecher[0].name === data.seeder) {
+        this.errorMessage('You must choose 2 differentes user');
+        error = true;
+      }
+      this.data.name = data.leecher[0].name + ' repayed ' + data.seeder;
+    }
+
+
     if (error === false) {
       this.sendNewExpense();
     }
@@ -2594,8 +2637,17 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),currencies = locals_.currencies,users = locals_.users;
-buf.push("<form id=\"add-expense-displayer\" class=\"form-group\"><div id=\"alert-zone\"></div><label for=\"input-name\">Expense Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Shopping...\" maxlength=\"40\" required=\"required\" autofocus=\"autofocus\" class=\"form-control\"/><div class=\"form-group\"><label for=\"input-description\">Expense Description</label><textarea id=\"input-description\" rows=\"5\" class=\"form-control\"></textarea></div><div class=\"form-group\"><label for=\"input-amount\">Amount</label><div class=\"input-group\"><input id=\"input-amount\" type=\"number\" placeholder=\"42.21\" aria-label=\"...\" required=\"required\" class=\"form-control\"/><div class=\"input-group-btn\"><button id=\"choose-currency\" type=\"button\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"btn btn-default dropdown-toggle\">" + (jade.escape((jade_interp = currencies[0].name) == null ? '' : jade_interp)) + "</button><ul class=\"dropdown-menu dropdown-menu-right\">");
+;var locals_for_with = (locals || {});(function (currencies, type, undefined, users) {
+buf.push("<form id=\"add-expense-displayer\" class=\"form-group\"><div id=\"alert-zone\"></div><div class=\"form-group\"></div>");
+if ( type != 'payment')
+{
+buf.push("<label for=\"input-name\">Expense Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Shopping...\" maxlength=\"40\" required=\"required\" autofocus=\"autofocus\" class=\"form-control\"/><div class=\"form-group\"><label for=\"input-description\">Expense Description</label><textarea id=\"input-description\" rows=\"5\" class=\"form-control\"></textarea></div>");
+}
+if ( type == 'payment')
+{
+buf.push("<label for=\"input-name\">Payment</label>");
+}
+buf.push("<div class=\"form-group\"><label for=\"input-amount\">Amount</label><div class=\"input-group\"><input id=\"input-amount\" type=\"number\" placeholder=\"42.21\" aria-label=\"...\" required=\"required\" class=\"form-control\"/><div class=\"input-group-btn\"><button id=\"choose-currency\" type=\"button\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"btn btn-default dropdown-toggle\">" + (jade.escape((jade_interp = currencies[0].name) == null ? '' : jade_interp)) + "</button><ul class=\"dropdown-menu dropdown-menu-right\">");
 // iterate currencies
 ;(function(){
   var $$obj = currencies;
@@ -2618,7 +2670,16 @@ buf.push("<li class=\"currency\"><a>" + (jade.escape((jade_interp = currency.nam
   }
 }).call(this);
 
-buf.push("</ul></div></div></div><label for=\"seeder-list\">Who Paid ?</label><div class=\"form-group\"><div id=\"seeder-list\" data-toggle=\"buttons\" class=\"btn-group\">");
+buf.push("</ul></div></div></div>");
+if ( type != 'payment')
+{
+buf.push("<label for=\"seeder-list\">Who Paid ?</label>");
+}
+if ( type == 'payment')
+{
+buf.push("<label for=\"seeder-list\">Who Repaid ?</label>");
+}
+buf.push("<div class=\"form-group\"><div id=\"seeder-list\" data-toggle=\"buttons\" class=\"btn-group\">");
 // iterate users
 ;(function(){
   var $$obj = users;
@@ -2641,7 +2702,16 @@ buf.push("<label class=\"btn btn-primary seeder\"><input type='radio', autocompl
   }
 }).call(this);
 
-buf.push("</div></div><label for=\"leecher-list\">Who take Part ?</label><div class=\"form-group\"><div id=\"leecher-list\" data-toggle=\"buttons\" class=\"btn-group\">");
+buf.push("</div></div>");
+if ( type != 'payment')
+{
+buf.push("<label for=\"leecher-list\">Who take Part ?</label>");
+}
+if ( type == 'payment')
+{
+buf.push("<label for=\"leecher-list\">Who is Repayed ?</label>");
+}
+buf.push("<div class=\"form-group\"><div id=\"leecher-list\" data-toggle=\"buttons\" class=\"btn-group\">");
 // iterate users
 ;(function(){
   var $$obj = users;
@@ -2650,7 +2720,14 @@ buf.push("</div></div><label for=\"leecher-list\">Who take Part ?</label><div cl
     for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
       var user = $$obj[$index];
 
+if ( type != 'payment')
+{
 buf.push("<label class=\"btn btn-primary leecher active\"><input type='checkbox', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
+}
+if ( type == 'payment')
+{
+buf.push("<label class=\"btn btn-primary leecher\"><input type='radio', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
+}
     }
 
   } else {
@@ -2658,13 +2735,20 @@ buf.push("<label class=\"btn btn-primary leecher active\"><input type='checkbox'
     for (var $index in $$obj) {
       $$l++;      var user = $$obj[$index];
 
+if ( type != 'payment')
+{
 buf.push("<label class=\"btn btn-primary leecher active\"><input type='checkbox', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
+}
+if ( type == 'payment')
+{
+buf.push("<label class=\"btn btn-primary leecher\"><input type='radio', autocomplete='off', value=\"" + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "\"> " + (jade.escape((jade_interp = user.name) == null ? '' : jade_interp)) + "</label>");
+}
     }
 
   }
 }).call(this);
 
-buf.push("</div></div><div class=\"form-group\"><button id=\"add-expense-save\" type=\"submit\" class=\"btn btn-primary btn-block\">Save</button><button id=\"add-expense-cancel\" class=\"btn btn-primary btn-block\">Cancel</button></div></form>");;return buf.join("");
+buf.push("</div></div><div class=\"form-group\"><button id=\"add-expense-save\" type=\"submit\" class=\"btn btn-primary btn-block\">Save</button><button id=\"add-expense-cancel\" class=\"btn btn-primary btn-block\">Cancel</button></div></form>");}.call(this,"currencies" in locals_for_with?locals_for_with.currencies:typeof currencies!=="undefined"?currencies:undefined,"type" in locals_for_with?locals_for_with.type:typeof type!=="undefined"?type:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined,"users" in locals_for_with?locals_for_with.users:typeof users!=="undefined"?users:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {

@@ -49,6 +49,7 @@ var Router = Backbone.Router.extend({
     'count/update/:id'          : 'countUpdate',
     'count/:id'                 : 'printCount',
     'count/:name/new-expense'   : 'newExpense',
+    'count/:name/new-repayment' : 'newRepayment',
     'archive'                   : 'printAllArchive',
     'archive/:name'             : 'printArchive',
   },
@@ -102,7 +103,19 @@ var Router = Backbone.Router.extend({
   newExpense: function (countName) {
     this.selectInMenu($('#count-' + countName).parent());
 
-    var view = new NewExpense({countName: countName});
+    var view = new NewExpense({countName: countName, type: 'expense'});
+
+    this.displayView(view);
+  },
+
+
+  /*
+   * Screen for create a new expense
+   */
+  newRepayment: function (countName) {
+    this.selectInMenu($('#count-' + countName).parent());
+
+    var view = new NewExpense({countName: countName, type: 'payment'});
 
     this.displayView(view);
   },

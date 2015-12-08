@@ -27,6 +27,7 @@ var AddExpenseView = BaseView.extend({
    * in the url if two count have the same name, so be carefule.
    */
   initialize: function (attributes) {
+    this.type = attributes.type;
 
     // Find the count
     this.count = window.countCollection.models.find(function (count) {
@@ -39,9 +40,11 @@ var AddExpenseView = BaseView.extend({
       app.router.navigate('', {trigger: true});
     }
 
-    var leecher = this.count.get('users').map(function (elem) {
-      return {name: elem.name};
-    });
+    if (this.type !== 'payment') {
+      var leecher = this.count.get('users').map(function (elem) {
+        return {name: elem.name};
+      });
+    }
 
     this.data = {
       leecher: leecher,
@@ -56,6 +59,7 @@ var AddExpenseView = BaseView.extend({
     return {
       currencies: this.count.get('currencies'),
       users: this.count.get('users'),
+      type: this.type
     };
   },
 
@@ -69,18 +73,20 @@ var AddExpenseView = BaseView.extend({
       };
     }(this)));
 
-    this.$('#input-name')[0].addEventListener('change', (function (_this) {
-      return function (event) {
-        _this.data.name = event.target.value;
-      };
-    }(this)));
-
-    this.$('#input-description')[0].addEventListener('change',
-        (function (_this) {
+    if (this.type !== 'payment') {
+      this.$('#input-name')[0].addEventListener('change', (function (_this) {
         return function (event) {
-          _this.data.description = event.target.value;
+          _this.data.name = event.target.value;
         };
       }(this)));
+
+      this.$('#input-description')[0].addEventListener('change',
+          (function (_this) {
+          return function (event) {
+            _this.data.description = event.target.value;
+          };
+        }(this)));
+    }
   },
 
 
@@ -101,22 +107,26 @@ var AddExpenseView = BaseView.extend({
    * Set the leechers of the expense or "who take part"
    */
   setLeecher: function (event) {
-    var target = this.$(event.target).children().get(0).value,
-      listLeecher = this.data.leecher,
-      leecherIndex = null;
+      var target = this.$(event.target).children().get(0).value,
+        listLeecher = this.data.leecher,
+        leecherIndex = null;
 
-    listLeecher.find(function (element, index) {
-      if (element.name === target) {
-        leecherIndex = index;
-        return true;
+    if (this.type !== 'payment') {
+      listLeecher.find(function (element, index) {
+        if (element.name === target) {
+          leecherIndex = index;
+          return true;
+        }
+        return false;
+      });
+
+      if (leecherIndex === null) {
+        listLeecher.push({name: target});
+      } else {
+        listLeecher.splice(leecherIndex, 1);
       }
-      return false;
-    });
-
-    if (leecherIndex === null) {
-      listLeecher.push({name: target});
     } else {
-      listLeecher.splice(leecherIndex, 1);
+      this.data.leecher = [{name: target}];
     }
   },
 
@@ -140,9 +150,11 @@ var AddExpenseView = BaseView.extend({
 
     this.$('#alert-zone').remove();
     this.$('#add-expense-displayer').prepend('<div id="alert-zone"></div>');
-    if (data.name === null || data.name === undefined) {
-      this.errorMessage('Your expense need a name');
-      error = true;
+    if (this.type !== 'payment') {
+      if (data.name === null || data.name === undefined) {
+        this.errorMessage('Your expense need a name');
+        error = true;
+      }
     }
     if (data.seeder === null || data.seeder === undefined) {
       this.errorMessage('One person must paid');
@@ -159,6 +171,17 @@ var AddExpenseView = BaseView.extend({
       this.errorMessage('You must choose almost one persone who get benefice');
       error = true;
     }
+
+
+    if (this.type === 'payment') {
+      if (data.leecher[0].name === data.seeder) {
+        this.errorMessage('You must choose 2 differentes user');
+        error = true;
+      }
+      this.data.name = data.leecher[0].name + ' repayed ' + data.seeder;
+    }
+
+
     if (error === false) {
       this.sendNewExpense();
     }

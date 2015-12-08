@@ -932,7 +932,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),count = locals_.count,expensePerUser = locals_.expensePerUser;
+;var locals_for_with = (locals || {});(function (count, expensePerUser, undefined) {
 buf.push("<div class=\"panel panel-default\"><div class=\"panel-body\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">Users</div><div class=\"panel-body\"><div id=\"stats-module\"><div class=\"col-md-4\"><div id=\"user-list\" class=\"col-md-12\">");
 // iterate count.users
 ;(function(){
@@ -1042,7 +1042,7 @@ buf.push("</div></div><button class=\"btn btn-default btn-block delete-expense-e
 }).call(this);
 
 }
-buf.push("</div></div></div></div></div>");;return buf.join("");
+buf.push("</div></div></div></div></div>");}.call(this,"count" in locals_for_with?locals_for_with.count:typeof count!=="undefined"?count:undefined,"expensePerUser" in locals_for_with?locals_for_with.expensePerUser:typeof expensePerUser!=="undefined"?expensePerUser:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -1060,7 +1060,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),users = locals_.users,squareMoves = locals_.squareMoves;
+;var locals_for_with = (locals || {});(function (squareMoves, undefined, users) {
 buf.push("<div id=\"square-displayer\" style=\"display: none\" class=\"panel-body\"><label for=\"balancing\">Balancing:</label><ul id=\"balancing\">");
 // iterate users
 ;(function(){
@@ -1133,7 +1133,7 @@ buf.push("<li>[" + (jade.escape((jade_interp = move.from) == null ? '' : jade_in
   }
 }).call(this);
 
-buf.push("</ul></div>");;return buf.join("");
+buf.push("</ul></div>");}.call(this,"squareMoves" in locals_for_with?locals_for_with.squareMoves:typeof squareMoves!=="undefined"?squareMoves:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined,"users" in locals_for_with?locals_for_with.users:typeof users!=="undefined"?users:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
@@ -1392,7 +1392,7 @@ var __templateData = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-var locals_ = (locals || {}),currencies = locals_.currencies,users = locals_.users;
+;var locals_for_with = (locals || {});(function (currencies, undefined, users) {
 buf.push("<form id=\"add-expense-displayer\" class=\"form-group\"><div id=\"alert-zone\"></div><label for=\"input-name\">Expense Name</label><input id=\"input-name\" type=\"text\" placeholder=\"Shopping...\" maxlength=\"40\" required=\"required\" autofocus=\"autofocus\" class=\"form-control\"/><div class=\"form-group\"><label for=\"input-description\">Expense Description</label><textarea id=\"input-description\" rows=\"5\" class=\"form-control\"></textarea></div><div class=\"form-group\"><label for=\"input-amount\">Amount</label><div class=\"input-group\"><input id=\"input-amount\" type=\"number\" placeholder=\"42.21\" aria-label=\"...\" required=\"required\" class=\"form-control\"/><div class=\"input-group-btn\"><button id=\"choose-currency\" type=\"button\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"btn btn-default dropdown-toggle\">" + (jade.escape((jade_interp = currencies[0].name) == null ? '' : jade_interp)) + "</button><ul class=\"dropdown-menu dropdown-menu-right\">");
 // iterate currencies
 ;(function(){
@@ -1462,7 +1462,7 @@ buf.push("<label class=\"btn btn-primary leecher active\"><input type='checkbox'
   }
 }).call(this);
 
-buf.push("</div></div><div class=\"form-group\"><button id=\"add-expense-save\" type=\"submit\" class=\"btn btn-primary btn-block\">Save</button><button id=\"add-expense-cancel\" class=\"btn btn-primary btn-block\">Cancel</button></div></form>");;return buf.join("");
+buf.push("</div></div><div class=\"form-group\"><button id=\"add-expense-save\" type=\"submit\" class=\"btn btn-primary btn-block\">Save</button><button id=\"add-expense-cancel\" class=\"btn btn-primary btn-block\">Cancel</button></div></form>");}.call(this,"currencies" in locals_for_with?locals_for_with.currencies:typeof currencies!=="undefined"?currencies:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined,"users" in locals_for_with?locals_for_with.users:typeof users!=="undefined"?users:undefined));;return buf.join("");
 };
 if (typeof define === 'function' && define.amd) {
   define([], function() {
