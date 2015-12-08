@@ -33,8 +33,9 @@ var Router = Backbone.Router.extend({
 
 
   routes: {
-    ''                  : 'printCount',
-    'new-expense'       : 'newExpense',
+    ''              : 'printCount',
+    'new-expense'   : 'newExpense',
+    'new-repayment' : 'newRepayment',
   },
 
 
@@ -43,6 +44,15 @@ var Router = Backbone.Router.extend({
    */
   newExpense: function (countName) {
     var view = new NewExpense({countName: countName});
+
+    this.displayView(view);
+  },
+
+  /*
+   * Screen for create a new expense
+   */
+  newRepayment: function (countName) {
+    var view = new NewExpense({countName: countName, type: 'payment'});
 
     this.displayView(view);
   },
