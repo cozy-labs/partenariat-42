@@ -1,0 +1,846 @@
+# **************************************************************************** #
+#                                                                              #
+#               YOUR_PROJECT_NAME.fr.yml for YOUR_PROJECT_NAME                 #
+#               Created on : Mon Oct  5 18:10:13 2015                          #
+#               Made by : David "Thor" GIRON <thor@staff.42.fr>                #
+#                                                                              #
+# **************************************************************************** #
+
+# **************************************************************************** #
+#                                                                              #
+#    Les baremes utilises lors des peer-evaluations a 42 prennent la           #
+#  forme d'une description en YAML. Cette description sera alors uploadee par  #
+#  l'equipe pedago sur l'intranet de l'ecole pour generer le formulaire que    #
+#  les etudiants utiliseront pendant les peer-evaluations.                     #
+#                                                                              #
+#    Ce template documente en details la forme et le fond d'une description    #
+#  YAML d'un bareme. Il forme donc un excellent point de depart pour rediger   #
+#  votre propre bareme. N'hesitez pas a supprimer les boites de commentaires   #
+#  qui vous sembleront inutiles dans votre version finale, mais veillez a      #
+#  conserver celles qui delimitent les differents bloc pour rendre la lecture  #
+#  plus confortable pour quiconque interviendra sur ce bareme apres vous.      #
+#                                                                              #
+#    Un bareme est compose d'un bloc header suivi d'un ou plusieurs blocs de   #
+#  section. Chaque bloc de section est compose d'un ou plusieurs blocs de      #
+#  question. Ce decoupage vous permet donc de rassembler des questions ayant   #
+#  un point commun sous une meme section.                                      #
+#                                                                              #
+#    L'ecole 42 utilise un systeme de "skills" inspire des jeux de role pour   #
+#  representer les competences des etudiants. Chaque projet se voit assigner   #
+#  entre 2 et 4 skills qui feront augmenter les points d'experiences de ces    #
+#  skills dans le profil d'un etudiant lorsque celui-ci reussi le projet.      #
+#  Voici la liste exhaustive des skills utilisees a 42 :                       #
+#                                                                              #
+#  - Adaptation & creativity                                                   #
+#  - Algorithms & AI                                                           #
+#  - Company experience                                                        #
+#  - DB & Data                                                                 #
+#  - Functional programming                                                    #
+#  - Graphics                                                                  #
+#  - Group & interpersonal                                                     #
+#  - Imperative programming                                                    #
+#  - Network & system administration                                           #
+#  - Object-oriented programming                                               #
+#  - Organization                                                              #
+#  - Parallel computing                                                        #
+#  - Rigor                                                                     #
+#  - Security                                                                  #
+#  - Technology integration                                                    #
+#  - Unix                                                                      #
+#  - Web                                                                       #
+#                                                                              #
+#    Un bareme associe un total de 100 points pour CHAQUE skill associee au    #
+#  bareme, PAS 100 points pour l'ensemble des skills. Chacun des ensembles de  #
+#  100 points seront repartis sur chaque question. Voyons un exemple simple.   #
+#  Soit un projet "Lube" qui aurait pour skills associees :                    #
+#  "Group & interpersonal", "Adaptation & creativity" et "Web". 100 point      #
+#  sont donc a repartir sur la skill "Group & interpersonal", 100 points sur   #
+#  "Adaptation & creativity", et 100 points sur "Web". Si le bareme comporte   #
+#  2 sections de 3 questions chacunes, on pourrait imaginer la repartition     #
+#  suivante :                                                                  #
+#                                                                              #
+#  Section 1:                                                                  #
+#      Question 1:                                                             #
+#          Group & interpersonal:    0                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                     33                                         #
+#      Question 2:                                                             #
+#          Group & interpersonal:   10                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                     33                                         #
+#      Question 3:                                                             #
+#          Group & interpersonal:    0                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                     34                                         #
+#  Section 2:                                                                  #
+#      Question 1:                                                             #
+#          Group & interpersonal:   33                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                      0                                         #
+#      Question 2:                                                             #
+#          Group & interpersonal:   23                                         #
+#          Adaptation & creativity: 15                                         #
+#          Web:                      0                                         #
+#      Question 3:                                                             #
+#          Group & interpersonal:   34                                         #
+#          Adaptation & creativity:  5                                         #
+#          Web:                      0                                         #
+#                                                                              #
+#    Dans le submodule "resources/" associe a votre depôt, vous trouverez un   #
+#  script "scale_validator.py". Ce script prend en parametre un fichier de     #
+#  description de bareme comme celui que vous etes en train de lire en ce      #
+#  moment et verifie la validite syntaxique et semantique de celui-ci. En cas  #
+#  d'erreur, les parties de votre description posant probleme seront signalees #
+#  pour que vous puissiez les corriger.                                        #
+#                                                                              #
+# **************************************************************************** #
+
+---
+# **************************************************************************** #
+# L'entree 'name':                                                             #
+#   Indiquez ici le nom du projet associe a ce bareme, qui servira             #
+#   egalement de titre pour le formulaire genere.                              #
+# **************************************************************************** #
+name: Friends_with_benefits
+
+
+# **************************************************************************** #
+# L'entree 'is_primary':                                                       #
+#   Cette entree permet de choisir le bareme actif dans le cas ou le projet    #
+#   aurait plusieurs baremes. Cette entree est donc reservee a l'equipe        #
+#   pedagogique de l'ecole et doit etre laissee a la valeur true.              #
+# **************************************************************************** #
+is_primary: true
+
+# **************************************************************************** #
+# L'entree 'lg':                                                               #
+#  C'est la langue utilise pour la correction. La correction doit etre         #
+#  disponible dans la meme langue que le sujet.                                #
+# **************************************************************************** #
+lg: en
+
+
+# **************************************************************************** #
+# L'entree 'comment':                                                          #
+#   Cette entree du bareme n'apparaitra pas dans le formulaire web             #
+#   genere et sert uniquement a ajouter des remarques sur le contenu           #
+#   du bareme. Il est possible de laisser cette entree vide si aucune          #
+#   remarque n'est necessaire concernant ce bareme.                            #
+# **************************************************************************** #
+comment: ''
+
+
+# **************************************************************************** #
+# L'entree 'introduction_md':                                                  #
+#   Cette entree est l'introduction du bareme, c'est a dire la premiere chose  #
+#   que vont lire les etudiants en commencant une peer-evaluation. Il est      #
+#   apprecie de resumer le but du sujet associe a ce bareme ainsi que les      #
+#   regles de bien-sceance a respecter pour le bon deroulement de la           #
+#   soutenance. Dans ce fichier d'exemple, vous trouverez dans cette entree    #
+#   les regles en places actuellement. Vous devez conserver ces informations   #
+#   en l'etat et ne les modifier que si cela est strictement necessaire.       #
+# **************************************************************************** #
+introduction_md: |
+
+  Nous vous demandons pour le bon déroulement de cette évaluation de
+  respecter les règles suivantes :
+
+  - Restez courtois, polis, respectueux et constructifs en toutes
+    situations lors de cet échange. Le lien de confiance entre la
+    communauté 42 et vous en dépend.
+
+  - Mettez en évidence auprès de la personne (ou du groupe) notée les
+    dysfonctionnements éventuels du travail rendu, et prenez le temps
+    d'en discuter et d'en débattre.
+
+  - Acceptez qu'il puisse y avoir parfois des différences
+    d’interprétation sur les demandes du sujet ou l’étendue des
+    fonctionnalités. Restez ouvert d'esprit face à la vision de
+    l'autre (a-t-il ou elle raison ou tort ?), et notez le plus
+    honnêtement possible. La pédagogie de 42 n'a de sens que si
+    la peer-évaluation est faite sérieusement.
+
+
+# **************************************************************************** #
+# L'entree 'disclamer_md':                                                     #
+#   Cette entree est reservee pour informer les participant a la soutenance    #
+#   de certains aspects sensibles ou secret concernant le projet et/ou les     #
+#   technologies utilisees.                                                    #
+#   Dans le cas particulier ou vous redigez ce bareme pour un projet en        #
+#   partenariat avec une entreprise, utilisez cette entree pour rappeler le    #
+#   contexte de ce partanariat, ajouter quelques mots concernant votre         #
+#   entreprise et expliquer vos attentes et vos objectifs.                     #
+#   Dans tous les autres cas, laissez cette entree vide.                       #
+# **************************************************************************** #
+disclaimer_md: "Ce projet est fait dans le cadre d'un partenariat avec
+    l'entreprise Cozy dont le but est de créer des applications open-source pour
+    le grand public. Votre but sera donc de juger ce travail comme le ferait un
+    utilisateur lambda et non comme un développer"
+
+
+# **************************************************************************** #
+# L'entree 'guidelines_md':                                                    #
+#   Cette entree explique les consignes techniques generales pour le bon       #
+#   deroulement de la soutenance. Si vous avez des consignes de rendu          #
+#   speciales exprimees explicitement dans le sujet associe a ce projet,       #
+#   rappellez-les ici. Dans tous les autres cas, laissez les consignes         #
+#   presentes ci-dessous telles quelles.                                       #
+# **************************************************************************** #
+guidelines_md: |
+
+  - Vous ne devez évaluer que ce qui se trouve sur le depôt GiT de rendu
+    de l'étudiant(e) ou du groupe.
+
+  - Prenez soin de vérifier que le depôt GiT est bien celui
+    correspondant a l'étudiant(e) ou au groupe, et au projet.
+
+  - Verifiez méticuleusement qu'aucun alias malicieux n'a été utilisé
+    pour vous induire en erreur et vous faire évaluer autre chose que
+    le contenu du dépot officiel.
+
+  - Tout script sensé faciliter l'évaluation fourni par l'un des deux
+    partis doit être rigoureusement vérifié par l'autre parti pour
+    éviter des mauvaises surprises.
+
+  - Si l'étudiant(e) correcteur/correctrice n'a pas encore fait ce
+    projet, il est obligatoire pour cet(te) etudiant(e) de lire le
+    sujet en entier avant de commencer cette soutenance.
+
+  - Utilisez les flags disponibles sur ce barème pour signaler un
+    rendu vide, non fonctionnel, une faute de norme, un cas de triche,
+    etc. Dans ce cas, l'évaluation est terminée et la note finale est
+    0 (ou -42 dans le cas special de la triche). Toutefois, hors cas
+    de triche, vous etes encouragés a continuer d'échanger autour du
+    travail éffectué (ou non éffectué justement) pour identifier les
+    problemes ayant entrainé cette situation et les éviter pour le
+    prochain rendu.
+
+
+# **************************************************************************** #
+# L'entree 'correction_number':                                                #
+#   Cette entree permet de controler le nombre de peer-evaluations             #
+#   qu'un rendu devra recevoir avant que sa note finale soit                   #
+#   calculee par l'intranet. Cette valeur est la responsabilite de             #
+#   l'equipe pedagogique de l'ecole 42 et ne doit etre modifiee que            #
+#   par un membre de cette equipe.                                             #
+# **************************************************************************** #
+correction_number: 5
+
+
+# **************************************************************************** #
+# L'entree 'correction_number':                                                #
+#   Cette entree permet de controler la duree d'une soutenance.                #
+#   Cette valeur est la responsabilite de l'equipe pedagogique de l'ecole 42   #
+#   et ne doit etre modifiee que par un membre de cette equipe.                #
+# **************************************************************************** #
+duration: 2
+
+
+# **************************************************************************** #
+# L'entree 'sections':                                                         #
+#  Cette entree permet d'indiquer le debut de la liste de sections de ce       #
+#  bareme. Rien a modifier ici.                                                #
+# **************************************************************************** #
+#sections:
+
+
+# **************************************************************************** #
+#                                                                              #
+#                      <Titre de la section 1 du bareme>                       #
+#                                                                              #
+# **************************************************************************** #
+# **************************************************************************** #
+# L'entree 'name':                                                             #
+#   Cette entree permet de renseigner le nom de la section qui sera utilise    #
+#   comme titre du bloc dans le formulaire genere. Notez egalement le          #
+#   caractere '-' devant 'name' qui permet de faire une liste en YAML.         #
+# **************************************************************************** #
+#- name: <Titre de la section 1 du barème>
+
+
+# **************************************************************************** #
+# L'entree 'position':                                                         #
+#  Cette entree permet de controler l'ordre dans lequel les sections seront    #
+#  generees dans le formulaire du bareme sur l'intranet. Elle permet egalement #
+#  de pouvoir changer l'ordre des sections de maniere rapide. La numerotation  #
+#  commence a l'index 1.                                                       #
+# **************************************************************************** #
+  #position: 1
+
+
+# **************************************************************************** #
+# L'entree 'description':                                                      #
+#  Cette entree permet d'expliquer quel aspect du rendu sera evalue dans       #
+#  cette section, ainsi que de renseigner tout ce qui pourrait avoir de        #
+#  l'importance a garder en tete pour chacune des questions qui composent      #
+#  cette section. Si rien de particulier n'est a preciser, cette entree        #
+#  peut rester vide.                                                           #
+# **************************************************************************** #
+  #description: ''
+
+
+# **************************************************************************** #
+# L'entree 'questions':                                                        #
+#  Cette entree permet d'indiquer le debut de la liste de questions de cette   #
+#  section. Rien a modifier ici.                                               #
+# **************************************************************************** #
+  #questions:
+
+
+# **************************************************************************** #
+# L'entree 'name':                                                             #
+#   Cette entree permet de renseigner le nom de la question qui sera utilise   #
+#   comme titre de la question dans le formulaire genere. Notez a nouveau le   #
+#   caractere '-' devant 'name'.                                               #
+# **************************************************************************** #
+  #- name: <Titre de la question 1 de la section 1 du barème>
+
+
+# **************************************************************************** #
+# L'entree 'position':                                                         #
+#   Cette entree permet de controler l'ordre dans lequel les questions seront  #
+#   generees dans leur section du formulaire du bareme sur l'intranet.         #
+#   Elle permet egalement de pouvoir changer l'ordre des questions au sein     #
+#   d'une section de maniere rapide. La numerotation commence a l'index 1.     #
+# **************************************************************************** #
+    #position: 1
+
+
+# **************************************************************************** #
+# L'entree 'guidelines':                                                       #
+#   Cette entree correspond a la question elle-meme. Il s'agit ici d'etre tres #
+#   precis sur ce qui est evalue et dans quelles conditions la question est    #
+#   consideree comme reussie ou echouee.                                       #
+# **************************************************************************** #
+    #guidelines: |
+
+      #Texte de la question 1 de la section 1 du barème.
+
+
+# **************************************************************************** #
+# L'entree 'rating':                                                           #
+#   Cette entree permet de specifier si la question attend une reponse         #
+#   binaire (vraie ou fausse) ou une reponse allant sur une echelle de 0 a 5.  #
+#   Pour une reponse binaire, utilisez la valeur 'bool' pour cette entree.     #
+#   Pour une reponse allant de 0 a 5, utilisez la valeur 'multi' pour cette    #
+#   entree. Attention : si vous choisissez 'multi' n'oubliez pas de specifier  #
+#   dans le texte de la question a quel resultat dans le travail evalue        #
+#   correspond chaque valeur de 0 a 5. Par exemple : 0 -> Rien ne fonctionne,  #
+#   1 -> seul tel aspect fonctionne, ..., 5 -> tout fonctionne parfaitement.   #
+# **************************************************************************** #
+    #rating: bool
+
+
+# **************************************************************************** #
+# L'entree 'kind':                                                             #
+#   Dans l'introduction de ce fichier, j'ai detaille la facon dont les points  #
+#   sont repartis entre les skills: chaque skill doit repartir ses 100 points  #
+#   disponibles sur l'une ou l'autre des questions du bareme. Tout cela est    #
+#   vrai, mais j'ai volontairement passe sous silence la notion de points      #
+#   bonus pour garder les choses simples dans un premier temps. Lorsqu'un(e)   #
+#   etudiant(e) ou un groupe realise entierement le travail attendu sur un     #
+#   projet, il(s) ou elle(s) est/sont encourage(e)(s) a aller plus loin grace  #
+#   a la section 'bonus' du sujet. Les bonus d'un projet sont recompenses en   #
+#   plus des 100 points disponibles par skill. En effet, chaque skill possede  #
+#   en realite 25 points supplementaires reserves pour les bonus.              #
+#   L'entree 'kind' d'un bloc de question permet de controler si les points    #
+#   associes a chaque skill de la question seront decomptes des points         #
+#   normaux (sur 100 donc) ou bien des points bonus (sur 25 donc). Les bonus   #
+#   ne sont absolument pas obligatoires, mais permettent donc a un rendu       #
+#   particulierement bon d'atteindre la note maximale de 125 point pour        #
+#   chaque skill.                                                              #
+#   L'entree 'kind' peut par consequent avoir pour valeur soit 'standard',     #
+#   soit 'bonus'.                                                              #
+#   Attention : quelque soit le 'kind' choisi pour une question, tous les      #
+#   points associes aux skills seront decomptes de la reserve de points        #
+#   correspondante. Il n'est PAS possible de choisir que telle ou telle skill  #
+#   decompte ses points de la reserve ordinaire ou de la reserve bonus pour    #
+#   une question donnee.                                                       #
+# **************************************************************************** #
+    #kind: standard
+
+
+# **************************************************************************** #
+# L'entree 'questions_skills':                                                 #
+#   Cette entree definit un bloc permettant de lister les skills et leurs      #
+#   points associes a cette question. Chaque element de la liste est compose   #
+#   de deux entree : 'percentage' et 'name'. Notez le caractere '-' devant     #
+#   chaque element. Pour une lecture plus simple, je ne detaillerai pas        #
+#   ces deux entree dans la documentation, leur sens etant trivial.            #
+#   Reprenons l'exemple de notre projet "lube", la question 1 de la section    #
+#   verrait ses skills associees a leurs points de la facon suivante:          #
+#   Section 1:                                                                 #
+#       Question 1:                                                            #
+#           Group & interpersonal:    0                                        #
+#           Adaptation & creativity: 20                                        #
+#           Web:                     33                                        #
+# **************************************************************************** #
+    #questions_skills:
+
+    #- percentage: 0
+      #name: Group & interpersonal
+
+    #- percentage: 20
+      #name: Adaptation & creativity
+
+    #- percentage: 33
+      #name: Web
+
+
+# **************************************************************************** #
+#                                                                              #
+#    Et voila, nous avons couvert toutes les entree possibles d'un bareme en   #
+#  details. Pour vous permettre une vision plus synthetique, je vais completer #
+#  ce bareme selon l'exemple propose dans l'introduction sans commentaires     #
+#  supplementaires. Pour memoire:                                              #
+#                                                                              #
+#  Section 1:                                                                  #
+#      Question 1:                                                             #
+#          Group & interpersonal:    0                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                     33                                         #
+#      Question 2:                                                             #
+#          Group & interpersonal:   10                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                     33                                         #
+#      Question 3:                                                             #
+#          Group & interpersonal:    0                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                     34                                         #
+#  Section 2:                                                                  #
+#      Question 1:                                                             #
+#          Group & interpersonal:   33                                         #
+#          Adaptation & creativity: 20                                         #
+#          Web:                      0                                         #
+#      Question 2:                                                             #
+#          Group & interpersonal:   23                                         #
+#          Adaptation & creativity: 15                                         #
+#          Web:                      0                                         #
+#      Question 3:                                                             #
+#          Group & interpersonal:   34                                         #
+#          Adaptation & creativity:  5                                         #
+#          Web:                      0                                         #
+#                                                                              #
+# **************************************************************************** #
+
+# **************************************************************************** #
+#                                                                              #
+#                      <Utilisation Basique>                                   #
+#                                                                              #
+# **************************************************************************** #
+- name: Utilisation Basique
+  position: 1
+
+  description: "Cette partie note les différentes fonctionnalités de base pour
+      une utilisation minimale"
+
+  questions:
+
+
+# **************************************************************************** #
+#                  L'application est elle installable?                         #
+# **************************************************************************** #
+  - name: L'application est elle installable?
+    position: 1
+
+    guidelines: "Dans la VM de dev, essayez d'installer l'application depuis la
+        page Store avec l'url d'un git PUBLIC contenant le l'application.
+        Tout est fonctionnel? Une demande de permissions apparait bien?
+        Si vous aller sur la page Home vous devez voir un nouvelle icone
+        correspondant a l'application. Si vous cliquez dessus l'application
+        se lance sans erreurs?"
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                          Creation d'un wallet                                #
+# **************************************************************************** #
+  - name: Creation d'un wallet
+    position: 2
+
+    guidelines: 'Créez un nouveau wallet puis vérifiez que la liste des wallets
+        soit bien a jour. Si vous rechargez la page le wallet et encore présent?'
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                         Ajout de participants                                #
+# **************************************************************************** #
+  - name: Ajout de participants
+    position: 3
+
+    guidelines: "Allez dans le wallet et ajoutez y un participant. Est il bien
+        bien ajouté a la liste des participants?"
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+
+
+# **************************************************************************** #
+#                         Ajout de dépenses                                    #
+# **************************************************************************** #
+  - name: Ajout de dépenses
+    position: 4
+
+    guidelines: "Ajoutez une dépense au nom de cette utilisateur. L'historique
+        des dépenses est elle bien mise a jour? Le résumé du compte s'est il mis
+        a jour en conséquence?"
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                         Partie Publique                                      #
+# **************************************************************************** #
+  - name: Partie Publique
+    position: 5
+
+    guidelines: "Accedez a la partie publique, vérifiez bien qu'elle soit
+        accessible depuis l'exterieur de Cozy. Y a t'y toutes les informations
+        et actions presentes dans la partie privée? Chaque compte a t'il un espace
+        publique separe?
+        1 -> Ne fonctionne pas.
+        2 -> Fonctionnalités non identique
+        3 -> Fonctionnalités identique mais accés a tout les autres comptes
+        4 -> Fonctionnalités identique / Acces restreint a un wallet mais possibilite
+            de modifier les parametres du wallet
+        5 -> Fonctionnalités identique / Accés restreint a un wallet / Restrictions
+            sur la modification des parametres du wallet ou gestion de droits"
+
+    rating: multi
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                                                                              #
+#                      <Utilisation Avancée>                                   #
+#                                                                              #
+# **************************************************************************** #
+- name: Utilisation Avancée
+  position: 2
+
+  description: "Test sur les fonctionnalités plus poussés et sur la gestion d'erreurs"
+
+  questions:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                        Gestion avancée du wallet                             #
+# **************************************************************************** #
+  - name: Gestion avancée du wallet
+    position: 1
+
+    guidelines: "Changer le nom du wallet créée précedement, tout se met bien a
+        jour? Que ce passe t'il si vous créez un nouveau compte avec le meme nom
+        ou sans noms? Essayer de créer quelques erreurs, rien ne plante?"
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                        Gestion avancée des dépenses                          #
+# **************************************************************************** #
+  - name: Gestion avancée des dépenses
+    position: 2
+
+    guidelines: "Entrez dans un wallet et ajoutez plusieurs utilisateurs. Pour
+        chaque utilisateur ajoutez plusieurs dépenses impliquant plusieurs
+        personnes. L'historique et le résumé doivent etre mis a jour en temps réel
+        avec des valeurs corrects. Que ce passe t'il si laissez des champs vide?
+        Vous rentrez des lettres dans la valeur de la dépense ou une valeur négative?
+        Essayez de créer quelques erreurs, tout est bien géreé?"
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                   Vérification de la balance                                 #
+# **************************************************************************** #
+  - name: Vérification de la balance
+    position: 3
+
+    guidelines: "Vous devez avoir maintenant un wallet avec plusieurs utilisateurs
+        et plusieurs dépenses dans l'historique. Vérifiez que la redistribution des
+        dépenses est juste, prenant bien en compte les dépenses et consommations.
+        La somme de tout les remboursements correspond a la somme des toutes les
+        dépenses de l'historique? Il n'y a pas d'erreurs d'arrondie?"
+
+    rating: bool
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+
+# **************************************************************************** #
+#                                                                              #
+#                       <Aspect global>                                        #
+#                                                                              #
+# **************************************************************************** #
+- name: Aspect global
+  position: 3
+
+  description: "Cette partie note le rendu global du site, est il intuitive?
+      Responsive?"
+
+  questions:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                          Responsive                                          #
+# **************************************************************************** #
+  - name: Responsive
+    position: 1
+
+    guidelines: "Le site est il responsive pour tout les supports? :
+        1 -> Inutilisable (rien de bouge / illisible)
+        2 -> Pas terrible (redimensionnement mal géré)
+        3 -> Utilisable (redimensionnement)
+        4 -> Utilisable correctement (repositionnement / redimensionnement)
+        5 -> Top! (Menu detachable / repositionnement / etc)"
+
+    rating: multi
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                          Experience Utilisateur                              #
+# **************************************************************************** #
+  - name: Experience Utilisateur
+    position: 2
+
+    guidelines: "Le site est il facile a prendre en main? :
+        1 -> J'ai rien compris, l'éleve a du tout m'expliquer
+        2 -> Avec du courage on y arrive
+        3 -> C'est pas claire mais il y a une logique
+        4 -> Tout est claire mais j'ai cherché quelques fonctionnalités
+        5 -> Top! Tout est claire, prise en mains immediate."
+
+    rating: multi
+    kind: standard
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                                                                              #
+#                               <Bonus>                                        #
+#                                                                              #
+# **************************************************************************** #
+- name: Bonus
+  position: 4
+
+  description: ''
+
+  questions:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+# **************************************************************************** #
+#                          Experience Utilisateur                              #
+# **************************************************************************** #
+  - name: Bonus
+    position: 1
+
+    guidelines: "Combien de bonus sont implementes et fonctionnel? :"
+
+    rating: multi
+    kind: bonus
+
+    questions_skills:
+
+    - percentage: 0
+      name: Web
+
+    - percentage: 0
+      name: Adaptation & creativity
+
+    - percentage: 0
+      name: Technology integration
+
+    - percentage: 0
+      name: DB & Data
+
+
+
+# **************************************************************************** #
