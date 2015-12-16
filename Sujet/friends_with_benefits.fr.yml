@@ -175,7 +175,7 @@ introduction_md: |
 disclaimer_md: "Ce projet est fait dans le cadre d'un partenariat avec
     l'entreprise Cozy dont le but est de créer des applications open-source pour
     le grand public. Votre but sera donc de juger ce travail comme le ferait un
-    utilisateur lambda et non comme un développer"
+    utilisateur lambda et non comme un développeur"
 
 
 # **************************************************************************** #
@@ -444,11 +444,11 @@ duration: 2
     position: 1
 
     guidelines: "Dans la VM de dev, essayez d'installer l'application depuis la
-        page Store avec l'url d'un git PUBLIC contenant le l'application.
-        Tout est fonctionnel? Une demande de permissions apparait bien?
-        Si vous aller sur la page Home vous devez voir un nouvelle icone
-        correspondant a l'application. Si vous cliquez dessus l'application
-        se lance sans erreurs?"
+        page Store avec l'url d'un git PUBLIC contenant l'application.
+        L'installation est elle fonctionnel? Est ce qu'une demande de permissions
+        apparait bien?  Si vous allez sur la page Home vous devez voir une nouvelle
+        icone correspondant a l'application. Si vous cliquez dessus l'application
+        se lance-t-elle sans erreurs?"
 
     rating: bool
     kind: standard
@@ -471,11 +471,11 @@ duration: 2
 # **************************************************************************** #
 #                          Creation d'un wallet                                #
 # **************************************************************************** #
-  - name: Creation d'un wallet
+  - name: Création d'un wallet
     position: 2
 
     guidelines: 'Créez un nouveau wallet puis vérifiez que la liste des wallets
-        soit bien a jour. Si vous rechargez la page le wallet et encore présent?'
+        soit bien a jour. Si vous rechargez la page le wallet est-il encore présent?'
 
     rating: bool
     kind: standard
@@ -558,14 +558,14 @@ duration: 2
   - name: Partie Publique
     position: 5
 
-    guidelines: "Accedez a la partie publique, vérifiez bien qu'elle soit
-        accessible depuis l'exterieur de Cozy. Y a t'y toutes les informations
-        et actions presentes dans la partie privée? Chaque compte a t'il un espace
-        publique separe?
+    guidelines: "Accédez a la partie publique, vérifiez bien qu'elle soit
+        accessible depuis l'exterieur de Cozy. Y a t'il toutes les informations
+        et actions présentes dans la partie privée? Chaque compte a t'il un espace
+        publique séparé?
         1 -> Ne fonctionne pas.
-        2 -> Fonctionnalités non identique
-        3 -> Fonctionnalités identique mais accés a tout les autres comptes
-        4 -> Fonctionnalités identique / Acces restreint a un wallet mais possibilite
+        2 -> Manque des fonctionnalités
+        3 -> Fonctionnalités identiques mais accés a tout les autres comptes
+        4 -> Fonctionnalités identiques / Accés restreint a un wallet mais possibilite
             de modifier les parametres du wallet
         5 -> Fonctionnalités identique / Accés restreint a un wallet / Restrictions
             sur la modification des parametres du wallet ou gestion de droits"
@@ -619,9 +619,10 @@ duration: 2
   - name: Gestion avancée du wallet
     position: 1
 
-    guidelines: "Changer le nom du wallet créée précedement, tout se met bien a
+    guidelines: "Changez le nom du wallet créé précedement, tout se met bien a
         jour? Que ce passe t'il si vous créez un nouveau compte avec le meme nom
-        ou sans noms? Essayer de créer quelques erreurs, rien ne plante?"
+        ou si vous essayer de creer un compte sans nom? Essayez de créer quelques
+        erreurs et vérifiez que l'application se comporte correctement."
 
     rating: bool
     kind: standard
@@ -650,9 +651,10 @@ duration: 2
     guidelines: "Entrez dans un wallet et ajoutez plusieurs utilisateurs. Pour
         chaque utilisateur ajoutez plusieurs dépenses impliquant plusieurs
         personnes. L'historique et le résumé doivent etre mis a jour en temps réel
-        avec des valeurs corrects. Que ce passe t'il si laissez des champs vide?
-        Vous rentrez des lettres dans la valeur de la dépense ou une valeur négative?
-        Essayez de créer quelques erreurs, tout est bien géreé?"
+        avec des valeurs correct. Que ce passe t'il si laissez des champs vide, si
+        vous rentrez des lettres dans le champ de la dépense ou si vous entrez
+        une valeur négative? Essayez de créer quelques erreurs et vérifiez que
+        l'application se comporte correctement."
 
     rating: bool
     kind: standard
@@ -679,10 +681,11 @@ duration: 2
     position: 3
 
     guidelines: "Vous devez avoir maintenant un wallet avec plusieurs utilisateurs
-        et plusieurs dépenses dans l'historique. Vérifiez que la redistribution des
-        dépenses est juste, prenant bien en compte les dépenses et consommations.
-        La somme de tout les remboursements correspond a la somme des toutes les
-        dépenses de l'historique? Il n'y a pas d'erreurs d'arrondie?"
+        ainsi que plusieurs dépenses dans l'historique. Vérifiez que la
+        redistribution des dépenses est juste, prenant bien en compte les dépenses
+        et les consommations.  La somme de tout les remboursements correspond elle
+        a la somme des toutes les dépenses de l'historique? Verifiez aussi qu'il
+        n'y ai pas d'erreurs d'arrondie."
 
     rating: bool
     kind: standard
@@ -711,8 +714,7 @@ duration: 2
 - name: Aspect global
   position: 3
 
-  description: "Cette partie note le rendu global du site, est il intuitive?
-      Responsive?"
+  description: "Cette partie note le rendu global du site."
 
   questions:
 
