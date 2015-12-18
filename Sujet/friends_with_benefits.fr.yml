@@ -440,15 +440,16 @@ duration: 2
 # **************************************************************************** #
 #                  L'application est elle installable?                         #
 # **************************************************************************** #
-  - name: L'application est elle installable?
+  - name: L'application est-elle installable?
     position: 1
 
-    guidelines: "Dans la VM de dev, essayez d'installer l'application depuis la
-        page Store avec l'url d'un git PUBLIC contenant l'application.
-        L'installation est elle fonctionnel? Est ce qu'une demande de permissions
-        apparait bien?  Si vous allez sur la page Home vous devez voir une nouvelle
-        icone correspondant a l'application. Si vous cliquez dessus l'application
-        se lance-t-elle sans erreurs?"
+    guidelines: "Dans la VM de développment, essayez d'installer l'application depuis la
+        page Store avec l'url d'un dépôt Github PUBLIC contenant l'application.
+        Est-ce que les permissions sont présentes et claires ?
+        L'installation se déroule-t-elle sans erreur ? (note : réessayer plusieurs fois en cas d'erreur,
+        le problème peut provenir de la plateforme, de Github, etc.)
+        En allant sur la page Home vous devez voir une nouvelle icône correspondant à l'application.
+        En cliquant dessus, l'application se lance-t-elle sans erreur ?"
 
     rating: bool
     kind: standard
@@ -474,8 +475,8 @@ duration: 2
   - name: Création d'un wallet
     position: 2
 
-    guidelines: 'Créez un nouveau wallet puis vérifiez que la liste des wallets
-        soit bien a jour. Si vous rechargez la page le wallet est-il encore présent?'
+    guidelines: 'Créez un nouveau wallet, puis vérifiez que la liste des wallets
+        soit à jour. Après avoir rechargé la page (F5), le wallet est-il encore présent ?'
 
     rating: bool
     kind: standard
@@ -501,8 +502,7 @@ duration: 2
   - name: Ajout de participants
     position: 3
 
-    guidelines: "Allez dans le wallet et ajoutez y un participant. Est il bien
-        bien ajouté a la liste des participants?"
+    guidelines: "Ajoutez un participant dans le wallet. Est-il présent dans la liste des participants ?"
 
     rating: bool
     kind: standard
@@ -530,9 +530,9 @@ duration: 2
   - name: Ajout de dépenses
     position: 4
 
-    guidelines: "Ajoutez une dépense au nom de cette utilisateur. L'historique
-        des dépenses est elle bien mise a jour? Le résumé du compte s'est il mis
-        a jour en conséquence?"
+    guidelines: "Ajoutez une dépense au nom de cet utilisateur. L'historique
+        des dépenses est-il bien mise à jour ? Le résumé du compte s'est-il mis
+        à jour en conséquence ?"
 
     rating: bool
     kind: standard
@@ -559,9 +559,9 @@ duration: 2
     position: 5
 
     guidelines: "Accédez a la partie publique, vérifiez bien qu'elle soit
-        accessible depuis l'exterieur de Cozy. Y a t'il toutes les informations
-        et actions présentes dans la partie privée? Chaque compte a t'il un espace
-        publique séparé?
+        accessible depuis l'exterieur de Cozy (en étant déconncté). Y a-t-il toutes les informations
+        et actions présentes dans la partie privée ? Chaque compte a-t-il un espace
+        publique séparé ?
         1 -> Ne fonctionne pas.
         2 -> Manque des fonctionnalités
         3 -> Fonctionnalités identiques mais accés a tout les autres comptes
@@ -596,7 +596,7 @@ duration: 2
 - name: Utilisation Avancée
   position: 2
 
-  description: "Test sur les fonctionnalités plus poussés et sur la gestion d'erreurs"
+  description: "Test sur les fonctionnalités plus poussées et sur la gestion d'erreurs"
 
   questions:
 
@@ -619,9 +619,9 @@ duration: 2
   - name: Gestion avancée du wallet
     position: 1
 
-    guidelines: "Changez le nom du wallet créé précedement, tout se met bien a
-        jour? Que ce passe t'il si vous créez un nouveau compte avec le meme nom
-        ou si vous essayer de creer un compte sans nom? Essayez de créer quelques
+    guidelines: "Changez le nom du wallet créé précédement. Est-ce que tout est bien
+        mis à jour ? Que se passe-t-il si vous créez un nouveau compte avec le meme nom
+        ou si vous essayer de creer un compte sans nom ? Essayez de créer quelques
         erreurs et vérifiez que l'application se comporte correctement."
 
     rating: bool
@@ -650,10 +650,10 @@ duration: 2
 
     guidelines: "Entrez dans un wallet et ajoutez plusieurs utilisateurs. Pour
         chaque utilisateur ajoutez plusieurs dépenses impliquant plusieurs
-        personnes. L'historique et le résumé doivent etre mis a jour en temps réel
-        avec des valeurs correct. Que ce passe t'il si laissez des champs vide, si
+        personnes. L'historique et le résumé doivent être mis a jour en temps réel
+        avec des valeurs correctes. Que ce passe-t-il si vous laissez des champs vide, si
         vous rentrez des lettres dans le champ de la dépense ou si vous entrez
-        une valeur négative? Essayez de créer quelques erreurs et vérifiez que
+        une valeur négative ? Essayez de créer quelques erreurs et vérifiez que
         l'application se comporte correctement."
 
     rating: bool
@@ -683,9 +683,9 @@ duration: 2
     guidelines: "Vous devez avoir maintenant un wallet avec plusieurs utilisateurs
         ainsi que plusieurs dépenses dans l'historique. Vérifiez que la
         redistribution des dépenses est juste, prenant bien en compte les dépenses
-        et les consommations.  La somme de tout les remboursements correspond elle
-        a la somme des toutes les dépenses de l'historique? Verifiez aussi qu'il
-        n'y ai pas d'erreurs d'arrondie."
+        et les consommations.  La somme de tous les remboursements correspond-elle
+        à la somme des toutes les dépenses de l'historique ? Verifiez aussi qu'il
+        n'y ait pas d'erreur d'arrondi."
 
     rating: bool
     kind: standard
@@ -737,12 +737,12 @@ duration: 2
   - name: Responsive
     position: 1
 
-    guidelines: "Le site est il responsive pour tout les supports? :
+    guidelines: "Le site est il responsive pour tous les supports ? :
         1 -> Inutilisable (rien de bouge / illisible)
         2 -> Pas terrible (redimensionnement mal géré)
         3 -> Utilisable (redimensionnement)
         4 -> Utilisable correctement (repositionnement / redimensionnement)
-        5 -> Top! (Menu detachable / repositionnement / etc)"
+        5 -> Top! (Menu detachable / repositionnement / etc.)"
 
     rating: multi
     kind: standard
@@ -768,12 +768,12 @@ duration: 2
   - name: Experience Utilisateur
     position: 2
 
-    guidelines: "Le site est il facile a prendre en main? :
-        1 -> J'ai rien compris, l'éleve a du tout m'expliquer
+    guidelines: "Le site est-il facile a prendre en main ? :
+        1 -> Je n'ai rien compris, l'élève a du tout m'expliquer
         2 -> Avec du courage on y arrive
-        3 -> C'est pas claire mais il y a une logique
-        4 -> Tout est claire mais j'ai cherché quelques fonctionnalités
-        5 -> Top! Tout est claire, prise en mains immediate."
+        3 -> C'est pas clair, mais il y a une logique
+        4 -> Tout est clair, mais j'ai cherché quelques fonctionnalités
+        5 -> Top ! Tout est clair, prise en mains immediate."
 
     rating: multi
     kind: standard
@@ -824,7 +824,7 @@ duration: 2
   - name: Bonus
     position: 1
 
-    guidelines: "Combien de bonus sont implementes et fonctionnel? :"
+    guidelines: "Combien de bonus sont implementés et fonctionnels ? :"
 
     rating: multi
     kind: bonus
