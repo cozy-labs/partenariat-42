@@ -440,7 +440,7 @@ duration: 2
 # **************************************************************************** #
 #                  L'application est elle installable?                         #
 # **************************************************************************** #
-  - name: L'application est-elle installable?
+  - name: L'application est-elle installable ?
     position: 1
 
     guidelines: "Dans la VM de développment, essayez d'installer l'application depuis la
@@ -559,7 +559,7 @@ duration: 2
     position: 5
 
     guidelines: "Accédez a la partie publique, vérifiez bien qu'elle soit
-        accessible depuis l'exterieur de Cozy (en étant déconncté). Y a-t-il toutes les informations
+        accessible depuis l'exterieur de Cozy (en étant déconnecté). Y a-t-il toutes les informations
         et actions présentes dans la partie privée ? Chaque compte a-t-il un espace
         publique séparé ?
         1 -> Ne fonctionne pas.
@@ -773,7 +773,7 @@ duration: 2
         2 -> Avec du courage on y arrive
         3 -> C'est pas clair, mais il y a une logique
         4 -> Tout est clair, mais j'ai cherché quelques fonctionnalités
-        5 -> Top ! Tout est clair, prise en mains immediate."
+        5 -> Top ! Tout est clair, prise en mains immédiate."
 
     rating: multi
     kind: standard
